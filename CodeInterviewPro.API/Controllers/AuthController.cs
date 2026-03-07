@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
         _hasher = hasher;
         _jwt = jwt;
     }
-
+    //register
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
@@ -42,6 +42,7 @@ public class AuthController : ControllerBase
 
         return Ok("User created");
     }
+    //login
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
