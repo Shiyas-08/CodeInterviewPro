@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="CodeInterviewPro.API/CodeInterviewPro.API.csproj" />
+    <Project Path="CodeInterviewPro.Application/CodeInterviewPro.Application.csproj" />
+    <Project Path="CodeInterviewPro.Domain/CodeInterviewPro.Domain.csproj" />
+    <Project Path="CodeInterviewPro.Infrastructure/CodeInterviewPro.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="CodeInterviewPro.IntegrationTests/CodeInterviewPro.IntegrationTests.csproj" />
+    <Project Path="CodeInterviewPro.UnitTests/CodeInterviewPro.UnitTests.csproj" />
+  </Folder>
+</Solution>
