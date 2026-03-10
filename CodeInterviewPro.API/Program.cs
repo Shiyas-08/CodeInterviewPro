@@ -1,6 +1,7 @@
 using CodeInterviewPro.API.Middleware;
 using CodeInterviewPro.Application;
 using CodeInterviewPro.Infrastructure;
+using CodeInterviewPro.Infrastructure.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +34,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    await AdminSeeder.Seed(scope.ServiceProvider);
+}
+
 app.UseMiddleware<ExceptionMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

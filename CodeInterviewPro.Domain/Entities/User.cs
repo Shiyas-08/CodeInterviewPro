@@ -12,7 +12,7 @@ namespace CodeInterviewPro.Domain.Entities
     {
         public int Id { get; set; }
 
-        public Guid TenantId { get; set; }
+        public Guid? TenantId { get; set; }
 
         public string Email { get; set; }
 
