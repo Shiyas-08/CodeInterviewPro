@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 
 namespace CodeInterviewPro.Application.Interfaces
 {
-    public interface IUserRepository
+    public interface IRefreshTokenRepository
     {
-        Task<User?> GetByEmail(string email);
+        Task CreateAsync(RefreshToken token);
 
-        Task Create(User user);
-        Task<User?> GetById(int id);
+        Task<RefreshToken?> GetByTokenAsync(string token);
+
+        Task RevokeAsync(string token);
+
     }
 }

@@ -32,5 +32,15 @@ namespace CodeInterviewPro.Infrastructure.Repositories
             return await connection.QueryFirstOrDefaultAsync<User>(
                 sql, new { Email = email });
         }
+        public async Task<User?> GetById(int id)
+        {
+            var sql = "SELECT * FROM Users WHERE Id=@Id";
+
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryFirstOrDefaultAsync<User>(
+                sql,
+                new { Id = id });
+        }
     }
 }

@@ -27,8 +27,10 @@ namespace CodeInterviewPro.API.Middleware
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 var responce = new
                 {
-                    message= "An unexpected error occurred.",
-                    statusCode=context.Response.StatusCode,
+                    //message= "An unexpected error occurred.",
+                    message = ex.Message,
+
+                    statusCode = context.Response.StatusCode,
                     time=DateTime.UtcNow
                 };
                 var json = JsonSerializer.Serialize(responce);

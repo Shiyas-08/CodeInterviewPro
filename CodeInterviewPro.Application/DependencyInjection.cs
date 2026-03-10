@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CodeInterviewPro.Application.Interfaces;
+using CodeInterviewPro.Application.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,7 @@ namespace CodeInterviewPro.Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             //register services 
-
+            services.AddScoped<IAdminService, AdminService>();
 
             return services;
         }

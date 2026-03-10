@@ -11,37 +11,47 @@ using System.Threading.Tasks;
 
 namespace CodeInterviewPro.Infrastructure.Services
 {
-    public class JwtService
-    {
-        private IConfiguration _config;
-        public JwtService(IConfiguration config)
+    
+        public class JwtService
         {
-            _config = config;
-        }
-        public string GenerateToken(int userId, UserRole role)
-        {
-            var claims = new[]
+            private IConfiguration _config;
+
+            public JwtService(IConfiguration config)
             {
-        new Claim("uid", userId.ToString()),
-        new Claim("rid", ((int)role).ToString())
-    };
+                _config = config;
+            }
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            public string GenerateToken(int userId, Guid tenantId, UserRole role)
+            {
+                var claims = new[]
+                {
+            new Claim("uid", userId.ToString()),
+            new Claim("rid", ((int)role).ToString()),
+            new Claim("tid", tenantId.ToString())
+        };
 
-            var creds = new SigningCredentials(
-                key,
-                SecurityAlgorithms.HmacSha256);
+                var key = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
 
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30),
-                signingCredentials: creds
-            );
+                var creds = new SigningCredentials(
+                    key,
+                    SecurityAlgorithms.HmacSha256);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+                var token = new JwtSecurityToken(
+                    claims: claims,
+                    expires: DateTime.UtcNow.AddMinutes(30),
+                    signingCredentials: creds
+                );
+
+                return new JwtSecurityTokenHandler().WriteToken(token);
+            }
+
+        public string GenerateToken(int id, UserRole role)
+        {
+            throw new NotImplementedException();
         }
+    }
 
     }
-}
+
 

@@ -17,8 +17,9 @@ namespace CodeInterviewPro.Infrastructure
             //register services 
             services.AddScoped<DapperContext>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<PasswordHasher>();
+            services.AddScoped<IPasswordHasher,PasswordHasher>();
             services.AddScoped<JwtService>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             return services;
 
 
