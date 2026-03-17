@@ -1,11 +1,11 @@
 ﻿using CodeInterviewPro.Application.DTOs;
 using CodeInterviewPro.Application.Interfaces;
 using CodeInterviewPro.Application.Security;
+using CodeInterviewPro.Application.Common.Responses;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
 using CodeInterviewPro.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 [ApiController]
 [Route("api/auth")]
@@ -19,14 +19,16 @@ public class AuthController : ControllerBase
     public AuthController(
         IUserRepository repo,
         IPasswordHasher hasher,
-        JwtService jwt,IRefreshTokenRepository refreshRepo)
+        JwtService jwt,
+        IRefreshTokenRepository refreshRepo)
     {
         _repo = repo;
         _hasher = hasher;
         _jwt = jwt;
         _refreshRepo = refreshRepo;
     }
-    //register
+
+    // REGISTER
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
@@ -43,30 +45,31 @@ public class AuthController : ControllerBase
 
         await _repo.Create(user);
 
-        return Ok("User created");
+        return Ok(ApiResponse<string>.SuccessResponse(
+            null,
+            "User created successfully"));
     }
-    //login
 
+    // LOGIN
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var user = await _repo.GetByEmail(request.Email);
 
         if (user == null)
-            return Unauthorized();
+            return Unauthorized(ApiResponse<string>.Failure("Invalid credentials"));
 
         var valid = _hasher.Verify(request.Password, user.PasswordHash);
 
         if (!valid)
-            return Unauthorized();
+            return Unauthorized(ApiResponse<string>.Failure("Invalid credentials"));
 
         var accessToken = _jwt.GenerateToken(
             user.Id,
             user.TenantId,
             user.Role);
 
-        var refreshTokenValue =
-            RefreshTokenGenerator.Generate();
+        var refreshTokenValue = RefreshTokenGenerator.Generate();
 
         var refreshToken = new RefreshToken
         {
@@ -78,7 +81,6 @@ public class AuthController : ControllerBase
 
         await _refreshRepo.CreateAsync(refreshToken);
 
-        // AccessToken Cookie
         Response.Cookies.Append(
             "accessToken",
             accessToken,
@@ -90,7 +92,6 @@ public class AuthController : ControllerBase
                 Expires = DateTime.UtcNow.AddMinutes(30)
             });
 
-        // RefreshToken Cookie
         Response.Cookies.Append(
             "refreshToken",
             refreshTokenValue,
@@ -102,55 +103,58 @@ public class AuthController : ControllerBase
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
-        return Ok("Login successful");
+        return Ok(ApiResponse<string>.SuccessResponse(
+            null,
+            "Login successful"));
     }
-    //logout 
+
+    // LOGOUT
     [HttpPost("logout")]
     public IActionResult Logout()
     {
         Response.Cookies.Delete("accessToken");
         Response.Cookies.Delete("refreshToken");
 
-        return Ok("Logged out");
+        return Ok(ApiResponse<string>.SuccessResponse(
+            null,
+            "Logged out successfully"));
     }
+
+    // REFRESH TOKEN
     [HttpPost("refresh")]
-public async Task<IActionResult> Refresh()
-{
-    var refreshToken = Request.Cookies["refreshToken"];
+    public async Task<IActionResult> Refresh()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
 
-    if (refreshToken == null)
-        return Unauthorized();
+        if (refreshToken == null)
+            return Unauthorized(ApiResponse<string>.Failure("Refresh token missing"));
 
-    var token = await _refreshRepo.GetByTokenAsync(refreshToken);
+        var token = await _refreshRepo.GetByTokenAsync(refreshToken);
 
-    if (token == null)
-        return Unauthorized();
+        if (token == null || token.IsRevoked || token.ExpiryDate < DateTime.UtcNow)
+            return Unauthorized(ApiResponse<string>.Failure("Invalid refresh token"));
 
-    if (token.IsRevoked)
-        return Unauthorized();
+        var user = await _repo.GetById(token.UserId);
 
-    if (token.ExpiryDate < DateTime.UtcNow)
-        return Unauthorized();
+        if (user == null)
+            return Unauthorized(ApiResponse<string>.Failure("User not found"));
 
-    var user = await _repo.GetById(token.UserId);
+        var newAccessToken =
+            _jwt.GenerateToken(user.Id, user.TenantId, user.Role);
 
-    if (user == null)
-        return Unauthorized();
+        Response.Cookies.Append(
+            "accessToken",
+            newAccessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(30)
+            });
 
-    var newAccessToken =
-        _jwt.GenerateToken(user.Id,user.TenantId, user.Role);
-
-    Response.Cookies.Append(
-        "accessToken",
-        newAccessToken,
-        new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddMinutes(30)
-        });
-
-    return Ok();
-}
+        return Ok(ApiResponse<string>.SuccessResponse(
+            null,
+            "Token refreshed"));
+    }
 }
