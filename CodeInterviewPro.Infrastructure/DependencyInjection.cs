@@ -1,5 +1,8 @@
-﻿using CodeInterviewPro.Application.Interfaces;
+﻿using CodeInterviewPro.Application.Interfaces.Repositories;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Infrastructure.Repositories;
+using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
 using CodeInterviewPro.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -21,6 +24,10 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<JwtService>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<ITenantRepository, TenantRepository>();
+            services.AddScoped<IInterviewRepository, InterviewRepository>();
+            services.AddScoped<IInterviewCandidateRepository, InterviewCandidateRepository>();
+            services.AddScoped<IInterviewInvitationRepository, InterviewInvitationRepository>();
+            services.AddScoped<IInterviewSessionRepository, InterviewSessionRepository>();
             return services;
 
 

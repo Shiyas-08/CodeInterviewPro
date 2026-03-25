@@ -1,5 +1,5 @@
 ﻿using CodeInterviewPro.Application.DTOs;
-using CodeInterviewPro.Application.Interfaces;
+using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Domain.Entities;
 using System;
 using System.Collections.Generic;

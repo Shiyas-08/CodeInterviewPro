@@ -1,12 +1,12 @@
 ﻿using CodeInterviewPro.Application.Common.Responses;
 using CodeInterviewPro.Application.DTOs;
-using CodeInterviewPro.Application.Interfaces;
 using CodeInterviewPro.Application.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeInterviewPro.API.Controllers
 {
+    using CodeInterviewPro.Application.Interfaces.Repositories;
     using CodeInterviewPro.Domain.Entities;
     using Microsoft.AspNetCore.Authorization;
 

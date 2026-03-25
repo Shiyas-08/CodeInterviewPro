@@ -1,0 +1,59 @@
+﻿using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Domain.Entities;
+using Dapper;
+using System.Data;
+
+namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
+{
+    public class InterviewInvitationRepository : IInterviewInvitationRepository
+    {
+        private readonly DapperContext _db;
+
+        public InterviewInvitationRepository(DapperContext db)
+        {
+            _db = db;
+        }
+
+        public async Task CreateAsync(InterviewInvitation invitation)
+        {
+            var sql = @"
+                INSERT INTO InterviewInvitations
+                (TenantId, InterviewId, CandidateId, Token, ExpiryTime, IsUsed)
+                VALUES
+                (@TenantId, @InterviewId, @CandidateId, @Token, @ExpiryTime, 0)
+            ";
+            using var connection = _db.CreateConnection();
+
+            await connection.ExecuteAsync(sql, invitation);
+        }
+
+        public async Task<InterviewInvitation?> GetByTokenAsync(string token)
+        {
+            var sql = @"
+                SELECT *
+                FROM InterviewInvitations
+                WHERE Token = @Token
+                AND IsUsed = 0
+                AND ExpiryTime > GETUTCDATE()
+            ";
+            using var connection = _db.CreateConnection();
+
+            return await connection.QueryFirstOrDefaultAsync<InterviewInvitation>(
+                sql,
+                new { Token = token });
+        }
+
+        public async Task MarkUsedAsync(long id)
+        {
+            var sql = @"
+                UPDATE InterviewInvitations
+                SET IsUsed = 1
+                WHERE Id = @Id
+            ";
+            using var connection = _db.CreateConnection();
+
+
+            await connection.ExecuteAsync(sql, new { Id = id });
+        }
+    }
+}

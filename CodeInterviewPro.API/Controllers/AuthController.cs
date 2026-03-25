@@ -1,11 +1,12 @@
 ﻿using CodeInterviewPro.Application.DTOs;
-using CodeInterviewPro.Application.Interfaces;
 using CodeInterviewPro.Application.Security;
 using CodeInterviewPro.Application.Common.Responses;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
 using CodeInterviewPro.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
+using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Application.Interfaces.Repositories;
 
 [ApiController]
 [Route("api/auth")]

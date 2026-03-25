@@ -1,5 +1,5 @@
 ﻿using CodeInterviewPro.Application.DTOs;
-using CodeInterviewPro.Application.Interfaces;
+using CodeInterviewPro.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;

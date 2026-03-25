@@ -1,4 +1,5 @@
-﻿using CodeInterviewPro.Application.Interfaces;
+﻿using CodeInterviewPro.Application.Interfaces.Repositories;
+using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
 using CodeInterviewPro.Infrastructure.Services;

@@ -1,5 +1,5 @@
 ﻿using BCrypt.Net;
-using CodeInterviewPro.Application.Interfaces;
+using CodeInterviewPro.Application.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;

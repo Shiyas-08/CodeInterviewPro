@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeInterviewPro.Application.Interfaces
+namespace CodeInterviewPro.Application.Interfaces.Repositories
 {
     public interface IUserRepository
     {
