@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CodeInterviewPro.Domain.Common;
-namespace CodeInterviewPro.Domain.Entities
-{
-    public class Tenant : BaseEntity
-    {
-        public Guid Id { get; set; }
 
+namespace CodeInterviewPro.Application.DTOs
+{
+    public class CreateTenantRequest
+    {
         public string Name { get; set; }
 
         public string Domain { get; set; }
-
-        public bool IsActive { get; set; }
     }
 }

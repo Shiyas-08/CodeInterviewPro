@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CodeInterviewPro.Application.Common.Responses;
+using Microsoft.AspNetCore.Http;
 using System.Net;
-using System.Text.Json;
+
 namespace CodeInterviewPro.API.Middleware
 {
     public class ExceptionMiddleware
@@ -8,11 +9,11 @@ namespace CodeInterviewPro.API.Middleware
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
 
-        public ExceptionMiddleware(RequestDelegate next,ILogger<ExceptionMiddleware> logger)
+        public ExceptionMiddleware(RequestDelegate next,
+            ILogger<ExceptionMiddleware> logger)
         {
-            _logger = logger;
             _next = next;
-
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -21,22 +22,27 @@ namespace CodeInterviewPro.API.Middleware
             {
                 await _next(context);
             }
-            catch (Exception ex) {
-                _logger.LogError(ex, "Unhandled exception occurred.");
-                context.Response.ContentType = "application/json";
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                var responce = new
-                {
-                    //message= "An unexpected error occurred.",
-                    message = ex.Message,
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled exception occurred");
 
-                    statusCode = context.Response.StatusCode,
-                    time=DateTime.UtcNow
-                };
-                var json = JsonSerializer.Serialize(responce);
-                await context.Response.WriteAsync(json);
+                context.Response.ContentType = "application/json";
+
+                var statusCode = HttpStatusCode.InternalServerError;
+                var message = ex.Message;
+
+                if (ex.Message.Contains("not found"))
+                    statusCode = HttpStatusCode.NotFound;
+
+                if (ex.Message.Contains("already exists"))
+                    statusCode = HttpStatusCode.BadRequest;
+
+                context.Response.StatusCode = (int)statusCode;
+
+                var response = ApiResponse<string>.Failure(message);
+
+                await context.Response.WriteAsJsonAsync(response);
             }
         }
-        } 
     }
-
+}

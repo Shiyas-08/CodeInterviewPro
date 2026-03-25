@@ -28,16 +28,18 @@ public class AuthController : ControllerBase
         _refreshRepo = refreshRepo;
     }
 
-    // REGISTER
+// register 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
+        var email = request.Email.Trim().ToLower();
+
         var hash = _hasher.Hash(request.Password);
 
         var user = new User
         {
             TenantId = request.TenantId,
-            Email = request.Email,
+            Email = email,
             PasswordHash = hash,
             FullName = request.FullName,
             Role = UserRole.Candidate
@@ -50,19 +52,23 @@ public class AuthController : ControllerBase
             "User created successfully"));
     }
 
-    // LOGIN
+    // login
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var user = await _repo.GetByEmail(request.Email);
+        var email = request.Email.Trim().ToLower();
 
-        if (user == null)
-            return Unauthorized(ApiResponse<string>.Failure("Invalid credentials"));
+        var user = await _repo.GetByEmail(email);
 
-        var valid = _hasher.Verify(request.Password, user.PasswordHash);
+        // Constant-time validation logic
+        bool isValid = user != null &&
+                       _hasher.Verify(request.Password, user.PasswordHash);
 
-        if (!valid)
-            return Unauthorized(ApiResponse<string>.Failure("Invalid credentials"));
+        // Small delay to prevent brute-force timing attacks
+        await Task.Delay(300);
+
+        if (!isValid)
+            return Unauthorized(ApiResponse<string>.Failure("Invalid email or password"));
 
         var accessToken = _jwt.GenerateToken(
             user.Id,
@@ -108,7 +114,7 @@ public class AuthController : ControllerBase
             "Login successful"));
     }
 
-    // LOGOUT
+    // logout
     [HttpPost("logout")]
     public IActionResult Logout()
     {
@@ -120,13 +126,13 @@ public class AuthController : ControllerBase
             "Logged out successfully"));
     }
 
-    // REFRESH TOKEN
+    // refresh token
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh()
     {
         var refreshToken = Request.Cookies["refreshToken"];
 
-        if (refreshToken == null)
+        if (string.IsNullOrEmpty(refreshToken))
             return Unauthorized(ApiResponse<string>.Failure("Refresh token missing"));
 
         var token = await _refreshRepo.GetByTokenAsync(refreshToken);

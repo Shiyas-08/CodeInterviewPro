@@ -1,4 +1,5 @@
 ﻿using CodeInterviewPro.Application.Interfaces;
+using CodeInterviewPro.Application.Security;
 using CodeInterviewPro.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,7 +16,7 @@ namespace CodeInterviewPro.Application
         {
             //register services 
             services.AddScoped<IAdminService, AdminService>();
-
+            services.AddScoped<ITenantService, TenantService>();
             return services;
         }
     }

@@ -20,6 +20,7 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IPasswordHasher,PasswordHasher>();
             services.AddScoped<JwtService>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<ITenantRepository, TenantRepository>();
             return services;
 
 

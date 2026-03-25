@@ -12,7 +12,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ================= AUTHENTICATION =================
+//authentication 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -28,7 +28,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ClockSkew = TimeSpan.Zero
     };
 
-    // Read token from cookies
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -36,16 +35,36 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             var token = context.Request.Cookies["accessToken"];
 
             if (!string.IsNullOrEmpty(token))
-            {
                 context.Token = token;
-            }
 
             return Task.CompletedTask;
+        },
+
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+
+            var response = ApiResponse<string>.Failure("Unauthorized");
+
+            return context.Response.WriteAsJsonAsync(response);
+        },
+
+        OnForbidden = context =>
+        {
+            context.Response.StatusCode = 403;
+            context.Response.ContentType = "application/json";
+
+            var response = ApiResponse<string>.Failure("Forbidden");
+
+            return context.Response.WriteAsJsonAsync(response);
         }
     };
 });
 
-// ================= AUTHORIZATION =================
+// authorization
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly",
@@ -58,7 +77,7 @@ builder.Services.AddAuthorization(options =>
         policy => policy.RequireClaim("rid", "3"));
 });
 
-// ================= VALIDATION RESPONSE =================
+// Validation responce 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -75,32 +94,29 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
-// ================= CONTROLLERS =================
+// services
 builder.Services.AddControllers();
-
-// ================= FLUENT VALIDATION =================
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
-// ================= APPLICATION + INFRA =================
-builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddScoped<DapperContext>(); // ? FIXED
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-// ================= SWAGGER =================
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// ================= SEED DATA =================
+// seed
 using (var scope = app.Services.CreateScope())
 {
     await AdminSeeder.Seed(scope.ServiceProvider);
 }
 
-// ================= MIDDLEWARE =================
-app.UseMiddleware<ExceptionMiddleware>();
+// midleware
+app.UseMiddleware<ExceptionMiddleware>(); 
 
 if (app.Environment.IsDevelopment())
 {
