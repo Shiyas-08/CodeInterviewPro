@@ -2,6 +2,7 @@
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System.Data;
+using System.Data.Common;
 
 namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
 {
@@ -54,6 +55,18 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
 
 
             await connection.ExecuteAsync(sql, new { Id = id });
+        }
+        public async Task UpdateAsync(InterviewInvitation invitation)
+        {
+            var sql = @"
+        UPDATE InterviewInvitations
+        SET IsUsed = @IsUsed,
+            StartedAt = @StartedAt
+        WHERE Id = @Id
+    ";
+            using var connection = _db.CreateConnection();
+
+            await connection.ExecuteAsync(sql, invitation);
         }
     }
 }

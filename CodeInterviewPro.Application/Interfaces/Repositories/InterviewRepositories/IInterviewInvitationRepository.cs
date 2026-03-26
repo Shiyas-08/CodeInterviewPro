@@ -14,5 +14,7 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewsReposit
         Task<InterviewInvitation?> GetByTokenAsync(string token);
 
         Task MarkUsedAsync(long id);
+        Task UpdateAsync(InterviewInvitation invitation);
+
     }
 }

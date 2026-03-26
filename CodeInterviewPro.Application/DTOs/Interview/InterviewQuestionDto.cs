@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CodeInterviewPro.Application.DTOs.Interview
+{
+    public class InterviewQuestionDto
+    {
+        public long QuestionId { get; set; }
+
+        public string Title { get; set; } = string.Empty;
+
+        public string Description { get; set; } = string.Empty;
+
+        public int Marks { get; set; }
+    }
+}

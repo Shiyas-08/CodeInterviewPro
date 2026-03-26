@@ -19,10 +19,11 @@ namespace CodeInterviewPro.Infrastructure.Services
         public string GenerateToken(int userId, Guid? tenantId, UserRole role)
         {
             var claims = new List<Claim>
-            {
-                new Claim("uid", userId.ToString()),
-                new Claim("rid", ((int)role).ToString())
-            };
+    {
+        new Claim("uid", userId.ToString()),
+        new Claim("rid", ((int)role).ToString()),
+        new Claim(ClaimTypes.Role, role.ToString()) 
+    };
 
             // Add tenant claim only if exists
             if (tenantId.HasValue)

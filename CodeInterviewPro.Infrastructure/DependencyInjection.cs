@@ -28,6 +28,7 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IInterviewCandidateRepository, InterviewCandidateRepository>();
             services.AddScoped<IInterviewInvitationRepository, InterviewInvitationRepository>();
             services.AddScoped<IInterviewSessionRepository, InterviewSessionRepository>();
+            services.AddScoped<IInterviewQuestionRepository, InterviewQuestionRepository>();
             return services;
 
 

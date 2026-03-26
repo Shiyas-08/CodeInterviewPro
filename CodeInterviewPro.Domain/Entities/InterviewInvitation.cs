@@ -21,5 +21,6 @@ namespace CodeInterviewPro.Domain.Entities
         public DateTime ExpiryTime { get; set; }
 
         public bool IsUsed { get; set; }
+        public DateTime? StartedAt { get; set; }
     }
 }

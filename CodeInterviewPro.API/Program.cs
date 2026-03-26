@@ -106,7 +106,7 @@ builder.Services.AddInfrastructure();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // seed

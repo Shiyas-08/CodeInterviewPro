@@ -4,6 +4,7 @@ using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,6 +83,20 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
             using var connection = _db.CreateConnection();
 
             await connection.ExecuteAsync(sql, interview);
+        }
+        public async Task<Interview?> GetByTokenAsync(string token)
+        {
+            var sql = @"
+        SELECT *
+        FROM Interviews
+        WHERE SecureToken = @Token
+    ";
+            using var connection = _db.CreateConnection();
+
+            return await connection.QueryFirstOrDefaultAsync<Interview>(
+                sql,
+                new { Token = token }
+            );
         }
     }
 

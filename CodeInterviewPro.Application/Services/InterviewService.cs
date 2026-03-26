@@ -5,6 +5,7 @@ using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
 using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
+using Microsoft.AspNetCore.Http;
 
 namespace CodeInterviewPro.Infrastructure.Services
 {
@@ -14,17 +15,32 @@ namespace CodeInterviewPro.Infrastructure.Services
         private readonly IInterviewCandidateRepository _candidateRepo;
         private readonly IInterviewInvitationRepository _invitationRepo;
         private readonly IUserRepository _userRepo;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public InterviewService(
             IInterviewRepository interviewRepo,
             IInterviewCandidateRepository candidateRepo,
             IInterviewInvitationRepository invitationRepo,
-            IUserRepository userRepo)
+            IUserRepository userRepo,
+            IHttpContextAccessor httpContextAccessor)
         {
             _interviewRepo = interviewRepo;
             _candidateRepo = candidateRepo;
             _invitationRepo = invitationRepo;
             _userRepo = userRepo;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private long GetTenantId()
+        {
+            var tenantId = _httpContextAccessor
+                .HttpContext?
+                .User?
+                .FindFirst("tid")?.Value;
+
+            return string.IsNullOrEmpty(tenantId)
+                ? 0
+                : long.Parse(tenantId);
         }
 
         // CREATE INTERVIEW
@@ -38,6 +54,7 @@ namespace CodeInterviewPro.Infrastructure.Services
 
             var interview = new Interview
             {
+                TenantId = GetTenantId(),
                 Title = dto.Title,
                 Description = dto.Description,
                 DurationMinutes = dto.DurationMinutes,
@@ -52,8 +69,9 @@ namespace CodeInterviewPro.Infrastructure.Services
         // ASSIGN CANDIDATE
         public async Task AssignCandidateAsync(long interviewId, AssignCandidateDto dto)
         {
-            // Interview validation
-            var interview = await _interviewRepo.GetByIdAsync(interviewId, 0);
+            var tenantId = GetTenantId();
+
+            var interview = await _interviewRepo.GetByIdAsync(interviewId, tenantId);
 
             if (interview == null)
                 throw new Exception("Interview not found");
@@ -61,7 +79,6 @@ namespace CodeInterviewPro.Infrastructure.Services
             if (interview.Status == (int)InterviewStatus.Completed)
                 throw new Exception("Interview already completed");
 
-            // Candidate validation
             var candidate = await _userRepo.GetById(dto.CandidateId);
 
             if (candidate == null)
@@ -70,11 +87,10 @@ namespace CodeInterviewPro.Infrastructure.Services
             if (candidate.Role != UserRole.Candidate)
                 throw new Exception("Invalid candidate");
 
-            // Duplicate check
             var existing = await _candidateRepo.GetAsync(
                 interviewId,
                 dto.CandidateId,
-                0);
+                tenantId);
 
             if (existing != null)
                 throw new Exception("Candidate already assigned");
@@ -93,7 +109,9 @@ namespace CodeInterviewPro.Infrastructure.Services
         // SCHEDULE
         public async Task ScheduleAsync(long interviewId, ScheduleInterviewDto dto)
         {
-            var interview = await _interviewRepo.GetByIdAsync(interviewId, 0);
+            var tenantId = GetTenantId();
+
+            var interview = await _interviewRepo.GetByIdAsync(interviewId, tenantId);
 
             if (interview == null)
                 throw new Exception("Interview not found");
@@ -112,18 +130,19 @@ namespace CodeInterviewPro.Infrastructure.Services
         }
 
         // GENERATE LINK
-        public async Task<string> GenerateLinkAsync(long interviewId, GenerateLinkDto dto)
+        public async Task<GenerateLinkResponse> GenerateLinkAsync(long interviewId, GenerateLinkDto dto)
         {
-            var interview = await _interviewRepo.GetByIdAsync(interviewId, 0);
+            var tenantId = GetTenantId();
+
+            var interview = await _interviewRepo.GetByIdAsync(interviewId, tenantId);
 
             if (interview == null)
                 throw new Exception("Interview not found");
 
-            // Candidate assigned check
             var assigned = await _candidateRepo.GetAsync(
                 interviewId,
                 dto.CandidateId,
-                0);
+                tenantId);
 
             if (assigned == null)
                 throw new Exception("Candidate not assigned");
@@ -144,7 +163,12 @@ namespace CodeInterviewPro.Infrastructure.Services
 
             await _invitationRepo.CreateAsync(invitation);
 
-            return token;
+            return new GenerateLinkResponse
+            {
+                Token = token,
+                Link = $"https://localhost:5001/interview/{token}",
+                ExpiryTime = dto.ExpiryTime
+            };
         }
     }
 }

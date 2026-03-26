@@ -1,12 +1,14 @@
 ﻿using CodeInterviewPro.Application.Common.Responses;
 using CodeInterviewPro.Application.DTOs.Interview;
 using CodeInterviewPro.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeInterviewPro.API.Controllers
 {
     [ApiController]
     [Route("api/interviews")]
+    [Authorize(Roles = "SuperAdmin,HR")]    
     public class InterviewsController : ControllerBase
     {
         private readonly IInterviewService _service;
@@ -59,10 +61,10 @@ namespace CodeInterviewPro.API.Controllers
             long id,
             GenerateLinkDto dto)
         {
-            var token = await _service.GenerateLinkAsync(id, dto);
+            var result = await _service.GenerateLinkAsync(id, dto);
 
-            return Ok(ApiResponse<string>.SuccessResponse(
-                token,
+            return Ok(ApiResponse<GenerateLinkResponse>.SuccessResponse(
+                result,
                 "Link generated successfully"));
         }
     }
