@@ -11,9 +11,9 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
     {
         Task<long> CreateAsync(Interview interview);
 
-        Task<Interview> GetByIdAsync(long id, long tenantId);
+        Task<Interview> GetByIdAsync(long id, Guid tenantId);
 
-        Task<IEnumerable<Interview>> GetAllAsync(long tenantId);
+        Task<IEnumerable<Interview>> GetAllAsync(Guid tenantId);
 
         Task UpdateAsync(Interview interview);
     }

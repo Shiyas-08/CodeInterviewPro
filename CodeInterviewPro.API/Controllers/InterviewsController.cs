@@ -42,6 +42,16 @@ namespace CodeInterviewPro.API.Controllers
                 "Candidate assigned successfully"));
         }
 
+
+        [HttpPost("{id}/questions")]
+        public async Task<IActionResult> AssignQuestions( long id, AssignQuestionsDto dto)
+        {
+            await _service.AssignQuestionsAsync(id, dto);
+
+            return Ok(ApiResponse<string>.SuccessResponse(
+                null,
+                "Questions assigned successfully"));
+        }
         // Schedule Interview
         [HttpPut("{id}/schedule")]
         public async Task<IActionResult> Schedule(

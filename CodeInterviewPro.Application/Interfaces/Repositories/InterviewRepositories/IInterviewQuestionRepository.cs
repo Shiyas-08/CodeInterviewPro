@@ -12,5 +12,12 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewsReposit
     public interface IInterviewQuestionRepository
     {
         Task<IEnumerable<InterviewQuestionDto>> GetByInterviewIdAsync(long interviewId);
+
+        Task AssignQuestionsAsync(
+            long interviewId,
+            Guid tenantId,
+            List<QuestionItem> questions);
     }
+
+
 }

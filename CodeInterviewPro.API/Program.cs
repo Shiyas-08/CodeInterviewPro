@@ -8,6 +8,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -99,7 +100,14 @@ builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
-builder.Services.AddScoped<DapperContext>(); // ? FIXED
+builder.Services.AddScoped<DapperContext>();
+
+builder.Services.AddScoped<IDbConnection>(sp =>
+{
+    var context = sp.GetRequiredService<DapperContext>();
+    return context.CreateConnection();
+});
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 

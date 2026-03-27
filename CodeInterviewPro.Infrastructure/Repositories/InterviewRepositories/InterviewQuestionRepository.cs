@@ -40,6 +40,27 @@ using System.Threading.Tasks;
                 query,
                 new { InterviewId = interviewId });
         }
+        public async Task AssignQuestionsAsync( long interviewId,Guid tenantId,List<QuestionItem> questions)
+        {
+            var sql = @"
+        INSERT INTO InterviewQuestions
+        (TenantId, InterviewId, QuestionId, Marks)
+        VALUES
+        (@TenantId, @InterviewId, @QuestionId, @Marks)";
+
+            using var connection = _context.CreateConnection();
+
+            foreach (var q in questions)
+            {
+                await connection.ExecuteAsync(sql, new
+                {
+                    TenantId = tenantId,
+                    InterviewId = interviewId,
+                    QuestionId = q.QuestionId,
+                    Marks = q.Marks
+                });
+            }
+        }
 
     }
     }

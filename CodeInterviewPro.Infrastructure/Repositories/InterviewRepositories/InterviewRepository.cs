@@ -34,7 +34,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
 
             return await connection.ExecuteScalarAsync<long>(sql,interview);
         }
-        public async Task<Interview?> GetByIdAsync(long id, long tenantId)
+        public async Task<Interview?> GetByIdAsync(long id, Guid tenantId)
         {
             var sql = @"
                 SELECT * 
@@ -50,7 +50,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
                 new { Id = id, TenantId = tenantId });
         }
 
-        public async Task<IEnumerable<Interview>> GetAllAsync(long tenantId)
+        public async Task<IEnumerable<Interview>> GetAllAsync(Guid tenantId)
         {
             var sql = @"
                 SELECT * 

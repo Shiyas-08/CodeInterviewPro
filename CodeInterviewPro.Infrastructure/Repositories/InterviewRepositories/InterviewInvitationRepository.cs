@@ -31,12 +31,12 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
         public async Task<InterviewInvitation?> GetByTokenAsync(string token)
         {
             var sql = @"
-                SELECT *
-                FROM InterviewInvitations
-                WHERE Token = @Token
-                AND IsUsed = 0
-                AND ExpiryTime > GETUTCDATE()
-            ";
+        SELECT *
+        FROM InterviewInvitations
+        WHERE Token = @Token
+        AND ExpiryTime > GETUTCDATE()
+    ";
+
             using var connection = _db.CreateConnection();
 
             return await connection.QueryFirstOrDefaultAsync<InterviewInvitation>(

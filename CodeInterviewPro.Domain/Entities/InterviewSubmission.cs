@@ -6,21 +6,20 @@ using System.Threading.Tasks;
 
 namespace CodeInterviewPro.Domain.Entities
 {
-    public class InterviewInvitation
+    public class InterviewSubmission
     {
         public long Id { get; set; }
 
-        public Guid TenantId { get; set; }
-
         public long InterviewId { get; set; }
+
+        public long QuestionId { get; set; }
 
         public long CandidateId { get; set; }
 
-        public string Token { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
 
-        public DateTime ExpiryTime { get; set; }
+        public string Code { get; set; } = string.Empty;
 
-        public bool IsUsed { get; set; }
-        public DateTime? StartedAt { get; set; }
+        public DateTime SubmittedAt { get; set; }
     }
 }

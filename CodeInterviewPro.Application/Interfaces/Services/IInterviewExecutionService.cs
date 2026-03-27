@@ -13,5 +13,6 @@ namespace CodeInterviewPro.Application.Interfaces.Services
         Task<JoinInterviewResponse> JoinInterviewAsync(string token);
         Task<StartInterviewResponse> StartInterviewAsync(string token);
         Task<List<GetQuestionsResponse>> GetQuestionsAsync(string token);
+        Task<SubmitCodeResponse> SubmitCodeAsync(SubmitCodeRequest request);
     }
 }

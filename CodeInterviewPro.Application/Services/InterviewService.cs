@@ -16,31 +16,37 @@ namespace CodeInterviewPro.Infrastructure.Services
         private readonly IInterviewInvitationRepository _invitationRepo;
         private readonly IUserRepository _userRepo;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IInterviewQuestionRepository _questionRepo;
 
         public InterviewService(
             IInterviewRepository interviewRepo,
             IInterviewCandidateRepository candidateRepo,
             IInterviewInvitationRepository invitationRepo,
             IUserRepository userRepo,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IInterviewQuestionRepository questionRepo)
         {
             _interviewRepo = interviewRepo;
             _candidateRepo = candidateRepo;
             _invitationRepo = invitationRepo;
             _userRepo = userRepo;
             _httpContextAccessor = httpContextAccessor;
+            _questionRepo = questionRepo;
         }
-
-        private long GetTenantId()
+        private Guid GetTenantId()
         {
-            var tenantId = _httpContextAccessor
-                .HttpContext?
-                .User?
-                .FindFirst("tid")?.Value;
+            var claims = _httpContextAccessor.HttpContext?.User?.Claims;
 
-            return string.IsNullOrEmpty(tenantId)
-                ? 0
-                : long.Parse(tenantId);
+            var tenantClaim = claims?
+                .FirstOrDefault(x =>
+                    x.Type == "tid" ||
+                    x.Type == "tenantid" ||
+                    x.Type == "http://schemas.microsoft.com/identity/claims/tenantid");
+
+            if (tenantClaim == null)
+                throw new Exception("TenantId not found in token");
+
+            return Guid.Parse(tenantClaim.Value);
         }
 
         // CREATE INTERVIEW
@@ -97,6 +103,7 @@ namespace CodeInterviewPro.Infrastructure.Services
 
             var entity = new InterviewCandidate
             {
+                TenantId = tenantId,   
                 InterviewId = interviewId,
                 CandidateId = dto.CandidateId,
                 Status = (int)InterviewCandidateStatus.Invited,
@@ -154,6 +161,7 @@ namespace CodeInterviewPro.Infrastructure.Services
 
             var invitation = new InterviewInvitation
             {
+                TenantId = tenantId,  // FIXED
                 InterviewId = interviewId,
                 CandidateId = dto.CandidateId,
                 Token = token,
@@ -169,6 +177,28 @@ namespace CodeInterviewPro.Infrastructure.Services
                 Link = $"https://localhost:5001/interview/{token}",
                 ExpiryTime = dto.ExpiryTime
             };
+        }
+
+        // ASSIGN QUESTIONS
+        public async Task AssignQuestionsAsync(
+            long interviewId,
+            AssignQuestionsDto dto)
+        {
+            var tenantId = GetTenantId();
+
+            var interview = await _interviewRepo
+                .GetByIdAsync(interviewId, tenantId);
+
+            if (interview == null)
+                throw new Exception("Interview not found");
+
+            if (dto.Questions == null || !dto.Questions.Any())
+                throw new Exception("Questions required");
+
+            await _questionRepo.AssignQuestionsAsync(
+                interviewId,
+                tenantId,
+                dto.Questions);
         }
     }
 }

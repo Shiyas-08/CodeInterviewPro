@@ -1,53 +1,68 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+﻿using CodeInterviewPro.Application.Interfaces.Repositories;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System.Data;
 
-namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
+namespace CodeInterviewPro.Infrastructure.Repositories
 {
     public class InterviewSessionRepository : IInterviewSessionRepository
     {
-        private readonly DapperContext _db;
+        private readonly IDbConnection _db;
 
-        public InterviewSessionRepository(DapperContext db)
+        public InterviewSessionRepository(IDbConnection db)
         {
             _db = db;
         }
 
-        public async Task CreateAsync(InterviewSession session)
+        public async Task<long> CreateAsync(InterviewSession session)
         {
             var sql = @"
                 INSERT INTO InterviewSessions
-                (TenantId, InterviewId, CandidateId, StartTime, Status)
+                (
+                    TenantId,
+                    InterviewId,
+                    CandidateId,
+                    Token,
+                    StartTime,
+                    DurationMinutes,
+                    RemainingSeconds,
+                    Status,
+                    IsActive,
+                    CreatedAt
+                )
                 VALUES
-                (@TenantId, @InterviewId, @CandidateId, @StartTime, @Status)
+                (
+                    @TenantId,
+                    @InterviewId,
+                    @CandidateId,
+                    @Token,
+                    @StartTime,
+                    @DurationMinutes,
+                    @RemainingSeconds,
+                    @Status,
+                    @IsActive,
+                    @CreatedAt
+                );
+
+                SELECT CAST(SCOPE_IDENTITY() as bigint);
             ";
-            using var connection = _db.CreateConnection();
 
-
-            await connection.ExecuteAsync(sql, session);
+            return await _db.ExecuteScalarAsync<long>(sql, session);
         }
 
-        public async Task<InterviewSession?>
-            GetAsync(long interviewId, long candidateId, long tenantId)
+        public async Task<InterviewSession?> GetByTokenAsync(string token)
         {
             var sql = @"
-                SELECT *
+                SELECT * 
                 FROM InterviewSessions
-                WHERE InterviewId = @InterviewId
-                AND CandidateId = @CandidateId
-                AND TenantId = @TenantId
+                WHERE Token = @Token
+                AND IsActive = 1
             ";
-            using var connection = _db.CreateConnection();
 
-            return await connection.QueryFirstOrDefaultAsync<InterviewSession>(
+            return await _db.QueryFirstOrDefaultAsync<InterviewSession>(
                 sql,
-                new
-                {
-                    InterviewId = interviewId,
-                    CandidateId = candidateId,
-                    TenantId = tenantId
-                });
+                new { Token = token });
         }
 
         public async Task UpdateAsync(InterviewSession session)
@@ -57,12 +72,12 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
                 SET
                     StartTime = @StartTime,
                     EndTime = @EndTime,
+                    RemainingSeconds = @RemainingSeconds,
                     Status = @Status
                 WHERE Id = @Id
             ";
-            using var connection = _db.CreateConnection();
 
-            await connection.ExecuteAsync(sql, session);
+            await _db.ExecuteAsync(sql, session);
         }
     }
 }

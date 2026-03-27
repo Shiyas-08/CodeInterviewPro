@@ -10,7 +10,7 @@ namespace CodeInterviewPro.Domain.Entities
     {
         public long Id { get; set; }
 
-        public long TenantId { get; set; }
+        public Guid TenantId { get; set; }
 
         public long InterviewId { get; set; }
 

@@ -37,10 +37,18 @@ namespace CodeInterviewPro.API.Controllers
 
         [AllowAnonymous]
         [HttpPost("questions")]
-        public async Task<IActionResult> GetQuestions(
-    GetQuestionsRequest request)
+        public async Task<IActionResult> GetQuestions(GetQuestionsRequest request)
         {
             var result = await _service.GetQuestionsAsync(request.Token);
+
+            return Ok(result);
+        }
+        [AllowAnonymous]
+        [HttpPost("submit")]
+        public async Task<IActionResult> Submit(SubmitCodeRequest request)
+        {
+            var result = await
+                _service.SubmitCodeAsync(request);
 
             return Ok(result);
         }

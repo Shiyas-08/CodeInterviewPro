@@ -1,4 +1,5 @@
 ﻿using CodeInterviewPro.Application.Interfaces.Repositories;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Infrastructure.Repositories;
@@ -29,6 +30,8 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IInterviewInvitationRepository, InterviewInvitationRepository>();
             services.AddScoped<IInterviewSessionRepository, InterviewSessionRepository>();
             services.AddScoped<IInterviewQuestionRepository, InterviewQuestionRepository>();
+            services.AddScoped< IInterviewSubmissionRepository,InterviewSubmissionRepository>();
+
             return services;
 
 
