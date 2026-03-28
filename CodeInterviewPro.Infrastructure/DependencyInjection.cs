@@ -2,8 +2,11 @@
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Domain.Common.Interfaces;
+using CodeInterviewPro.Infrastructure.Identity;
 using CodeInterviewPro.Infrastructure.Repositories;
 using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
+using CodeInterviewPro.Infrastructure.Repositories.QuestionRepositories;
 using CodeInterviewPro.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -31,6 +34,9 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IInterviewSessionRepository, InterviewSessionRepository>();
             services.AddScoped<IInterviewQuestionRepository, InterviewQuestionRepository>();
             services.AddScoped< IInterviewSubmissionRepository,InterviewSubmissionRepository>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<IUserContext, UserContext>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
 
             return services;
 

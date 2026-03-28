@@ -22,6 +22,7 @@ namespace CodeInterviewPro.Application
             services.AddScoped<IInterviewService,InterviewService>();
             services.AddScoped<IInterviewExecutionService, InterviewExecutionService>();
             services.AddScoped<IInterviewSessionService, InterviewSessionService>();
+            services.AddScoped<IQuestionService, QuestionService>();
             return services;
         }
     }
