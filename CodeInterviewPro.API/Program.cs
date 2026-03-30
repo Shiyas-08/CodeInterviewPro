@@ -3,12 +3,14 @@ using CodeInterviewPro.API.Middleware;
 using CodeInterviewPro.Application;
 using CodeInterviewPro.Application.Common.Responses;
 using CodeInterviewPro.Infrastructure;
+using CodeInterviewPro.Infrastructure.Cache;
 using CodeInterviewPro.Infrastructure.Seed;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System.Data;
 using System.Text;
 
@@ -78,7 +80,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CandidateOnly",
         policy => policy.RequireClaim("rid", "3"));
 });
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect("localhost:6379"));
 
+builder.Services.AddScoped<RedisService>();
 // Validation responce 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {

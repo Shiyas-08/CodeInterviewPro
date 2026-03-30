@@ -3,6 +3,7 @@ using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
+using CodeInterviewPro.Infrastructure.CodeExecution;
 using CodeInterviewPro.Infrastructure.Identity;
 using CodeInterviewPro.Infrastructure.Repositories;
 using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
@@ -37,6 +38,8 @@ namespace CodeInterviewPro.Infrastructure
             services.AddHttpContextAccessor();
             services.AddScoped<IUserContext, UserContext>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
+            services.AddScoped<CodeExecutionService>();
+            services.AddScoped<DockerCodeExecutionService>();
 
             return services;
 
