@@ -1,3 +1,4 @@
+using CodeInterviewPro.API.Hubs;
 using CodeInterviewPro.API.Middleware;
 using CodeInterviewPro.Application;
 using CodeInterviewPro.Application.Common.Responses;
@@ -97,6 +98,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
 // services
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
+
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
@@ -110,7 +113,6 @@ builder.Services.AddScoped<IDbConnection>(sp =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -138,5 +140,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<InterviewHub>("/interviewHub");
 
 app.Run();
