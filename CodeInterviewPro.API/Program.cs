@@ -81,7 +81,7 @@ builder.Services.AddAuthorization(options =>
         policy => policy.RequireClaim("rid", "3"));
 });
 builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect("localhost:6379"));
+    ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false"));
 
 builder.Services.AddScoped<RedisService>();
 // Validation responce 

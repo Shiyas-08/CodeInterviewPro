@@ -29,15 +29,15 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                 Path.Combine(tempFolder, "Program.cs");
 
             var fullCode = $@"
-using System;
+                using System;
 
-class Program
-{{
-    static void Main()
-    {{
-        {code}
-    }}
-}}";
+                class Program
+                {{
+                    static void Main()
+                    {{
+                        {code}
+                    }}
+                }}";
 
             await File.WriteAllTextAsync(programFile, fullCode);
 

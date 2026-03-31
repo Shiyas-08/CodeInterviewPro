@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CodeInterviewPro.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,10 @@ namespace CodeInterviewPro.Application.DTOs.CodeExecutionRequest
 {
     public class CodeExecutionRequest
     {
-        public string Code { get; set; } = string.Empty;
+        public string Code { get; set; }
 
+        public ProgrammingLanguage Language { get; set; }
+
+        public string Input { get; set; }
     }
 }

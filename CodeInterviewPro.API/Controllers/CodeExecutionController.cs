@@ -8,10 +8,10 @@ namespace CodeInterviewPro.API.Controllers
     [Route("api/[controller]")]
     public class CodeExecutionController : ControllerBase
     {
-        private readonly DockerCodeExecutionService _service;
+        private readonly MultiLanguageExecutionService _service;
 
         public CodeExecutionController(
-            DockerCodeExecutionService service)
+            MultiLanguageExecutionService service)
         {
             _service = service;
         }
@@ -21,7 +21,9 @@ namespace CodeInterviewPro.API.Controllers
             [FromBody] CodeExecutionRequest request)
         {
             var result =
-                await _service.ExecuteAsync(request.Code);
+                await _service.ExecuteAsync(
+                    request.Code,
+                    request.Language);
 
             return Ok(result);
         }

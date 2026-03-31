@@ -4,6 +4,7 @@ using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositorie
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
 using CodeInterviewPro.Infrastructure.CodeExecution;
+using CodeInterviewPro.Infrastructure.CodeExecution.Executors;
 using CodeInterviewPro.Infrastructure.Identity;
 using CodeInterviewPro.Infrastructure.Repositories;
 using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
@@ -40,6 +41,16 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<CodeExecutionService>();
             services.AddScoped<DockerCodeExecutionService>();
+
+            //code excution
+            services.AddScoped<CSharpExecutor>();
+            services.AddScoped<PythonExecutor>();
+            services.AddScoped<NodeExecutor>();
+            services.AddScoped<JavaExecutor>();
+            services.AddScoped<GoExecutor>();
+            services.AddScoped<MultiLanguageExecutionService>(); 
+
+            services.AddScoped<ILanguageExecutionFactory, LanguageExecutionFactory>();
 
             return services;
 
