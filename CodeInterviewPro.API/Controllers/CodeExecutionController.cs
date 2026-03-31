@@ -11,12 +11,13 @@ namespace CodeInterviewPro.API.Controllers
     {
         private readonly MultiLanguageExecutionService _service;
         private readonly TestCaseExecutionService _testCaseService;
-
+        private readonly CodeAnalysisService _analysisService;
         public CodeExecutionController(
-            MultiLanguageExecutionService service, TestCaseExecutionService testCaseService)
+            MultiLanguageExecutionService service, TestCaseExecutionService testCaseService, CodeAnalysisService analysisService)
         {
             _service = service;
             _testCaseService = testCaseService;
+            _analysisService = analysisService;
         }
 
         [HttpPost]
@@ -40,6 +41,15 @@ namespace CodeInterviewPro.API.Controllers
                     request.TestCases);
 
             return Ok(result);
+        }
+        [HttpPost("analyze")]
+        public IActionResult Analyze(
+    [FromBody] CodeExecutionRequest request)
+        {
+            var warnings =
+                _analysisService.Analyze(request.Code);
+
+            return Ok(warnings);
         }
     }
 }

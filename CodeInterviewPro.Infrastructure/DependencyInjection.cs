@@ -51,7 +51,8 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<MultiLanguageExecutionService>(); 
 
             services.AddScoped<ILanguageExecutionFactory, LanguageExecutionFactory>();
-            services.AddScoped<TestCaseExecutionService>();
+            services.AddScoped<TestCaseExecutionService>(); 
+            services.AddScoped<CodeAnalysisService>();
 
             return services;
 
