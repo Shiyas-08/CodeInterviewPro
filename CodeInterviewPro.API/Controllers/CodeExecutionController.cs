@@ -1,5 +1,6 @@
 ﻿using CodeInterviewPro.Application.DTOs.CodeExecution;
 using CodeInterviewPro.Application.DTOs.CodeExecutionRequest;
+using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Infrastructure.CodeExecution;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,9 +26,11 @@ namespace CodeInterviewPro.API.Controllers
             [FromBody] CodeExecutionRequest request)
         {
             var result =
-                await _service.ExecuteAsync(
-                    request.Code,
-                    request.Language);
+        await _service.ExecuteAsync(
+            request.Code,
+            request.Language,
+            new List<TestCase>(),
+            "Solution");
 
             return Ok(result);
         }

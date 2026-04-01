@@ -1,10 +1,5 @@
 ﻿using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeInterviewPro.Infrastructure.CodeExecution
 {
@@ -30,7 +25,9 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                 var output =
                     await _executionService.ExecuteAsync(
                         code,
-                        language);
+                        language,
+                        new List<TestCase> { testCase },
+                        "Solution");
 
                 var result = new TestCaseResult
                 {
