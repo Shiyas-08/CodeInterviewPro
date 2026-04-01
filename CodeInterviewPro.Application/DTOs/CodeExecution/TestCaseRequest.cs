@@ -15,5 +15,6 @@ namespace CodeInterviewPro.Application.DTOs.CodeExecution
         public ProgrammingLanguage Language { get; set; }
 
         public List<TestCase> TestCases { get; set; }
+        public string MethodName { get; set; }
     }
 }

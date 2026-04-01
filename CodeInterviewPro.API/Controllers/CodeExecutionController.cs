@@ -10,13 +10,16 @@ namespace CodeInterviewPro.API.Controllers
     [Route("api/[controller]")]
     public class CodeExecutionController : ControllerBase
     {
-        private readonly MultiLanguageExecutionService _service;
+        private readonly ExecutionPipelineService _pipeline;
         private readonly TestCaseExecutionService _testCaseService;
         private readonly CodeAnalysisService _analysisService;
+
         public CodeExecutionController(
-            MultiLanguageExecutionService service, TestCaseExecutionService testCaseService, CodeAnalysisService analysisService)
+            ExecutionPipelineService pipeline,
+            TestCaseExecutionService testCaseService,
+            CodeAnalysisService analysisService)
         {
-            _service = service;
+            _pipeline = pipeline;
             _testCaseService = testCaseService;
             _analysisService = analysisService;
         }
@@ -26,28 +29,32 @@ namespace CodeInterviewPro.API.Controllers
             [FromBody] CodeExecutionRequest request)
         {
             var result =
-        await _service.ExecuteAsync(
-            request.Code,
-            request.Language,
-            new List<TestCase>(),
-            "Solution");
-
-            return Ok(result);
-        }
-        [HttpPost("testcases")]
-        public async Task<IActionResult> RunTestCases(
-    [FromBody] TestCaseRequest request)
-        {
-            var result = await _testCaseService.ExecuteAsync(
+                await _pipeline.ExecuteAsync(
                     request.Code,
                     request.Language,
-                    request.TestCases);
+                    request.TestCases,
+                    request.MethodName);
 
             return Ok(result);
         }
+
+        [HttpPost("testcases")]
+        public async Task<IActionResult> RunTestCases(
+            [FromBody] TestCaseRequest request)
+        {
+            var result =
+                await _testCaseService.ExecuteAsync(
+                    request.Code,
+                    request.Language,
+                    request.TestCases,
+                    request.MethodName);
+
+            return Ok(result);
+        }
+
         [HttpPost("analyze")]
         public IActionResult Analyze(
-    [FromBody] CodeExecutionRequest request)
+            [FromBody] CodeExecutionRequest request)
         {
             var warnings =
                 _analysisService.Analyze(request.Code);

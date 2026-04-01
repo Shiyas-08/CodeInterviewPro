@@ -13,21 +13,18 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             _executionService = executionService;
         }
 
-        public async Task<List<TestCaseResult>> ExecuteAsync(
-            string code,
-            ProgrammingLanguage language,
-            List<TestCase> testCases)
+        public async Task<List<TestCaseResult>> ExecuteAsync(string code, ProgrammingLanguage language,List<TestCase> testCases,string methodName)
         {
             var results = new List<TestCaseResult>();
 
             foreach (var testCase in testCases)
             {
                 var output =
-                    await _executionService.ExecuteAsync(
-                        code,
-                        language,
-                        new List<TestCase> { testCase },
-                        "Solution");
+            await _executionService.ExecuteAsync(
+                    code,
+                    language,
+                    new List<TestCase> { testCase },
+                    methodName);
 
                 var result = new TestCaseResult
                 {
