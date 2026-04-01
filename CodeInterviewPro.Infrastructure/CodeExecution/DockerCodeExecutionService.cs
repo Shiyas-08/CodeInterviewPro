@@ -16,8 +16,8 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
 
             createProcess.StartInfo.FileName = "docker";
             createProcess.StartInfo.Arguments =
-                $"run --rm -v \"{tempFolder}:/app\" -w /app mcr.microsoft.com/dotnet/sdk:8.0 dotnet new console";
-
+       $"run --rm --network none --memory 256m --cpus 1 --cap-drop ALL --security-opt no-new-privileges " +
+       $"-v \"{tempFolder}:/app\" -w /app mcr.microsoft.com/dotnet/sdk:8.0 dotnet new console";
             createProcess.StartInfo.RedirectStandardOutput = true;
             createProcess.StartInfo.UseShellExecute = false;
 
@@ -46,8 +46,8 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
 
             runProcess.StartInfo.FileName = "docker";
             runProcess.StartInfo.Arguments =
-                $"run --rm -v \"{tempFolder}:/app\" -w /app mcr.microsoft.com/dotnet/sdk:8.0 dotnet run";
-
+       $"run --rm --network none --memory 256m --cpus 1 --cap-drop ALL --security-opt no-new-privileges " +
+       $"-v \"{tempFolder}:/app\" -w /app mcr.microsoft.com/dotnet/sdk:8.0 dotnet run";
             runProcess.StartInfo.RedirectStandardOutput = true;
             runProcess.StartInfo.RedirectStandardError = true;
             runProcess.StartInfo.UseShellExecute = false;
