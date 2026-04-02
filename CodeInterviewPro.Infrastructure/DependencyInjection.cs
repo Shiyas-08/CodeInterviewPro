@@ -58,6 +58,7 @@ namespace CodeInterviewPro.Infrastructure
 
             services.AddScoped<ExecutionPipelineService>();
             services.AddScoped<IMetricsService, MetricsService>();
+            services.AddScoped<IExecutionHistoryRepository, ExecutionHistoryRepository>();
 
             return services;
 

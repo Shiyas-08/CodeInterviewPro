@@ -13,20 +13,22 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             _executionService = executionService;
         }
 
-        public async Task<List<TestCaseResult>> ExecuteAsync(string code, ProgrammingLanguage language,List<TestCase> testCases,string methodName)
+        public async Task<List<TestCaseResult>> ExecuteAsync(
+            string code,
+            ProgrammingLanguage language,
+            List<TestCase> testCases,
+            string methodName)
         {
-            var results = new List<TestCaseResult>();
-
-            foreach (var testCase in testCases)
+            var tasks = testCases.Select(async testCase =>
             {
                 var output =
-            await _executionService.ExecuteAsync(
-                    code,
-                    language,
-                    new List<TestCase> { testCase },
-                    methodName);
+                    await _executionService.ExecuteAsync(
+                        code,
+                        language,
+                        new List<TestCase> { testCase },
+                        methodName);
 
-                var result = new TestCaseResult
+                return new TestCaseResult
                 {
                     Output = output.Trim(),
                     Expected = testCase.ExpectedOutput.Trim(),
@@ -34,11 +36,9 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                         output.Trim() ==
                         testCase.ExpectedOutput.Trim()
                 };
+            });
 
-                results.Add(result);
-            }
-
-            return results;
+            return (await Task.WhenAll(tasks)).ToList();
         }
     }
 }
