@@ -2,6 +2,7 @@
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Application.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
 using CodeInterviewPro.Infrastructure.CodeExecution;
 using CodeInterviewPro.Infrastructure.CodeExecution.Executors;
@@ -53,6 +54,10 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<ILanguageExecutionFactory, LanguageExecutionFactory>();
             services.AddScoped<TestCaseExecutionService>(); 
             services.AddScoped<CodeAnalysisService>();
+
+
+            services.AddScoped<ExecutionPipelineService>();
+            services.AddScoped<IMetricsService, MetricsService>();
 
             return services;
 

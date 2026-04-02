@@ -1,6 +1,7 @@
 ﻿using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
+using CodeInterviewPro.Infrastructure.Cache;
 using CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis;
 
 namespace CodeInterviewPro.Infrastructure.CodeExecution
@@ -10,15 +11,18 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
         private readonly MultiLanguageExecutionService _executionService;
         private readonly TestCaseExecutionService _testCaseService;
         private readonly IMetricsService _metricsService;
+        private readonly RedisService _cache;
 
         public ExecutionPipelineService(
             MultiLanguageExecutionService executionService,
             TestCaseExecutionService testCaseService,
-            IMetricsService metricsService)
+            IMetricsService metricsService,
+            RedisService cache)
         {
             _executionService = executionService;
             _testCaseService = testCaseService;
             _metricsService = metricsService;
+            _cache = cache;
         }
 
         public async Task<ExecutionResult> ExecuteAsync(

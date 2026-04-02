@@ -21,7 +21,7 @@ namespace CodeInterviewPro.API.Hubs
                 interviewId);
 
             // Load previous code from Redis
-            var code = await _redis.GetAsync($"code:{interviewId}");
+            var code = await _redis.GetAsync<string>($"code:{interviewId}");
 
             if (!string.IsNullOrEmpty(code))
             {

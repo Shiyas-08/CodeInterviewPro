@@ -1,30 +1,33 @@
 ﻿using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace CodeInterviewPro.Infrastructure.Cache
 {
     public class RedisService
     {
         private readonly IDatabase _database;
+
         public RedisService(IConnectionMultiplexer redis)
         {
             _database = redis.GetDatabase();
-
         }
 
-    public async Task SetAsync(string key, string value)
+        public async Task SetAsync<T>(string key, T value)
         {
-            await _database.StringSetAsync(key, value);
+            var json = JsonSerializer.Serialize(value);
+
+            await _database.StringSetAsync(key, json);
         }
 
-        public async Task<string> GetAsync(string key)
+        public async Task<T> GetAsync<T>(string key)
         {
-            return await _database.StringGetAsync(key);
-        }
+            var value =
+                await _database.StringGetAsync(key);
 
+            if (value.IsNullOrEmpty)
+                return default;
+
+            return JsonSerializer.Deserialize<T>(value);
+        }
     }
 }

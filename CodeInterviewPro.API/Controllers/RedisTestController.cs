@@ -1,5 +1,4 @@
 ﻿using CodeInterviewPro.Infrastructure.Cache;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeInterviewPro.API.Controllers
@@ -20,7 +19,7 @@ namespace CodeInterviewPro.API.Controllers
         {
             await _redis.SetAsync("test", "Hello Redis");
 
-            var value = await _redis.GetAsync("test");
+            var value = await _redis.GetAsync<string>("test");
 
             return Ok(value);
         }
