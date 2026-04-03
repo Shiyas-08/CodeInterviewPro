@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace CodeInterviewPro.Application.Interfaces.Services
 {
-    internal interface IExecutionTimeoutService
+    public interface IExecutionTimeoutService
     {
+        Task<T> ExecuteWithTimeout<T>(
+            Func<Task<T>> task,
+            int timeoutSeconds);
     }
 }

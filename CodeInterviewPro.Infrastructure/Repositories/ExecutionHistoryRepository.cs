@@ -27,6 +27,9 @@ namespace CodeInterviewPro.Infrastructure.Repositories
                     Passed,
                     Failed,
                     Score,
+                    AIScore,
+                    AIFeedback,
+                    AIComplexity,
                     CreatedAt
                 )
                 VALUES
@@ -38,6 +41,9 @@ namespace CodeInterviewPro.Infrastructure.Repositories
                     @Passed,
                     @Failed,
                     @Score,
+                    @AIScore,
+                    @AIFeedback,
+                    @AIComplexity,
                     @CreatedAt
                 )";
 

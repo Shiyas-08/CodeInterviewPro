@@ -21,24 +21,39 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
         {
             var tasks = testCases.Select(async testCase =>
             {
-                var output =
-                    await _executionService.ExecuteAsync(
-                        code,
-                        language,
-                        new List<TestCase> { testCase },
-                        methodName);
-
-                return new TestCaseResult
+                try
                 {
-                    Output = output.Trim(),
-                    Expected = testCase.ExpectedOutput.Trim(),
-                    Passed =
-                        output.Trim() ==
-                        testCase.ExpectedOutput.Trim()
-                };
+                    var output =
+                        await _executionService.ExecuteAsync(
+                            code,
+                            language,
+                            new List<TestCase> { testCase },
+                            methodName);
+
+                    return new TestCaseResult
+                    {
+                        Output = output?.Trim(),
+                        Expected = testCase.ExpectedOutput?.Trim(),
+                        Passed =
+                            output?.Trim() ==
+                            testCase.ExpectedOutput?.Trim()
+                    };
+                }
+                catch (Exception ex)
+                {
+                    return new TestCaseResult
+                    {
+                        Output = ex.Message,
+                        Expected = testCase.ExpectedOutput,
+                        Passed = false
+                    };
+                }
             });
 
-            return (await Task.WhenAll(tasks)).ToList();
+            var results =
+                await Task.WhenAll(tasks);
+
+            return results.ToList();
         }
     }
 }

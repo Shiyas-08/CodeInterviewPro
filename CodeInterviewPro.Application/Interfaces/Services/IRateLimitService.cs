@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace CodeInterviewPro.Application.Interfaces.Services
 {
-    internal class IRateLimitService
+    public interface IRateLimitService
     {
+        Task<bool> IsAllowedAsync(
+            string key,
+            int limit,
+            int seconds);
     }
 }

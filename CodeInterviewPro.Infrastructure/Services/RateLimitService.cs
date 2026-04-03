@@ -1,12 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Infrastructure.Cache;
 
 namespace CodeInterviewPro.Infrastructure.Services
 {
-    internal class RateLimitService
+    public class RateLimitService : IRateLimitService
     {
+        private readonly RedisService _redis;
+
+        public RateLimitService(RedisService redis)
+        {
+            _redis = redis;
+        }
+
+        public async Task<bool> IsAllowedAsync(
+            string key,
+            int limit,
+            int seconds)
+        {
+            var count =
+                await _redis.GetAsync<int>(key);
+
+            if (count >= limit)
+                return false;
+
+            count++;
+
+            await _redis.SetAsync(
+                key,
+                count,
+                TimeSpan.FromSeconds(seconds));
+
+            return true;
+        }
     }
 }
