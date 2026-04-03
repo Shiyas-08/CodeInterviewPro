@@ -12,14 +12,29 @@ namespace CodeInterviewPro.Infrastructure.Cache
             _database = redis.GetDatabase();
         }
 
-        public async Task SetAsync<T>(string key, T value)
+        public async Task SetAsync<T>(
+            string key,
+            T value,
+            TimeSpan? expiry = null)
         {
             var json = JsonSerializer.Serialize(value);
 
-            await _database.StringSetAsync(key, json);
+            if (expiry.HasValue)
+            {
+                await _database.StringSetAsync(
+                    key,
+                    json,
+                    expiry.Value);
+            }
+            else
+            {
+                await _database.StringSetAsync(
+                    key,
+                    json);
+            }
         }
 
-        public async Task<T> GetAsync<T>(string key)
+        public async Task<T?> GetAsync<T>(string key)
         {
             var value =
                 await _database.StringGetAsync(key);
