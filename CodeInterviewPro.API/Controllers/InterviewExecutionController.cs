@@ -45,10 +45,9 @@ namespace CodeInterviewPro.API.Controllers
         }
         [AllowAnonymous]
         [HttpPost("submit")]
-        public async Task<IActionResult> Submit(SubmitCodeRequest request)
+        public async Task<IActionResult> Submit([FromBody] SubmitCodeRequest request)
         {
-            var result = await
-                _service.SubmitCodeAsync(request);
+            var result = await _service.SubmitCodeAsync(request);
 
             return Ok(result);
         }

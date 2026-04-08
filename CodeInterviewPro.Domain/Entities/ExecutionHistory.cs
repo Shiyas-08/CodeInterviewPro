@@ -21,7 +21,9 @@
         public string AIFeedback { get; set; }
 
         public string AIComplexity { get; set; }
+        public double FinalScore { get; set; }
 
         public DateTime CreatedAt { get; set; }
+      
     }
 }

@@ -17,6 +17,7 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             createProject.StartInfo.Arguments = "new console";
             createProject.StartInfo.WorkingDirectory = tempFolder;
             createProject.StartInfo.RedirectStandardOutput = true;
+            createProject.StartInfo.RedirectStandardError = true;
             createProject.StartInfo.UseShellExecute = false;
 
             createProject.Start();
@@ -26,18 +27,7 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             var programFile =
                 Path.Combine(tempFolder, "Program.cs");
 
-            var fullCode = $@"
-using System;
-
-class Program
-{{
-    static void Main()
-    {{
-        {code}
-    }}
-}}";
-
-            await File.WriteAllTextAsync(programFile, fullCode);
+            await File.WriteAllTextAsync(programFile, code);
 
             // Run project
             var runProcess = new Process();
@@ -51,13 +41,29 @@ class Program
 
             runProcess.Start();
 
+            // Timeout handling
+            var timeout = Task.Delay(TimeSpan.FromSeconds(10));
+
+            var runTask = runProcess.WaitForExitAsync();
+
+            var completed = await Task.WhenAny(runTask, timeout);
+
+            if (completed == timeout)
+            {
+                try
+                {
+                    runProcess.Kill(true);
+                }
+                catch { }
+
+                return "Execution timeout exceeded";
+            }
+
             var output =
                 await runProcess.StandardOutput.ReadToEndAsync();
 
             var error =
                 await runProcess.StandardError.ReadToEndAsync();
-
-            await runProcess.WaitForExitAsync();
 
             if (!string.IsNullOrEmpty(error))
                 return error;

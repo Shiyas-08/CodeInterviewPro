@@ -16,7 +16,7 @@ namespace CodeInterviewPro.Infrastructure.Services
             _config = config;
         }
 
-        public string GenerateToken(int userId, Guid? tenantId, UserRole role)
+        public string GenerateToken(Guid userId, Guid? tenantId, UserRole role)
         {
             var claims = new List<Claim>
     {

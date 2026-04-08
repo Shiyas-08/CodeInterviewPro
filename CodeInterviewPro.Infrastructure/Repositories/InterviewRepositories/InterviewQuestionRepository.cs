@@ -20,7 +20,7 @@ using System.Threading.Tasks;
                 _context = context;
             }
         public async Task<IEnumerable<InterviewQuestionDto>>
-    GetByInterviewIdAsync(long interviewId)
+    GetByInterviewIdAsync(Guid interviewId)
         {
             var query = @"
         SELECT 
@@ -40,7 +40,7 @@ using System.Threading.Tasks;
                 query,
                 new { InterviewId = interviewId });
         }
-        public async Task AssignQuestionsAsync( long interviewId,Guid tenantId,List<QuestionItem> questions)
+        public async Task AssignQuestionsAsync(Guid interviewId,Guid tenantId,List<QuestionItem> questions)
         {
             var sql = @"
         INSERT INTO InterviewQuestions

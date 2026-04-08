@@ -10,7 +10,7 @@ namespace CodeInterviewPro.Application.DTOs.Interview
     {
             public string Token { get; set; } = string.Empty;
 
-            public long QuestionId { get; set; }
+            public Guid QuestionId { get; set; }
 
             public string Language { get; set; } = string.Empty;
 

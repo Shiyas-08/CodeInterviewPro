@@ -8,7 +8,7 @@ namespace CodeInterviewPro.Application.DTOs.Interview
 {
     public class StartInterviewResponse
     {
-        public long InterviewId { get; set; }
+        public Guid InterviewId { get; set; }
 
         public DateTime StartTime { get; set; }
 

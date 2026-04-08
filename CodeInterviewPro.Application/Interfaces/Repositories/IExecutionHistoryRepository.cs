@@ -10,6 +10,6 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories
     public interface IExecutionHistoryRepository
     {
         Task SaveAsync(ExecutionHistory history);
-
+        Task<IEnumerable<ExecutionHistory>> GetAllAsync();
     }
 }

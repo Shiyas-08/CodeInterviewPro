@@ -9,9 +9,9 @@ namespace CodeInterviewPro.Domain.Entities
 {
     public class RefreshToken:BaseEntity
     {
-        public int Id { get; set; }
+        public int Guid { get; set; }
 
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         public string Token { get; set; }
 

@@ -10,7 +10,7 @@ namespace CodeInterviewPro.Domain.Entities
 {
     public class User:BaseEntity
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public Guid? TenantId { get; set; }
 

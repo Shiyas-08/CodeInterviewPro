@@ -24,7 +24,7 @@ namespace CodeInterviewPro.API.Controllers
         {
             var id = await _service.CreateAsync(dto);
 
-            return Ok(ApiResponse<long>.SuccessResponse(
+            return Ok(ApiResponse<Guid>.SuccessResponse(
                 id,
                 "Interview created successfully"));
         }
@@ -32,7 +32,7 @@ namespace CodeInterviewPro.API.Controllers
         // Assign Candidate
         [HttpPost("{id}/assign")]
         public async Task<IActionResult> Assign(
-            long id,
+            Guid id,
             AssignCandidateDto dto)
         {
             await _service.AssignCandidateAsync(id, dto);
@@ -44,7 +44,7 @@ namespace CodeInterviewPro.API.Controllers
 
 
         [HttpPost("{id}/questions")]
-        public async Task<IActionResult> AssignQuestions( long id, AssignQuestionsDto dto)
+        public async Task<IActionResult> AssignQuestions( Guid id, AssignQuestionsDto dto)
         {
             await _service.AssignQuestionsAsync(id, dto);
 
@@ -55,7 +55,7 @@ namespace CodeInterviewPro.API.Controllers
         // Schedule Interview
         [HttpPut("{id}/schedule")]
         public async Task<IActionResult> Schedule(
-            long id,
+            Guid id,
             ScheduleInterviewDto dto)
         {
             await _service.ScheduleAsync(id, dto);
@@ -68,7 +68,7 @@ namespace CodeInterviewPro.API.Controllers
         // Generate Link
         [HttpPost("{id}/generate-link")]
         public async Task<IActionResult> GenerateLink(
-            long id,
+            Guid id,
             GenerateLinkDto dto)
         {
             var result = await _service.GenerateLinkAsync(id, dto);

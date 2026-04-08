@@ -3,38 +3,40 @@ using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
 {
-    public class InterviewRepository:IInterviewRepository
+    public class InterviewRepository : IInterviewRepository
     {
         private readonly DapperContext _db;
+
         public InterviewRepository(DapperContext db)
         {
             _db = db;
-            
         }
 
-        public async Task<long> CreateAsync(Interview interview)
+        public async Task<Guid> CreateAsync(Interview interview)
         {
             var sql = @"
-                INSERT INTO Interviews
-                (TenantId, Title, Description, DurationMinutes, Status, CreatedBy, CreatedAt, IsActive)
-                VALUES
-                (@TenantId, @Title, @Description, @DurationMinutes, @Status, @CreatedBy, GETUTCDATE(), 1);
-                
-                SELECT CAST(SCOPE_IDENTITY() as bigint);
-            ";
+        INSERT INTO Interviews
+        (Id, TenantId, Title, Description, DurationMinutes, Status, CreatedBy, CreatedAt, IsActive, SecureToken)
+        VALUES
+        (@Id, @TenantId, @Title, @Description, @DurationMinutes, @Status, @CreatedBy, GETUTCDATE(), 1, @SecureToken);
+    ";
+
+            interview.Id = Guid.NewGuid();
+
             using var connection = _db.CreateConnection();
 
-            return await connection.ExecuteScalarAsync<long>(sql,interview);
+            await connection.ExecuteAsync(sql, interview);
+
+            return interview.Id;
         }
-        public async Task<Interview?> GetByIdAsync(long id, Guid tenantId)
+
+        public async Task<Interview?> GetByIdAsync(Guid id, Guid tenantId)
         {
             var sql = @"
                 SELECT * 
@@ -43,6 +45,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
                 AND TenantId = @TenantId 
                 AND IsActive = 1
             ";
+
             using var connection = _db.CreateConnection();
 
             return await connection.QueryFirstOrDefaultAsync<Interview>(
@@ -59,6 +62,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
                 AND IsActive = 1
                 ORDER BY CreatedAt DESC
             ";
+
             using var connection = _db.CreateConnection();
 
             return await connection.QueryAsync<Interview>(
@@ -80,17 +84,20 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
                 WHERE Id = @Id 
                 AND TenantId = @TenantId
             ";
+
             using var connection = _db.CreateConnection();
 
             await connection.ExecuteAsync(sql, interview);
         }
+
         public async Task<Interview?> GetByTokenAsync(string token)
         {
             var sql = @"
-        SELECT *
-        FROM Interviews
-        WHERE SecureToken = @Token
-    ";
+                SELECT *
+                FROM Interviews
+                WHERE SecureToken = @Token
+            ";
+
             using var connection = _db.CreateConnection();
 
             return await connection.QueryFirstOrDefaultAsync<Interview>(
@@ -99,5 +106,4 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
             );
         }
     }
-
 }

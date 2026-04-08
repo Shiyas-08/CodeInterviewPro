@@ -49,5 +49,12 @@ namespace CodeInterviewPro.Infrastructure.Repositories
 
             await _connection.ExecuteAsync(sql, history);
         }
+        public async Task<IEnumerable<ExecutionHistory>> GetAllAsync()
+        {
+            var sql =
+                "SELECT * FROM ExecutionHistory";
+
+            return await _connection.QueryAsync<ExecutionHistory>(sql);
+        }
     }
 }

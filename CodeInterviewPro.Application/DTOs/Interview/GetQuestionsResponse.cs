@@ -8,7 +8,7 @@ namespace CodeInterviewPro.Application.DTOs.Interview
 {
     public class GetQuestionsResponse
     {
-        public long QuestionId { get; set; }
+        public Guid QuestionId { get; set; }
 
         public string Title { get; set; } = string.Empty;
 

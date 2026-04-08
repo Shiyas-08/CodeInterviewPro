@@ -8,7 +8,7 @@ namespace CodeInterviewPro.Domain.Entities
 {
     public class Interview
     {
-        public long Id { get; set; }
+        public Guid Id { get; set; }
 
         public Guid TenantId { get; set; }
 
@@ -24,7 +24,7 @@ namespace CodeInterviewPro.Domain.Entities
 
         public int Status { get; set; }
 
-        public long CreatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

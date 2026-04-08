@@ -1,54 +1,66 @@
-﻿using CodeInterviewPro.Domain.Entities;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Domain.Entities;
+
 namespace CodeInterviewPro.Infrastructure.CodeExecution.Templates
 {
     public class CSharpRunnerTemplate : ICodeRunnerTemplate
     {
         public string WrapCode(
-            string userCode,
+            string code,
             List<TestCase> testCases,
             string methodName)
         {
             var sb = new StringBuilder();
 
             sb.AppendLine("using System;");
-            sb.AppendLine("using System.Linq;");
-            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine("");
 
-            sb.AppendLine(userCode);
-
-            sb.AppendLine("public class Runner");
-            sb.AppendLine("{");
-            sb.AppendLine("public static void Main()");
+            sb.AppendLine("public class Program");
             sb.AppendLine("{");
 
-            for (int i = 0; i < testCases.Count; i++)
+            // user method
+            sb.AppendLine(code);
+            sb.AppendLine("");
+
+            // FIXED Main Signature
+            sb.AppendLine("public static void Main(string[] args)");
+            sb.AppendLine("{");
+
+            int index = 0;
+
+            foreach (var test in testCases)
             {
-                var test = testCases[i];
+                sb.AppendLine(
+                    $"Console.WriteLine(\"RESULT_{index}:\" + {methodName}({FormatInput(test.Input)}));");
 
-                sb.AppendLine($@"
-try
-{{
-var result = Solution.{methodName}(""{test.Input}"");
-
-if(result.ToString() == ""{test.ExpectedOutput}"")
-Console.WriteLine(""TEST_{i}_PASS"");
-else
-Console.WriteLine(""TEST_{i}_FAIL"");
-}}
-catch(Exception)
-{{
-Console.WriteLine(""TEST_{i}_ERROR"");
-}}
-");
+                index++;
             }
 
             sb.AppendLine("}");
             sb.AppendLine("}");
 
-            return sb.ToString();
+            var result = sb.ToString();
+
+            Console.WriteLine("========== GENERATED CODE ==========");
+            Console.WriteLine(result);
+            Console.WriteLine("====================================");
+
+            return result;
+        }
+
+        private string FormatInput(string input)
+        {
+            if (int.TryParse(input, out _))
+                return input;
+
+            if (double.TryParse(input, out _))
+                return input;
+
+            if (bool.TryParse(input, out _))
+                return input.ToLower();
+
+            return $"\"{input}\"";
         }
     }
 }

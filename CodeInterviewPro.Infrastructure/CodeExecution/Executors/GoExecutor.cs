@@ -16,16 +16,8 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution.Executors
             var filePath =
                 Path.Combine(tempFolder, "main.go");
 
-            var fullCode = $@"
-package main
-import ""fmt""
-
-func main() {{
-    {code}
-}}
-";
-
-            await File.WriteAllTextAsync(filePath, fullCode);
+            // DO NOT WRAP AGAIN
+            await File.WriteAllTextAsync(filePath, code);
 
             var process = new Process();
 

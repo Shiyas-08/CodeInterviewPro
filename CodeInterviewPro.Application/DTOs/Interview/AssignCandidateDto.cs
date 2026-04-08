@@ -8,7 +8,7 @@ namespace CodeInterviewPro.Application.DTOs.Interview
 {
     public class AssignCandidateDto
     {
-        public int CandidateId { get; set; }
+        public Guid CandidateId { get; set; }
 
 
     }

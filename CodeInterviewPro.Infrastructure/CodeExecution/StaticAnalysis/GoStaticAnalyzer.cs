@@ -15,12 +15,27 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis
             var filePath =
                 Path.Combine(tempFolder, "main.go");
 
-            await File.WriteAllTextAsync(filePath, code);
+            // Wrap for static analysis only
+            var wrappedCode = $@"
+package main
+
+{code}
+
+func main() {{}}
+";
+
+            await File.WriteAllTextAsync(filePath, wrappedCode);
 
             var process = new Process();
 
-            process.StartInfo.FileName = "go";
-            process.StartInfo.Arguments = $"build {filePath}";
+            process.StartInfo.FileName = "docker";
+
+            process.StartInfo.Arguments =
+                $"run --rm " +
+                $"-v \"{tempFolder}:/app\" " +
+                $"-w /app " +
+                $"golang:1.21 " +
+                $"go build main.go";
 
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.UseShellExecute = false;

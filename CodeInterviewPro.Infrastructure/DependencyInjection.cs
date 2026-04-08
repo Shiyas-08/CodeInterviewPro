@@ -59,10 +59,14 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<ExecutionPipelineService>();
             services.AddScoped<IMetricsService, MetricsService>();
             services.AddScoped<IExecutionHistoryRepository, ExecutionHistoryRepository>();
+            services.AddScoped<IExecutionCacheService, ExecutionCacheService>();
             services.AddScoped<IRateLimitService,RateLimitService>();
             services.AddScoped<IExecutionTimeoutService, ExecutionTimeoutService>();
             services.AddScoped<IExecutionResourceService,ExecutionResourceService>();
             services.AddScoped<IAICodeReviewService,AICodeReviewService>();
+            services.AddScoped<ICodeSimilarityService, CodeSimilarityService>();
+            services.AddScoped<IScoringService, ScoringService>();
+
             return services;
 
 

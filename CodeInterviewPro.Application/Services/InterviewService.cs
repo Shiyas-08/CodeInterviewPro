@@ -50,7 +50,7 @@ namespace CodeInterviewPro.Infrastructure.Services
         }
 
         // CREATE INTERVIEW
-        public async Task<long> CreateAsync(CreateInterviewDto dto)
+        public async Task<Guid> CreateAsync(CreateInterviewDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Title))
                 throw new Exception("Interview title required");
@@ -58,9 +58,12 @@ namespace CodeInterviewPro.Infrastructure.Services
             if (dto.DurationMinutes <= 0)
                 throw new Exception("Invalid duration");
 
+            var userId = GetUserId();   // ADD THIS
+
             var interview = new Interview
             {
                 TenantId = GetTenantId(),
+                CreatedBy = userId,     // ADD THIS
                 Title = dto.Title,
                 Description = dto.Description,
                 DurationMinutes = dto.DurationMinutes,
@@ -73,7 +76,7 @@ namespace CodeInterviewPro.Infrastructure.Services
         }
 
         // ASSIGN CANDIDATE
-        public async Task AssignCandidateAsync(long interviewId, AssignCandidateDto dto)
+        public async Task AssignCandidateAsync(Guid interviewId, AssignCandidateDto dto)
         {
             var tenantId = GetTenantId();
 
@@ -114,7 +117,7 @@ namespace CodeInterviewPro.Infrastructure.Services
         }
 
         // SCHEDULE
-        public async Task ScheduleAsync(long interviewId, ScheduleInterviewDto dto)
+        public async Task ScheduleAsync(Guid interviewId, ScheduleInterviewDto dto)
         {
             var tenantId = GetTenantId();
 
@@ -137,7 +140,7 @@ namespace CodeInterviewPro.Infrastructure.Services
         }
 
         // GENERATE LINK
-        public async Task<GenerateLinkResponse> GenerateLinkAsync(long interviewId, GenerateLinkDto dto)
+        public async Task<GenerateLinkResponse> GenerateLinkAsync(Guid interviewId, GenerateLinkDto dto)
         {
             var tenantId = GetTenantId();
 
@@ -181,7 +184,7 @@ namespace CodeInterviewPro.Infrastructure.Services
 
         // ASSIGN QUESTIONS
         public async Task AssignQuestionsAsync(
-            long interviewId,
+            Guid interviewId,
             AssignQuestionsDto dto)
         {
             var tenantId = GetTenantId();
@@ -199,6 +202,21 @@ namespace CodeInterviewPro.Infrastructure.Services
                 interviewId,
                 tenantId,
                 dto.Questions);
+        }
+        private Guid GetUserId()
+        {
+            var claims = _httpContextAccessor.HttpContext?.User?.Claims;
+
+            var userClaim = claims?
+                .FirstOrDefault(x =>
+                    x.Type == "sub" ||
+                    x.Type == "uid" ||
+                    x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+
+            if (userClaim == null)
+                throw new Exception("UserId not found in token");
+
+            return Guid.Parse(userClaim.Value);
         }
     }
 }
