@@ -1,4 +1,5 @@
-﻿using CodeInterviewPro.Application.Common.Execution;
+﻿using CodeInterviewPro.Application.AI;
+using CodeInterviewPro.Application.Common.Execution;
 using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
@@ -17,9 +18,9 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
         private readonly IRateLimitService _rateLimit;
         private readonly IExecutionTimeoutService _timeout;
         private readonly IExecutionResourceService _resource;
-        private readonly IAICodeReviewService _aiReview;
         private readonly ICodeSimilarityService _similarity;
         private readonly IScoringService _scoring;
+        private readonly AIIntelligenceService _aiIntelligence;
 
         public ExecutionPipelineService(
             MultiLanguageExecutionService executionService,
@@ -30,9 +31,9 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             IRateLimitService rateLimit,
             IExecutionTimeoutService timeout,
             IExecutionResourceService resource,
-            IAICodeReviewService aiReview,
             ICodeSimilarityService similarity,
-            IScoringService scoring)
+            IScoringService scoring,
+            AIIntelligenceService aiIntelligence)
         {
             _executionService = executionService;
             _testCaseService = testCaseService;
@@ -42,9 +43,9 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             _rateLimit = rateLimit;
             _timeout = timeout;
             _resource = resource;
-            _aiReview = aiReview;
             _similarity = similarity;
             _scoring = scoring;
+            _aiIntelligence = aiIntelligence;
         }
 
         public async Task<ExecutionResult> ExecuteAsync(
@@ -54,8 +55,6 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             string methodName)
         {
             Console.WriteLine("========== PIPELINE START ==========");
-            Console.WriteLine($"Language: {language}");
-            Console.WriteLine($"Method: {methodName}");
 
             // Step 1 - Rate Limit
             var rateKey =
@@ -87,6 +86,7 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             if (!string.IsNullOrEmpty(cached))
             {
                 Console.WriteLine("CACHE HIT");
+
                 return System.Text.Json.JsonSerializer
                     .Deserialize<ExecutionResult>(cached);
             }
@@ -101,9 +101,6 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
 
             var error =
                 await analyzer.AnalyzeAsync(code);
-
-            Console.WriteLine("STATIC ANALYSIS RESULT:");
-            Console.WriteLine(error);
 
             if (!string.IsNullOrEmpty(error))
             {
@@ -122,18 +119,19 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
 
             // Step 5 - Test Execution
             Console.WriteLine("TEST EXECUTION START");
+
             var results =
-         await _resource.ExecuteWithLimits(
-             () => _timeout.ExecuteWithTimeout<List<TestCaseResult>>(
-                 token => _testCaseService.ExecuteAsync(
-                     code,
-                     language,
-                     testCases,
-                     methodName,
-                     token),
-                 30),
-             256,
-             1);
+                await _resource.ExecuteWithLimits(
+                    () => _timeout.ExecuteWithTimeout<List<TestCaseResult>>(
+                        token => _testCaseService.ExecuteAsync(
+                            code,
+                            language,
+                            testCases,
+                            methodName,
+                            token),
+                        30),
+                    256,
+                    1);
 
             Console.WriteLine("TEST EXECUTION COMPLETED");
 
@@ -145,16 +143,22 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             Console.WriteLine($"PASSED: {metrics.Passed}");
             Console.WriteLine($"FAILED: {metrics.Failed}");
 
-            // Step 7 - AI Review
-            var aiReview =
-                await _aiReview.ReviewAsync(
-                    code,
-                    language);
+            // Step 7 - AI Intelligence
+            Console.WriteLine("AI INTELLIGENCE START");
 
-            metrics.AIScore = aiReview.Score;
-            metrics.AIFeedback = aiReview.Feedback;
-            metrics.AIComplexity = aiReview.Complexity;
+            var aiResult =
+                _aiIntelligence.Analyze(code);
 
+            metrics.AIScore =
+                aiResult.FinalScore;
+
+            metrics.AIFeedback =
+                aiResult.Feedback;
+
+            metrics.AIComplexity =
+                aiResult.Semantic.Complexity;
+
+            // Step 8 - Similarity
             var similarity =
                 await _similarity.CheckSimilarityAsync(
                     code,
@@ -166,32 +170,34 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             metrics.SimilarityMessage =
                 similarity.Message;
 
+            // Step 9 - Final Score
             metrics.FinalScore =
                 _scoring.Calculate(
                     metrics.Score,
                     metrics.AIScore,
                     metrics.Similarity);
 
-            // Step 8 - Save History
-            var history = new ExecutionHistory
-            {
-                Id = Guid.NewGuid(),
-                Code = code,
-                Language = language.ToString(),
-                Total = metrics.Total,
-                Passed = metrics.Passed,
-                Failed = metrics.Failed,
-                Score = (int)metrics.Score,
-                AIScore = metrics.AIScore,
-                AIFeedback = metrics.AIFeedback,
-                AIComplexity = metrics.AIComplexity,
-                FinalScore = metrics.FinalScore,
-                CreatedAt = DateTime.UtcNow
-            };
+            // Step 10 - Save History
+            var history =
+                new ExecutionHistory
+                {
+                    Id = Guid.NewGuid(),
+                    Code = code,
+                    Language = language.ToString(),
+                    Total = metrics.Total,
+                    Passed = metrics.Passed,
+                    Failed = metrics.Failed,
+                    Score = (int)metrics.Score,
+                    AIScore = metrics.AIScore,
+                    AIFeedback = metrics.AIFeedback,
+                    AIComplexity = metrics.AIComplexity,
+                    FinalScore = metrics.FinalScore,
+                    CreatedAt = DateTime.UtcNow
+                };
 
             await _repository.SaveAsync(history);
 
-            // Step 9 - Cache
+            // Step 11 - Cache
             await _cache.SetAsync(
                 cacheKey,
                 System.Text.Json.JsonSerializer.Serialize(metrics));

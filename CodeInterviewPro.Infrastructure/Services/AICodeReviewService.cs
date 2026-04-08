@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System.Text.RegularExpressions;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
@@ -18,10 +13,9 @@ namespace CodeInterviewPro.Infrastructure.Services
         {
             var result = new AICodeReviewResult();
 
-            // Simple mock AI logic (Phase 1)
-            result.Score = CalculateScore(code);
-
             result.Complexity = DetectComplexity(code);
+
+            result.Score = CalculateScore(code);
 
             result.Feedback = GenerateFeedback(code);
 
@@ -36,11 +30,16 @@ namespace CodeInterviewPro.Infrastructure.Services
         {
             var score = 100;
 
-            if (code.Length > 500)
-                score -= 10;
+            if (DetectNestedLoop(code))
+                score -= 20;
 
-            if (code.Contains("for") &&
-                code.Contains("for"))
+            if (DetectRecursion(code))
+                score += 5;
+
+            if (DetectDictionary(code))
+                score += 10;
+
+            if (DetectLongMethod(code))
                 score -= 10;
 
             return score;
@@ -48,38 +47,95 @@ namespace CodeInterviewPro.Infrastructure.Services
 
         private string DetectComplexity(string code)
         {
-            if (code.Contains("for") &&
-                code.Contains("for"))
-                return "O(n²)";
+            var loopCount =
+                Regex.Matches(code, @"for\s*\(").Count +
+                Regex.Matches(code, @"while\s*\(").Count;
 
-            if (code.Contains("for"))
+            if (loopCount >= 2)
+                return "O(n^2)";
+
+            if (loopCount == 1)
                 return "O(n)";
 
             return "O(1)";
         }
 
+        private bool DetectNestedLoop(string code)
+        {
+            var loopCount =
+                Regex.Matches(code, @"for\s*\(").Count;
+
+            return loopCount >= 2;
+        }
+
+        private bool DetectRecursion(string code)
+        {
+            var method =
+                Regex.Match(code, @"int\s+(\w+)\s*\(");
+
+            if (!method.Success)
+                return false;
+
+            var name =
+                method.Groups[1].Value;
+
+            return code.Contains($"{name}(");
+        }
+
+        private bool DetectDictionary(string code)
+        {
+            return code.Contains("Dictionary");
+        }
+
+        private bool DetectLongMethod(string code)
+        {
+            return code.Length > 800;
+        }
+
         private string GenerateFeedback(string code)
         {
-            return "Code reviewed successfully. Consider improving readability.";
+            var feedback = "AI Code Review:\n";
+
+            if (DetectNestedLoop(code))
+                feedback += "Nested loops detected\n";
+
+            if (DetectRecursion(code))
+                feedback += "Recursion detected\n";
+
+            if (DetectDictionary(code))
+                feedback += "Good use of Dictionary\n";
+
+            return feedback;
         }
 
         private List<string> GenerateSuggestions(string code)
         {
-            return new List<string>
-            {
-                "Improve variable naming",
-                "Reduce nested loops",
-                "Add comments"
-            };
+            var suggestions =
+                new List<string>();
+
+            if (DetectNestedLoop(code))
+                suggestions.Add(
+                    "Consider optimizing nested loops");
+
+            if (!DetectDictionary(code))
+                suggestions.Add(
+                    "Consider using Dictionary for lookup");
+
+            return suggestions;
         }
 
         private List<string> DetectIssues(string code)
         {
-            return new List<string>
-            {
-                "Long method detected",
-                "Possible nested loops"
-            };
+            var issues =
+                new List<string>();
+
+            if (DetectLongMethod(code))
+                issues.Add("Long method detected");
+
+            if (DetectNestedLoop(code))
+                issues.Add("Nested loop detected");
+
+            return issues;
         }
     }
 }
