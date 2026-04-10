@@ -1,12 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
-namespace CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis.Go
+namespace CodeInterviewPro.Infrastructure.StaticAnalysis.Go
 {
-    internal class GoVetAnalyzer
+    public class GoVetAnalyzer
     {
+        public async Task<List<string>> AnalyzeAsync(string code)
+        {
+            var tempFile =
+                Path.GetTempFileName() + ".go";
+
+            await File.WriteAllTextAsync(
+                tempFile,
+                code);
+
+            var process =
+                new Process();
+
+            process.StartInfo.FileName = "go";
+            process.StartInfo.Arguments =
+                $"vet {tempFile}";
+
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.UseShellExecute = false;
+
+            process.Start();
+
+            var output =
+                await process.StandardOutput.ReadToEndAsync();
+
+            await process.WaitForExitAsync();
+
+            File.Delete(tempFile);
+
+            return output
+                .Split('\n')
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList();
+        }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 
-namespace CodeInterviewPro.Infrastructure.StaticAnalysis.ESLint
+namespace CodeInterviewPro.Infrastructure.StaticAnalysis.Python
 {
-    public class ESLintAnalyzer
+    public class PylintAnalyzer
     {
         public async Task<List<string>> AnalyzeAsync(string code)
         {
             var tempFile =
-                Path.GetTempFileName() + ".js";
+                Path.GetTempFileName() + ".py";
 
             await File.WriteAllTextAsync(
                 tempFile,
@@ -16,9 +16,9 @@ namespace CodeInterviewPro.Infrastructure.StaticAnalysis.ESLint
             var process =
                 new Process();
 
-            process.StartInfo.FileName = "eslint";
+            process.StartInfo.FileName = "pylint";
             process.StartInfo.Arguments =
-                $"{tempFile}";
+                $"{tempFile} --score=n";
 
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.UseShellExecute = false;

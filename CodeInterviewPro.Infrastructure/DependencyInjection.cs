@@ -4,6 +4,7 @@ using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositorie
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Application.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
+using CodeInterviewPro.Infrastructure.AI;
 using CodeInterviewPro.Infrastructure.CodeExecution;
 using CodeInterviewPro.Infrastructure.CodeExecution.Executors;
 using CodeInterviewPro.Infrastructure.Identity;
@@ -66,6 +67,12 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IAICodeReviewService,AICodeReviewService>();
             services.AddScoped<ICodeSimilarityService, CodeSimilarityService>();
             services.AddScoped<IScoringService, ScoringService>();
+
+            //codebert 
+            services.AddScoped<ICodeBertService, CodeBertService>();
+            services.AddScoped<IDeepAnalysisService, DeepAnalysisService>();
+            services.AddScoped<IConfidenceService, ConfidenceService>();
+            services.AddHttpClient<ICodeBertService, CodeBertService>();
 
             return services;
 

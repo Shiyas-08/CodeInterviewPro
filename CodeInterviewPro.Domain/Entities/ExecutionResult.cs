@@ -16,7 +16,7 @@ namespace CodeInterviewPro.Domain.Entities
 
         public double Score { get; set; }
 
-        public int AIScore { get; set; }
+        public double AIScore { get; set; }
 
         public string AIFeedback { get; set; }
 
