@@ -1,25 +1,33 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Reflection;
 
 namespace CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis.Roslyn
 {
     public class RoslynAnalyzer
     {
         public List<string> Analyze(string code)
-        {
-            var tree =
+        {                                                                                                                                       
+            var syntaxTree =
                 CSharpSyntaxTree.ParseText(code);
+
+            var references =
+                AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Where(a => !a.IsDynamic &&
+                            !string.IsNullOrEmpty(a.Location))
+                .Select(a =>
+                    MetadataReference.CreateFromFile(a.Location))
+                .Cast<MetadataReference>()
+                .ToList();
 
             var compilation =
                 CSharpCompilation.Create(
                     "Analysis",
-                    new[] { tree },
-                    new[]
-                    {
-                        MetadataReference.CreateFromFile(
-                            typeof(object).Assembly.Location)
-                    });
+                    new[] { syntaxTree },
+                    references,
+                    new CSharpCompilationOptions(
+                        OutputKind.ConsoleApplication));
 
             var diagnostics =
                 compilation.GetDiagnostics();

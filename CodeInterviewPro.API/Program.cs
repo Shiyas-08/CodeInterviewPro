@@ -16,7 +16,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//authentication 
+// Authentication
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -68,7 +69,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 
-// authorization
+// Authorization
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly",
@@ -80,11 +82,16 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CandidateOnly",
         policy => policy.RequireClaim("rid", "3"));
 });
+
+// Redis
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(
     ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false"));
 
 builder.Services.AddScoped<RedisService>();
-// Validation responce 
+
+// Validation Response
+
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
@@ -101,7 +108,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
-// services
+// Services
+
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 
@@ -122,16 +130,23 @@ builder.Services.AddInfrastructure();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
+System.Net.ServicePointManager.SecurityProtocol =
+    System.Net.SecurityProtocolType.Tls12 |
+    System.Net.SecurityProtocolType.Tls13;
+
+
 var app = builder.Build();
 
-// seed
+// Seed
+
 using (var scope = app.Services.CreateScope())
 {
     await AdminSeeder.Seed(scope.ServiceProvider);
 }
 
-// midleware
-app.UseMiddleware<ExceptionMiddleware>(); 
+// Middleware
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
