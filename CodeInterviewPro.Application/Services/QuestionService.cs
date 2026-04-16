@@ -3,11 +3,7 @@ using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
 using CodeInterviewPro.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CodeInterviewPro.Domain.Enums;
 
 namespace CodeInterviewPro.Application.Services
 {
@@ -75,14 +71,15 @@ namespace CodeInterviewPro.Application.Services
             await _repository.DeleteAsync(id, _userContext.TenantId);
         }
 
-        private (int time, int memory) GetLimits(string language)
+        private (int time, int memory) GetLimits(ProgrammingLanguage language)
         {
-            return language.ToLower() switch
+            return language switch
             {
-                "csharp" => (2, 256),
-                "python" => (3, 256),
-                "javascript" => (2, 256),
-                "java" => (3, 512),
+                ProgrammingLanguage.CSharp => (2, 256),
+                ProgrammingLanguage.Python => (3, 256),
+                ProgrammingLanguage.Java => (3, 512),
+                ProgrammingLanguage.JavaScript => (2, 256),
+                ProgrammingLanguage.Go => (2, 256),
                 _ => (2, 256)
             };
         }

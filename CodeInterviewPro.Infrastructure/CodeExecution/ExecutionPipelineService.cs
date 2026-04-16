@@ -14,7 +14,7 @@ using CodeInterviewPro.Infrastructure.StaticAnalysis.Python;
 
 namespace CodeInterviewPro.Infrastructure.CodeExecution
 {
-    public class ExecutionPipelineService
+    public class ExecutionPipelineService: IExecutionPipelineService
     {
         private readonly MultiLanguageExecutionService _executionService;
         private readonly TestCaseExecutionService _testCaseService;

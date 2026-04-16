@@ -5,9 +5,7 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {
     public RegisterRequestValidator()
     {
-        RuleFor(x => x.TenantId)
-            .NotEmpty()
-            .WithMessage("TenantId is required");
+        
 
         RuleFor(x => x.Email)
             .NotEmpty()

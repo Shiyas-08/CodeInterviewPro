@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CodeInterviewPro.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,9 @@ namespace CodeInterviewPro.Domain.Entities
 
         public int MemoryLimit { get; set; }
 
-        public string Language { get; set; } = default!;
+        public ProgrammingLanguage Language { get; set; }
+
+        public string MethodName { get; set; } = default!;
 
         public bool IsActive { get; set; } = true;
 

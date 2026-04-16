@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeInterviewPro.Application.DTOs.Interview
 {
@@ -14,6 +11,7 @@ namespace CodeInterviewPro.Application.DTOs.Interview
 
         public int DurationMinutes { get; set; }
 
-        public string Status { get; set; } = string.Empty;
+        public List<InterviewQuestionDto> Questions { get; set; }
+            = new();
     }
 }

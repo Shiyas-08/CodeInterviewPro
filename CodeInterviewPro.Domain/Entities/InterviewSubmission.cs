@@ -21,5 +21,6 @@ namespace CodeInterviewPro.Domain.Entities
         public string Code { get; set; } = string.Empty;
 
         public DateTime SubmittedAt { get; set; }
+        public double Score { get; set; }
     }
 }

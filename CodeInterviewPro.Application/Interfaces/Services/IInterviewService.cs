@@ -15,7 +15,8 @@ namespace CodeInterviewPro.Application.Interfaces.Services
 
         Task ScheduleAsync(Guid interviewId, ScheduleInterviewDto dto);
 
-        Task<GenerateLinkResponse> GenerateLinkAsync(Guid interviewId, GenerateLinkDto dto);
+        //Task<GenerateLinkResponse> GenerateLinkAsync(Guid interviewId, GenerateLinkDto dto);
         Task AssignQuestionsAsync(Guid interviewId,AssignQuestionsDto dto);
+        Task<string> InviteCandidateAsync(Guid interviewId, InviteCandidateDto dto);
     }
 }

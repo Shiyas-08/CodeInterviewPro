@@ -14,13 +14,16 @@ namespace CodeInterviewPro.Domain.Entities
 
         public Guid InterviewId { get; set; }
 
-        public Guid CandidateId { get; set; }
+        public Guid? CandidateId { get; set; }
 
         public string Token { get; set; } = string.Empty;
 
         public DateTime ExpiryTime { get; set; }
 
         public bool IsUsed { get; set; }
+
         public DateTime? StartedAt { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

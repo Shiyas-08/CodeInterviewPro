@@ -29,6 +29,9 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
 
             interview.Id = Guid.NewGuid();
 
+            //  FIX
+            interview.SecureToken = Guid.NewGuid().ToString();
+
             using var connection = _db.CreateConnection();
 
             await connection.ExecuteAsync(sql, interview);

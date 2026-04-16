@@ -17,6 +17,7 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewsReposit
             Guid interviewId,
             Guid tenantId,
             List<QuestionItem> questions);
+        Task<Question?> GetByIdAsync(Guid questionId, Guid tenantId);
     }
 
 

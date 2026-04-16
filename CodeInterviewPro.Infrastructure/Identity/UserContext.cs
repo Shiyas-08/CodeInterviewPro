@@ -20,9 +20,8 @@ public class UserContext : IUserContext
     public Guid TenantId =>
         Guid.Parse(User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")!.Value);
 
-    public long UserId =>
-        long.Parse(User.FindFirst("uid")!.Value);
-
+    public Guid UserId =>
+       Guid.Parse(User.FindFirst("uid")!.Value);
     public string Role =>
         User.FindFirst(ClaimTypes.Role)!.Value;
 }

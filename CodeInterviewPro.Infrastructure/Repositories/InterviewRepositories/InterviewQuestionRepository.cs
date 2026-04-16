@@ -1,5 +1,6 @@
 ﻿using CodeInterviewPro.Application.DTOs.Interview;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,27 @@ using System.Threading.Tasks;
             }
         }
 
+
+        public async Task<Question?> GetByIdAsync(Guid questionId, Guid tenantId)
+        {
+            var query = @"
+        SELECT q.*
+        FROM Questions q
+        INNER JOIN InterviewQuestions iq
+            ON q.Id = iq.QuestionId
+        WHERE q.Id = @QuestionId
+        AND q.TenantId = @TenantId";
+
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryFirstOrDefaultAsync<Question>(
+                query,
+                new
+                {
+                    QuestionId = questionId,
+                    TenantId = tenantId
+                });
+        }
     }
     }
 

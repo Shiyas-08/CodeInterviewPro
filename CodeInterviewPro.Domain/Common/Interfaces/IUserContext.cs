@@ -9,7 +9,7 @@ namespace CodeInterviewPro.Domain.Common.Interfaces
     public interface IUserContext
     {
         Guid TenantId { get; }
-        long UserId { get; }
+        Guid UserId { get; }
         string Role { get; }
     }
 }

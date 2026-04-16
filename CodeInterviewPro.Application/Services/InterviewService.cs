@@ -116,6 +116,7 @@ namespace CodeInterviewPro.Infrastructure.Services
             await _candidateRepo.AssignCandidateAsync(entity);
         }
 
+       
         // SCHEDULE
         public async Task ScheduleAsync(Guid interviewId, ScheduleInterviewDto dto)
         {
@@ -140,47 +141,47 @@ namespace CodeInterviewPro.Infrastructure.Services
         }
 
         // GENERATE LINK
-        public async Task<GenerateLinkResponse> GenerateLinkAsync(Guid interviewId, GenerateLinkDto dto)
-        {
-            var tenantId = GetTenantId();
+        //public async Task<GenerateLinkResponse> GenerateLinkAsync(Guid interviewId, GenerateLinkDto dto)
+        //{
+        //    var tenantId = GetTenantId();
 
-            var interview = await _interviewRepo.GetByIdAsync(interviewId, tenantId);
+        //    var interview = await _interviewRepo.GetByIdAsync(interviewId, tenantId);
 
-            if (interview == null)
-                throw new Exception("Interview not found");
+        //    if (interview == null)
+        //        throw new Exception("Interview not found");
 
-            var assigned = await _candidateRepo.GetAsync(
-                interviewId,
-                dto.CandidateId,
-                tenantId);
+        //    var assigned = await _candidateRepo.GetAsync(
+        //        interviewId,
+        //        dto.CandidateId,
+        //        tenantId);
 
-            if (assigned == null)
-                throw new Exception("Candidate not assigned");
+        //    if (assigned == null)
+        //        throw new Exception("Candidate not assigned");
 
-            if (dto.ExpiryTime <= DateTime.UtcNow)
-                throw new Exception("Invalid expiry time");
+        //    if (dto.ExpiryTime <= DateTime.UtcNow)
+        //        throw new Exception("Invalid expiry time");
 
-            var token = Guid.NewGuid().ToString();
+        //    var token = Guid.NewGuid().ToString();
 
-            var invitation = new InterviewInvitation
-            {
-                TenantId = tenantId,  // FIXED
-                InterviewId = interviewId,
-                CandidateId = dto.CandidateId,
-                Token = token,
-                ExpiryTime = dto.ExpiryTime,
-                IsUsed = false
-            };
+        //    var invitation = new InterviewInvitation
+        //    {
+        //        TenantId = tenantId,  // FIXED
+        //        InterviewId = interviewId,
+        //        CandidateId = dto.CandidateId,
+        //        Token = token,
+        //        ExpiryTime = dto.ExpiryTime,
+        //        IsUsed = false
+        //    };
 
-            await _invitationRepo.CreateAsync(invitation);
+        //    await _invitationRepo.CreateAsync(invitation);
 
-            return new GenerateLinkResponse
-            {
-                Token = token,
-                Link = $"https://localhost:5001/interview/{token}",
-                ExpiryTime = dto.ExpiryTime
-            };
-        }
+        //    return new GenerateLinkResponse
+        //    {
+        //        Token = token,
+        //        Link = $"https://localhost:5001/interview/{token}",
+        //        ExpiryTime = dto.ExpiryTime
+        //    };
+        //}
 
         // ASSIGN QUESTIONS
         public async Task AssignQuestionsAsync(
@@ -217,6 +218,64 @@ namespace CodeInterviewPro.Infrastructure.Services
                 throw new Exception("UserId not found in token");
 
             return Guid.Parse(userClaim.Value);
+        }
+
+        //invaite 
+        public async Task<string> InviteCandidateAsync(
+     Guid interviewId,
+     InviteCandidateDto dto)
+        {
+            var tenantId = GetTenantId();
+
+            var interview =
+                await _interviewRepo.GetByIdAsync(interviewId, tenantId);
+
+            if (interview == null)
+                throw new Exception("Interview not found");
+
+            //  Check if user already exists
+            var user = await _userRepo.GetByEmail(dto.Email);
+
+            Guid? candidateId = null;
+
+            if (user != null)
+            {
+                if (user.Role != UserRole.Candidate)
+                    throw new Exception("User is not a candidate");
+
+                candidateId = user.Id;
+
+                //  Assign candidate if already exists
+                await _candidateRepo.AssignCandidateAsync(new InterviewCandidate
+                {
+                    TenantId = tenantId,
+                    InterviewId = interviewId,
+                    CandidateId = candidateId.Value,
+                    Status = (int)InterviewCandidateStatus.Invited,
+                    AssignedAt = DateTime.UtcNow
+                });
+            }
+
+            //  Generate token
+            var token = Guid.NewGuid().ToString();
+
+            //  Create invitation (NO USER CREATION)
+            var invitation = new InterviewInvitation
+            {
+                TenantId = tenantId,
+                InterviewId = interviewId,
+                CandidateId = candidateId, // can be null
+                Token = token,
+                ExpiryTime = dto.ExpiryTime,
+                IsUsed = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _invitationRepo.CreateAsync(invitation);
+
+            var link = $"https://localhost:5001/interview/{token}";
+
+            return link;
         }
     }
 }

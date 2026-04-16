@@ -15,6 +15,6 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewsReposit
 
         Task MarkUsedAsync(long id);
         Task UpdateAsync(InterviewInvitation invitation);
-
-    }
+        Task UpdateCandidateAsync(string token, Guid candidateId);
+     }
 }

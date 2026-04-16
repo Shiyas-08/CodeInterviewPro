@@ -30,18 +30,20 @@ namespace CodeInterviewPro.API.Controllers
         }
 
         // Assign Candidate
-        [HttpPost("{id}/assign")]
-        public async Task<IActionResult> Assign(
-            Guid id,
-            AssignCandidateDto dto)
-        {
-            await _service.AssignCandidateAsync(id, dto);
+        //[HttpPost("{id}/assign")]
+        //public async Task<IActionResult> Assign(
+        //    Guid id,
+        //    AssignCandidateDto dto)
+        //{
+        //    await _service.AssignCandidateAsync(id, dto);
 
-            return Ok(ApiResponse<string>.SuccessResponse(
-                null,
-                "Candidate assigned successfully"));
-        }
+        //    return Ok(ApiResponse<string>.SuccessResponse(
+        //        null,
+        //        "Candidate assigned successfully"));
+        //}
 
+      
+        
 
         [HttpPost("{id}/questions")]
         public async Task<IActionResult> AssignQuestions( Guid id, AssignQuestionsDto dto)
@@ -65,17 +67,31 @@ namespace CodeInterviewPro.API.Controllers
                 "Interview scheduled successfully"));
         }
 
-        // Generate Link
-        [HttpPost("{id}/generate-link")]
-        public async Task<IActionResult> GenerateLink(
-            Guid id,
-            GenerateLinkDto dto)
-        {
-            var result = await _service.GenerateLinkAsync(id, dto);
 
-            return Ok(ApiResponse<GenerateLinkResponse>.SuccessResponse(
-                result,
-                "Link generated successfully"));
+        // Invite Candidate (Email Based)
+        [HttpPost("{id}/invite")]
+        public async Task<IActionResult> Invite(
+            Guid id,
+            InviteCandidateDto dto)
+        {
+            var link = await _service.InviteCandidateAsync(id, dto);
+
+            return Ok(ApiResponse<string>.SuccessResponse(
+                link,
+                "Candidate invited successfully"));
+
+            // Generate Link
+            //[HttpPost("{id}/generate-link")]
+            //public async Task<IActionResult> GenerateLink(
+            //    Guid id,
+            //    GenerateLinkDto dto)
+            //{
+            //    var result = await _service.GenerateLinkAsync(id, dto);
+
+            //    return Ok(ApiResponse<GenerateLinkResponse>.SuccessResponse(
+            //        result,
+            //        "Link generated successfully"));
+            //}
         }
-    }
 }
+    }

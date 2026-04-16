@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CodeInterviewPro.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,6 @@ namespace CodeInterviewPro.Application.DTOs.Interview
         public string Description { get; set; } = default!;
         public string? StarterCode { get; set; }
         public string TestCases { get; set; } = default!;
-        public string Language { get; set; } = default!;
+        public ProgrammingLanguage Language { get; set; }
     }
 }

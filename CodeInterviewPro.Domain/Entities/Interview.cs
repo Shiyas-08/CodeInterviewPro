@@ -29,5 +29,7 @@ namespace CodeInterviewPro.Domain.Entities
         public DateTime CreatedAt { get; set; }
 
         public bool IsActive { get; set; }
+        public string SecureToken { get; set; } = string.Empty;
+
     }
 }

@@ -91,10 +91,13 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IFinalFeedbackService, FinalFeedbackService>();
             //services.AddHttpClient<IAIFeedbackService, GeminiFeedbackService>();
             services.AddHttpClient<IAIFeedbackService, GeminiFeedbackService>()
+
                 .ConfigureHttpClient(client =>
                 {
                     client.Timeout = TimeSpan.FromMinutes(5);
                 });
+
+            services.AddScoped<IExecutionPipelineService, ExecutionPipelineService>();
             return services;
 
 
