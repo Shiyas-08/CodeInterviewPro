@@ -9,7 +9,8 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewReposito
 {
     public interface IInterviewSubmissionRepository
     {
-        Task<long> CreateAsync(InterviewSubmission submission);
+        Task<Guid> CreateAsync(InterviewSubmission submission);
+        Task<IEnumerable<InterviewSubmission>> GetByCandidateAsync(Guid candidateId);
 
     }
 }

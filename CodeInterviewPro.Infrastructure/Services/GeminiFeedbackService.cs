@@ -10,14 +10,24 @@ namespace CodeInterviewPro.Infrastructure.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
-
-        public GeminiFeedbackService(
-            HttpClient httpClient,
-            IConfiguration configuration)
+        public GeminiFeedbackService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _apiKey = configuration["Gemini:ApiKey"];
+
+            _apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+
+            if (string.IsNullOrEmpty(_apiKey))
+            {
+                throw new Exception("API Key not found in environment variables");
+            }
         }
+        //public GeminiFeedbackService(
+        //    HttpClient httpClient,
+        //    IConfiguration configuration)
+        //{
+        //    _httpClient = httpClient;
+        //    _apiKey = configuration["Gemini:ApiKey"];
+        //}
 
         public async Task<string> GenerateAsync(
             string question,
@@ -78,14 +88,26 @@ Provide:
                 // FIX: Updated model name to gemini-3-flash-preview for the 2026 v1beta endpoint
                 // This resolves the 404 error while maintaining the 'Flash' speed you need.
                 var modelName = "gemini-3-flash-preview";
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={_apiKey}";
 
-                var request = new HttpRequestMessage(HttpMethod.Post, url)
-                {
-                    Content = new StringContent(json, Encoding.UTF8, "application/json")
-                };
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent";
+
+                var request = new HttpRequestMessage(HttpMethod.Post, url);
+
+                request.Headers.Add("x-goog-api-key", _apiKey);
+
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var response = await _httpClient.SendAsync(request);
+
+                //var modelName = "gemini-3-flash-preview";
+                //var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={_apiKey}";
+
+                //var request = new HttpRequestMessage(HttpMethod.Post, url)
+                //{
+                //    Content = new StringContent(json, Encoding.UTF8, "application/json")
+                //};
+
+                //var response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {

@@ -130,7 +130,7 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                     };
                 }
             }
-
+          
             var results =
                 await _resource.ExecuteWithLimits(
                     () => _timeout.ExecuteWithTimeout<List<TestCaseResult>>(
@@ -264,24 +264,24 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             metrics.AIComplexity =
                 codeBertResult.Complexity;
 
-            var history =
-                new ExecutionHistory
-                {
-                    Id = Guid.NewGuid(),
-                    Code = code,
-                    Language = language.ToString(),
-                    Total = metrics.Total,
-                    Passed = metrics.Passed,
-                    Failed = metrics.Failed,
-                    Score = (int)metrics.Score,
-                    AIScore = metrics.AIScore,
-                    AIFeedback = metrics.AIFeedback,
-                    AIComplexity = metrics.AIComplexity,
-                    FinalScore = metrics.FinalScore,
-                    CreatedAt = DateTime.UtcNow
-                };
+            //var history =
+            //    new ExecutionHistory
+            //    {
+            //        Id = Guid.NewGuid(),
+            //        Code = code,
+            //        Language = language.ToString(),
+            //        Total = metrics.Total,
+            //        Passed = metrics.Passed,
+            //        Failed = metrics.Failed,
+            //        Score = (int)metrics.Score,
+            //        AIScore = metrics.AIScore,
+            //        AIFeedback = metrics.AIFeedback,
+            //        AIComplexity = metrics.AIComplexity,
+            //        FinalScore = metrics.FinalScore,
+            //        CreatedAt = DateTime.UtcNow
+            //    };
 
-            await _repository.SaveAsync(history);
+            //await _repository.SaveAsync(history);
 
             await _cache.SetAsync(
                 cacheKey,

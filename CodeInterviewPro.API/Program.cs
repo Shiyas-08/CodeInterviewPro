@@ -17,6 +17,15 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Authentication
+var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+Console.WriteLine($"JWT KEY: {jwtKey}");
+
+if (string.IsNullOrEmpty(jwtKey))
+{
+throw new Exception("JWT key not found in environment variables");
+}
+
+var key = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
@@ -24,8 +33,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        IssuerSigningKey = new SymmetricSecurityKey(key),
 
         ValidateIssuer = false,
         ValidateAudience = false,

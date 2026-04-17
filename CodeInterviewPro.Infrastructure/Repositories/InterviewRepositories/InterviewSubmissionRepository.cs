@@ -13,39 +13,98 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
         {
             _context = context;
         }
-
-        public async Task<long> CreateAsync(
-            InterviewSubmission submission)
+        public async Task<Guid> CreateAsync(InterviewSubmission submission)
         {
             var sql = @"
-                INSERT INTO InterviewSubmissions
-                (
-                    InterviewId,
-                    QuestionId,
-                    CandidateId,
-                    Language,
-                    Code,
-                    SubmittedAt
-                )
-                VALUES
-                (
-                    @InterviewId,
-                    @QuestionId,
-                    @CandidateId,
-                    @Language,
-                    @Code,
-                    @SubmittedAt
-                );
+        DECLARE @NewId UNIQUEIDENTIFIER = NEWID();
 
-                SELECT CAST(SCOPE_IDENTITY() as BIGINT);
-            ";
+        INSERT INTO InterviewSubmissions
+        (
+            Id,
+            InterviewId,
+            QuestionId,
+            CandidateId,
+            Language,
+            Code,
+            SubmittedAt
+        )
+        VALUES
+        (
+            @NewId,
+            @InterviewId,
+            @QuestionId,
+            @CandidateId,
+            @Language,
+            @Code,
+            @SubmittedAt
+        );
 
-            using var connection =
-                _context.CreateConnection();
+        SELECT @NewId;
+    ";
 
-            return await connection.ExecuteScalarAsync<long>(
+            using var connection = _context.CreateConnection();
+
+            return await connection.ExecuteScalarAsync<Guid>(sql, submission);
+        }
+
+        //public async Task<long> CreateAsync(
+        //    InterviewSubmission submission)
+        //{
+
+        //    var sql = @"
+        //        INSERT INTO InterviewSubmissions
+        //        (
+        //            InterviewId,
+        //            QuestionId,
+        //            CandidateId,
+        //            Language,
+        //            Code,
+        //            SubmittedAt
+        //        )
+        //        VALUES
+        //        (
+        //            @InterviewId,
+        //            @QuestionId,
+        //            @CandidateId,
+        //            @Language,
+        //            @Code,
+        //            @SubmittedAt
+        //        );
+
+        //        SELECT CAST(SCOPE_IDENTITY() as BIGINT);
+        //    ";
+
+        //    using var connection =
+        //        _context.CreateConnection();
+
+        //    return await connection.ExecuteScalarAsync<long>(
+        //        sql,
+        //        submission);
+        //}
+        public async Task<IEnumerable<InterviewSubmission>> GetByCandidateAsync(Guid candidateId)
+        {
+            //    var sql = @"
+            //SELECT *
+            //FROM InterviewSubmissions
+            //WHERE CandidateId = @CandidateId";
+            var sql = @"
+    SELECT *
+    FROM (
+        SELECT *,
+               ROW_NUMBER() OVER (
+                   PARTITION BY QuestionId
+                   ORDER BY SubmittedAt DESC
+               ) AS rn
+        FROM InterviewSubmissions
+        WHERE CandidateId = @CandidateId
+    ) t
+    WHERE t.rn = 1";
+
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryAsync<InterviewSubmission>(
                 sql,
-                submission);
+                new { CandidateId = candidateId });
         }
     }
 }

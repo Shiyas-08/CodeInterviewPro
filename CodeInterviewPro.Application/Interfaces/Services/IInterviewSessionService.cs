@@ -13,6 +13,6 @@ namespace CodeInterviewPro.Application.Interfaces.Services
 
         Task<InterviewSession> GetSessionAsync(string token);
 
-        Task EndSessionAsync(string token);
+        Task StopSessionAsync(string token);
     }
 }
