@@ -13,7 +13,7 @@ namespace CodeInterviewPro.Application.DTOs.Interview
 
     public class QuestionItem
     {
-        public long QuestionId { get; set; }
+        public Guid QuestionId { get; set; }
 
         public int Marks { get; set; }
     }

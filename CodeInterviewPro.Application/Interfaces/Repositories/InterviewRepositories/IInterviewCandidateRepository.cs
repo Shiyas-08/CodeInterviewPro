@@ -11,8 +11,8 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewsReposit
     {
         Task AssignCandidateAsync(InterviewCandidate candidate);
 
-        Task<IEnumerable<InterviewCandidate>> GetByInterviewIdAsync(long interviewId, Guid tenantId);
+        Task<IEnumerable<InterviewCandidate>> GetByInterviewIdAsync(Guid interviewId, Guid tenantId);
 
-        Task<InterviewCandidate?> GetAsync(long interviewId, long candidateId, Guid tenantId);
+        Task<InterviewCandidate?> GetAsync(Guid interviewId, Guid candidateId, Guid tenantId);
     }
 }

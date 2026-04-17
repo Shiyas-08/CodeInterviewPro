@@ -3,7 +3,11 @@
     public class ExecutionHistory
     {
         public Guid Id { get; set; }
+        public Guid CandidateId { get; set; }
+        public Guid InterviewId { get; set; }
+        public string Token { get; set; }
 
+        public Guid QuestionId { get; set; }
         public string Code { get; set; }
 
         public string Language { get; set; }
@@ -16,12 +20,14 @@
 
         public int Score { get; set; }
 
-        public int AIScore { get; set; }
+        public double AIScore { get; set; }
 
         public string AIFeedback { get; set; }
 
         public string AIComplexity { get; set; }
+        public double FinalScore { get; set; }
 
         public DateTime CreatedAt { get; set; }
+      
     }
 }

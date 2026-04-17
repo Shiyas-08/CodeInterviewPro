@@ -8,7 +8,7 @@ namespace CodeInterviewPro.Application.DTOs.Interview
 {
     public class JoinInterviewResponse
     {
-        public long InterviewId { get; set; }
+        public Guid InterviewId { get; set; }
 
         public string Title { get; set; } = string.Empty;
 

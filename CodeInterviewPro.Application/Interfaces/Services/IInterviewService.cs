@@ -9,13 +9,14 @@ namespace CodeInterviewPro.Application.Interfaces.Services
 {
     public interface IInterviewService
     {
-        Task<long> CreateAsync(CreateInterviewDto dto);
+        Task<Guid> CreateAsync(CreateInterviewDto dto);
 
-        Task AssignCandidateAsync(long interviewId, AssignCandidateDto dto);
+        Task AssignCandidateAsync(Guid interviewId, AssignCandidateDto dto);
 
-        Task ScheduleAsync(long interviewId, ScheduleInterviewDto dto);
+        Task ScheduleAsync(Guid interviewId, ScheduleInterviewDto dto);
 
-        Task<GenerateLinkResponse> GenerateLinkAsync(long interviewId, GenerateLinkDto dto);
-        Task AssignQuestionsAsync(long interviewId,AssignQuestionsDto dto);
+        //Task<GenerateLinkResponse> GenerateLinkAsync(Guid interviewId, GenerateLinkDto dto);
+        Task AssignQuestionsAsync(Guid interviewId,AssignQuestionsDto dto);
+        Task<string> InviteCandidateAsync(Guid interviewId, InviteCandidateDto dto);
     }
 }

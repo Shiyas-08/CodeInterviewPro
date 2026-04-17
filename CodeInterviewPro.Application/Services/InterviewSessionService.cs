@@ -43,15 +43,19 @@ namespace CodeInterviewPro.Application.Services
             return session;
         }
 
-        public async Task EndSessionAsync(string token)
+        public async Task StopSessionAsync(string token)
         {
             var session = await _repository.GetByTokenAsync(token);
 
             if (session == null)
                 throw new Exception("Session not found");
 
+            if (session.Status == (int)InterviewSessionStatus.Completed)
+                throw new Exception("Interview already ended");
+
             session.EndTime = DateTime.UtcNow;
             session.Status = (int)InterviewSessionStatus.Completed;
+            session.IsActive = false;
 
             await _repository.UpdateAsync(session);
         }

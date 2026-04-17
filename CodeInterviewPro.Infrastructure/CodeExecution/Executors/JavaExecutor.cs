@@ -16,22 +16,19 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution.Executors
             var filePath =
                 Path.Combine(tempFolder, "Main.java");
 
-            var fullCode = $@"
-public class Main
-{{
-    public static void main(String[] args)
-    {{
-        {code}
-    }}
-}}";
-
-            await File.WriteAllTextAsync(filePath, fullCode);
+            // Write code directly
+            await File.WriteAllTextAsync(filePath, code);
 
             var process = new Process();
 
             process.StartInfo.FileName = "docker";
             process.StartInfo.Arguments =
-       $"run --rm -v \"{tempFolder}:/app\" eclipse-temurin:17 sh -c \"javac /app/Main.java && java -cp /app Main\"";
+                $"run --rm " +
+                $"--network none " +
+                $"-v \"{tempFolder}:/app\" " +
+                $"-w /app " +
+                $"eclipse-temurin:17 " +
+                $"bash -c \"javac Main.java && java Main\"";
 
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;

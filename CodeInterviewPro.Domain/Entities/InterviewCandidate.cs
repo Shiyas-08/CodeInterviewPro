@@ -8,13 +8,13 @@ namespace CodeInterviewPro.Domain.Entities
 {
     public class InterviewCandidate
     {
-        public long Id { get; set; }
+        public Guid Id { get; set; }
 
         public Guid TenantId { get; set; }
 
-        public long InterviewId { get; set; }
+        public Guid InterviewId { get; set; }
 
-        public long CandidateId { get; set; }
+        public Guid CandidateId { get; set; }
 
         public int Status { get; set; }
 

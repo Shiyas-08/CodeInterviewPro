@@ -40,18 +40,19 @@ namespace CodeInterviewPro.API.Controllers
 
         [HttpPost("testcases")]
         public async Task<IActionResult> RunTestCases(
-            [FromBody] TestCaseRequest request)
+         [FromBody] TestCaseRequest request,
+         CancellationToken token)
         {
             var result =
                 await _testCaseService.ExecuteAsync(
                     request.Code,
                     request.Language,
                     request.TestCases,
-                    request.MethodName);
+                    request.MethodName,
+                    token);
 
             return Ok(result);
         }
-
         [HttpPost("analyze")]
         public IActionResult Analyze(
             [FromBody] CodeExecutionRequest request)

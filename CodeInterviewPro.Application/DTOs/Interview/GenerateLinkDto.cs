@@ -8,7 +8,7 @@ namespace CodeInterviewPro.Application.DTOs.Interview
 {
     public class GenerateLinkDto
     {
-        public long CandidateId { get; set; }
+        public Guid CandidateId { get; set; }
 
         public DateTime ExpiryTime { get; set; }
     }

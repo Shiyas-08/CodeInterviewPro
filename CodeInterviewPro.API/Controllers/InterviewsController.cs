@@ -24,27 +24,29 @@ namespace CodeInterviewPro.API.Controllers
         {
             var id = await _service.CreateAsync(dto);
 
-            return Ok(ApiResponse<long>.SuccessResponse(
+            return Ok(ApiResponse<Guid>.SuccessResponse(
                 id,
                 "Interview created successfully"));
         }
 
         // Assign Candidate
-        [HttpPost("{id}/assign")]
-        public async Task<IActionResult> Assign(
-            long id,
-            AssignCandidateDto dto)
-        {
-            await _service.AssignCandidateAsync(id, dto);
+        //[HttpPost("{id}/assign")]
+        //public async Task<IActionResult> Assign(
+        //    Guid id,
+        //    AssignCandidateDto dto)
+        //{
+        //    await _service.AssignCandidateAsync(id, dto);
 
-            return Ok(ApiResponse<string>.SuccessResponse(
-                null,
-                "Candidate assigned successfully"));
-        }
+        //    return Ok(ApiResponse<string>.SuccessResponse(
+        //        null,
+        //        "Candidate assigned successfully"));
+        //}
 
+      
+        
 
         [HttpPost("{id}/questions")]
-        public async Task<IActionResult> AssignQuestions( long id, AssignQuestionsDto dto)
+        public async Task<IActionResult> AssignQuestions( Guid id, AssignQuestionsDto dto)
         {
             await _service.AssignQuestionsAsync(id, dto);
 
@@ -55,7 +57,7 @@ namespace CodeInterviewPro.API.Controllers
         // Schedule Interview
         [HttpPut("{id}/schedule")]
         public async Task<IActionResult> Schedule(
-            long id,
+            Guid id,
             ScheduleInterviewDto dto)
         {
             await _service.ScheduleAsync(id, dto);
@@ -65,17 +67,31 @@ namespace CodeInterviewPro.API.Controllers
                 "Interview scheduled successfully"));
         }
 
-        // Generate Link
-        [HttpPost("{id}/generate-link")]
-        public async Task<IActionResult> GenerateLink(
-            long id,
-            GenerateLinkDto dto)
-        {
-            var result = await _service.GenerateLinkAsync(id, dto);
 
-            return Ok(ApiResponse<GenerateLinkResponse>.SuccessResponse(
-                result,
-                "Link generated successfully"));
+        // Invite Candidate (Email Based)
+        [HttpPost("{id}/invite")]
+        public async Task<IActionResult> Invite(
+            Guid id,
+            InviteCandidateDto dto)
+        {
+            var link = await _service.InviteCandidateAsync(id, dto);
+
+            return Ok(ApiResponse<string>.SuccessResponse(
+                link,
+                "Candidate invited successfully"));
+
+            // Generate Link
+            //[HttpPost("{id}/generate-link")]
+            //public async Task<IActionResult> GenerateLink(
+            //    Guid id,
+            //    GenerateLinkDto dto)
+            //{
+            //    var result = await _service.GenerateLinkAsync(id, dto);
+
+            //    return Ok(ApiResponse<GenerateLinkResponse>.SuccessResponse(
+            //        result,
+            //        "Link generated successfully"));
+            //}
         }
-    }
 }
+    }

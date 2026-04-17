@@ -29,7 +29,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
         }
 
         public async Task<IEnumerable<InterviewCandidate>>
-            GetByInterviewIdAsync(long interviewId, Guid tenantId)
+            GetByInterviewIdAsync(Guid interviewId, Guid tenantId)
         {
             var sql = @"
                 SELECT *
@@ -45,7 +45,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
         }
 
         public async Task<InterviewCandidate?>
-            GetAsync(long interviewId, long candidateId, Guid tenantId)
+            GetAsync(Guid interviewId, Guid candidateId, Guid tenantId)
         {
             var sql = @"
                 SELECT *

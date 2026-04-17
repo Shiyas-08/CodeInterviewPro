@@ -68,5 +68,26 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
 
             await connection.ExecuteAsync(sql, invitation);
         }
+        public async Task UpdateCandidateAsync(string token, Guid candidateId)
+        {
+            var sql = @"
+        UPDATE InterviewInvitations
+        SET CandidateId = @CandidateId
+        WHERE Token = @Token
+    ";
+
+            using var connection = _db.CreateConnection();
+
+            var rows = await connection.ExecuteAsync(sql, new
+            {
+                CandidateId = candidateId,
+                Token = token
+            });
+
+            Console.WriteLine($"Rows affected: {rows}");
+
+            if (rows == 0)
+                throw new Exception("❌ Candidate update failed");
+        }
     }
 }

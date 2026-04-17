@@ -9,7 +9,7 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewsReposit
 {
     public interface IInterviewSessionRepository
     {
-        Task<long> CreateAsync(InterviewSession session);
+        Task CreateAsync(InterviewSession session);
 
         Task<InterviewSession?> GetByTokenAsync(string token);
 

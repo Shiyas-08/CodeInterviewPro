@@ -12,6 +12,6 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories
         Task<User?> GetByEmail(string email);
 
         Task Create(User user);
-        Task<User?> GetById(int id);
+        Task<User?> GetById(Guid id);
     }
 }

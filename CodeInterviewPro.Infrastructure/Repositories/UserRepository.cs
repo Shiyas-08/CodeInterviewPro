@@ -15,11 +15,21 @@ namespace CodeInterviewPro.Infrastructure.Repositories
         {
             _context = context;
         }
+        //public async Task Create(User user)
+        //{
+        //    var sql = @"insert into Users (TenantId,Email,PasswordHash,FullName,Role)
+        //         VALUES 
+        //         (@TenantId,@Email,@PasswordHash,@FullName,@Role)";
+        //    using var connection = _context.CreateConnection();
+        //    await connection.ExecuteAsync(sql, user);
+        //}
         public async Task Create(User user)
         {
-            var sql = @"insert into Users (TenantId,Email,PasswordHash,FullName,Role)
-                 VALUES 
-                 (@TenantId,@Email,@PasswordHash,@FullName,@Role)";
+            var sql = @"INSERT INTO Users 
+        (Id, TenantId, Email, PasswordHash, FullName, Role)
+        VALUES 
+        (@Id, @TenantId, @Email, @PasswordHash, @FullName, @Role)";
+
             using var connection = _context.CreateConnection();
             await connection.ExecuteAsync(sql, user);
         }
@@ -31,7 +41,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories
             return await connection.QueryFirstOrDefaultAsync<User>(
                 sql, new { Email = email });
         }
-        public async Task<User?> GetById(int id)
+        public async Task<User?> GetById(Guid id)
         {
             var sql = "SELECT * FROM Users WHERE Id=@Id";
 

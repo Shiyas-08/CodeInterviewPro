@@ -1,11 +1,14 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories;
+﻿using CodeInterviewPro.Application.AI;
+using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Application.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
+using CodeInterviewPro.Infrastructure.AI;
 using CodeInterviewPro.Infrastructure.CodeExecution;
 using CodeInterviewPro.Infrastructure.CodeExecution.Executors;
+using CodeInterviewPro.Infrastructure.CodeExecution.Templates;
 using CodeInterviewPro.Infrastructure.Identity;
 using CodeInterviewPro.Infrastructure.Repositories;
 using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
@@ -14,6 +17,7 @@ using CodeInterviewPro.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,10 +63,41 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<ExecutionPipelineService>();
             services.AddScoped<IMetricsService, MetricsService>();
             services.AddScoped<IExecutionHistoryRepository, ExecutionHistoryRepository>();
+            services.AddScoped<IExecutionCacheService, ExecutionCacheService>();
             services.AddScoped<IRateLimitService,RateLimitService>();
             services.AddScoped<IExecutionTimeoutService, ExecutionTimeoutService>();
             services.AddScoped<IExecutionResourceService,ExecutionResourceService>();
             services.AddScoped<IAICodeReviewService,AICodeReviewService>();
+            services.AddScoped<ICodeSimilarityService, CodeSimilarityService>();
+            services.AddScoped<IScoringService, ScoringService>();
+            services.AddScoped<ICodeRunnerTemplate, CSharpRunnerTemplate>();
+
+            //codebert 
+            //services.AddScoped<ICodeBertService, CodeBertService>();
+            services.AddScoped<IDeepAnalysisService, DeepAnalysisService>();
+            services.AddScoped<IConfidenceService, ConfidenceService>();
+            services.AddHttpClient<ICodeBertService, CodeBertService>();
+            services.AddScoped<AIIntelligenceService>();
+
+
+            // Background Queue
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+
+            // Background Worker
+            services.AddHostedService<CodeInterviewPro.Infrastructure.Services.BackgroundWorker>();
+            services.AddHttpClient();
+            //GEMNI 
+            //services.AddHttpClient<IAIFeedbackService, ChatGptFeedbackService>();
+            services.AddScoped<IFinalFeedbackService, FinalFeedbackService>();
+            //services.AddHttpClient<IAIFeedbackService, GeminiFeedbackService>();
+            services.AddHttpClient<IAIFeedbackService, GeminiFeedbackService>()
+
+                .ConfigureHttpClient(client =>
+                {
+                    client.Timeout = TimeSpan.FromMinutes(5);
+                });
+
+            services.AddScoped<IExecutionPipelineService, ExecutionPipelineService>();
             return services;
 
 

@@ -1,4 +1,5 @@
-﻿using CodeInterviewPro.Domain.Entities;
+﻿using System.Threading;
+using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
 
 namespace CodeInterviewPro.Infrastructure.CodeExecution
@@ -17,43 +18,94 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             string code,
             ProgrammingLanguage language,
             List<TestCase> testCases,
-            string methodName)
+            string methodName,
+            CancellationToken token)
         {
-            var tasks = testCases.Select(async testCase =>
+            token.ThrowIfCancellationRequested();
+
+            var results = new List<TestCaseResult>();
+
+            var output =
+                await _executionService.ExecuteAsync(
+                    code,
+                    language,
+                    testCases,
+                    methodName);
+
+            token.ThrowIfCancellationRequested();
+
+            // DEBUG: Raw Output
+            Console.WriteLine("========== RAW OUTPUT ==========");
+            Console.WriteLine(output);
+            Console.WriteLine("================================");
+
+            var lines =
+                output
+                .Split(new[] { "\r\n", "\n" },
+                StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Where(x => x.Contains("RESULT_"))
+                .ToList();
+
+            // DEBUG: Parsed Lines
+            Console.WriteLine("========== PARSED LINES ==========");
+            foreach (var line in lines)
             {
-                try
+                Console.WriteLine(line);
+            }
+            Console.WriteLine("=================================");
+
+            for (int i = 0; i < testCases.Count; i++)
+            {
+                token.ThrowIfCancellationRequested();
+
+                var expected =
+                    Normalize(testCases[i].ExpectedOutput);
+
+                var actual =
+                    i < lines.Count
+                        ? Normalize(
+                            lines[i]
+                                .Substring(
+                                    lines[i].IndexOf(':') + 1)
+                                .Trim())
+                        : string.Empty;
+
+                // DEBUG: Compare
+                Console.WriteLine($"TEST CASE {i}");
+                Console.WriteLine($"Expected: {expected}");
+                Console.WriteLine($"Actual  : {actual}");
+
+                var passed =
+                    string.Equals(
+                        actual,
+                        expected,
+                        StringComparison.OrdinalIgnoreCase);
+
+                Console.WriteLine($"Passed  : {passed}");
+                Console.WriteLine("--------------------------------");
+
+                results.Add(new TestCaseResult
                 {
-                    var output =
-                        await _executionService.ExecuteAsync(
-                            code,
-                            language,
-                            new List<TestCase> { testCase },
-                            methodName);
+                    Output = actual,
+                    Expected = expected,
+                    Passed = passed
+                });
+            }
 
-                    return new TestCaseResult
-                    {
-                        Output = output?.Trim(),
-                        Expected = testCase.ExpectedOutput?.Trim(),
-                        Passed =
-                            output?.Trim() ==
-                            testCase.ExpectedOutput?.Trim()
-                    };
-                }
-                catch (Exception ex)
-                {
-                    return new TestCaseResult
-                    {
-                        Output = ex.Message,
-                        Expected = testCase.ExpectedOutput,
-                        Passed = false
-                    };
-                }
-            });
+            return results;
+        }
 
-            var results =
-                await Task.WhenAll(tasks);
+        private static string Normalize(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
 
-            return results.ToList();
+            return value
+                .Trim()
+                .Replace("\r", "")
+                .Replace("\n", "")
+                .Replace(" ", "");
         }
     }
 }

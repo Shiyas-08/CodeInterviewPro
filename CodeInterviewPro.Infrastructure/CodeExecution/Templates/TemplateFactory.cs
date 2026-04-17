@@ -1,20 +1,29 @@
 ﻿using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Domain.Enums;
 
 namespace CodeInterviewPro.Infrastructure.CodeExecution.Templates
 {
     public class TemplateFactory
     {
-        public static ICodeRunnerTemplate GetTemplate(string language)
+        public static ICodeRunnerTemplate GetTemplate(
+            ProgrammingLanguage language)
         {
-            return language.ToLower() switch
+            return language switch
             {
-                "csharp" => new CSharpRunnerTemplate(),
+                ProgrammingLanguage.CSharp =>
+                    new CSharpRunnerTemplate(),
 
-                // We'll add later
-                // "python" => new PythonRunnerTemplate(),
-                // "javascript" => new NodeRunnerTemplate(),
-                // "java" => new JavaRunnerTemplate(),
-                // "go" => new GoRunnerTemplate(),
+                ProgrammingLanguage.Python =>
+                    new PythonRunnerTemplate(),
+
+                ProgrammingLanguage.JavaScript =>
+                    new NodeRunnerTemplate(),
+
+                ProgrammingLanguage.Java =>
+                    new JavaRunnerTemplate(),
+
+                ProgrammingLanguage.Go =>
+                    new GoRunnerTemplate(),
 
                 _ => throw new Exception("Unsupported language")
             };

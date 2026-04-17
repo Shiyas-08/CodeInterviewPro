@@ -8,18 +8,19 @@ namespace CodeInterviewPro.Domain.Entities
 {
     public class InterviewSubmission
     {
-        public long Id { get; set; }
+        public Guid Id { get; set; }
 
-        public long InterviewId { get; set; }
+        public Guid InterviewId { get; set; }
 
-        public long QuestionId { get; set; }
+        public Guid QuestionId { get; set; }
 
-        public long CandidateId { get; set; }
+        public Guid CandidateId { get; set; }
 
         public string Language { get; set; } = string.Empty;
 
         public string Code { get; set; } = string.Empty;
 
         public DateTime SubmittedAt { get; set; }
+        public double Score { get; set; }
     }
 }

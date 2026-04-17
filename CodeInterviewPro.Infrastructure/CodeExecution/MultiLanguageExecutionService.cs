@@ -22,9 +22,9 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             List<TestCase> testCases,
             string methodName)
         {
-            // Template Runner
+            // FIX: pass enum directly
             var template =
-                TemplateFactory.GetTemplate(language.ToString());
+                TemplateFactory.GetTemplate(language);
 
             var wrappedCode =
                 template.WrapCode(
@@ -32,7 +32,6 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                     testCases,
                     methodName);
 
-            // Executor
             var executor =
                 _factory.GetExecutor(language);
 

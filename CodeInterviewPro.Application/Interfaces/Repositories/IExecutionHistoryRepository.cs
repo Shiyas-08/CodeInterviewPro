@@ -11,5 +11,10 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories
     {
         Task SaveAsync(ExecutionHistory history);
 
+        Task<IEnumerable<ExecutionHistory>> GetByCandidateAsync(Guid candidateId);
+
+        Task<IEnumerable<ExecutionHistory>> GetByInterviewAsync(Guid interviewId);
+        Task<IEnumerable<ExecutionHistory>> GetAllAsync();
+
     }
 }
