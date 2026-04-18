@@ -3,12 +3,13 @@ using CodeInterviewPro.Application.DTOs;
 using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Application.Security;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
 using CodeInterviewPro.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using CodeInterviewPro.Application.Interfaces.Services;
 
 [ApiController]
 [Route("api/auth")]
@@ -73,7 +74,7 @@ public class AuthController : ControllerBase
 
   
 
-        // 🔥 SAFE UPDATE
+        // SAFE UPDATE
         await _invitationRepo.UpdateCandidateAsync(request.Token, user.Id);     
         Console.WriteLine($"InvitationId: {invitation.Id}");
         Console.WriteLine($"UserId: {user.Id}");
@@ -97,7 +98,7 @@ public class AuthController : ControllerBase
         if (!isValid)
             return Unauthorized(ApiResponse<string>.Failure("Invalid email or password"));
 
-        // ✅ Candidate flow validation
+        // Candidate flow validation
         if (!string.IsNullOrEmpty(request.Token) && user.Role == UserRole.Candidate)
         {
             var invitation = await _invitationRepo.GetByTokenAsync(request.Token);
@@ -115,7 +116,8 @@ public class AuthController : ControllerBase
         var accessToken = _jwt.GenerateToken(
             user.Id,
             user.TenantId,
-            user.Role);
+            user.Role,
+            user.FullName);
 
         var refreshTokenValue = RefreshTokenGenerator.Generate();
 
@@ -136,7 +138,7 @@ public class AuthController : ControllerBase
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddMinutes(30)
             });
 
@@ -147,13 +149,30 @@ public class AuthController : ControllerBase
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
         return Ok(ApiResponse<string>.SuccessResponse(
             null,
             "Login successful"));
+    }
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        var userId = User.FindFirst("uid")?.Value;
+        var tenantId = User.FindFirst("tid")?.Value;
+        var role = User.FindFirst("rid")?.Value;
+        var name = User.FindFirst("name")?.Value; // optional
+
+        return Ok(new
+        {
+            userId,
+            tenantId,
+            role,
+            name
+        });
     }
 
     // ================= LOGOUT =================
@@ -188,7 +207,7 @@ public class AuthController : ControllerBase
             return Unauthorized(ApiResponse<string>.Failure("User not found"));
 
         var newAccessToken =
-            _jwt.GenerateToken(user.Id, user.TenantId, user.Role);
+            _jwt.GenerateToken(user.Id, user.TenantId, user.Role,user.FullName);
 
         Response.Cookies.Append(
             "accessToken",
@@ -197,7 +216,7 @@ public class AuthController : ControllerBase
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddMinutes(30)
             });
 

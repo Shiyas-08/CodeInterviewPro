@@ -1,9 +1,10 @@
-﻿using StackExchange.Redis;
+﻿using CodeInterviewPro.Application.Interfaces.Services;
+using StackExchange.Redis;
 using System.Text.Json;
 
 namespace CodeInterviewPro.Infrastructure.Cache
 {
-    public class RedisService
+    public class RedisService: ICacheService
     {
         private readonly IDatabase _database;
 

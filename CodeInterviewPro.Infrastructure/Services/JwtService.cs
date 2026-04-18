@@ -20,11 +20,12 @@ namespace CodeInterviewPro.Infrastructure.Services
             }
         }
 
-        public string GenerateToken(Guid userId, Guid? tenantId, UserRole role)
+        public string GenerateToken(Guid userId, Guid? tenantId, UserRole role,string FullName)
         {
             var claims = new List<Claim>
             {
                 new Claim("uid", userId.ToString()),
+                new Claim("name", FullName),
                 new Claim("rid", ((int)role).ToString()),
                 new Claim(ClaimTypes.Role, role.ToString())
             };

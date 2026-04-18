@@ -7,9 +7,9 @@ namespace CodeInterviewPro.Infrastructure.Services
 {
     public class ExecutionCacheService : IExecutionCacheService
     {
-        private readonly RedisService _redis;
+        private readonly ICacheService _redis;
 
-        public ExecutionCacheService(RedisService redis)
+        public ExecutionCacheService(ICacheService redis)
         {
             _redis = redis;
         }

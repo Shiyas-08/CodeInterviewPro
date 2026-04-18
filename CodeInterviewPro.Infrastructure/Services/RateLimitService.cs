@@ -5,9 +5,9 @@ namespace CodeInterviewPro.Infrastructure.Services
 {
     public class RateLimitService : IRateLimitService
     {
-        private readonly RedisService _redis;
+        private readonly ICacheService _redis;
 
-        public RateLimitService(RedisService redis)
+        public RateLimitService(ICacheService redis)
         {
             _redis = redis;
         }

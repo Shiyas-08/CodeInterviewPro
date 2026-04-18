@@ -15,10 +15,20 @@ using System.Data;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 // Authentication
 var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-Console.WriteLine($"JWT KEY: {jwtKey}");
+//Console.WriteLine($"JWT KEY: {jwtKey}");
 
 if (string.IsNullOrEmpty(jwtKey))
 {
@@ -30,6 +40,7 @@ var key = Encoding.UTF8.GetBytes(jwtKey);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -96,7 +107,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSingleton<IConnectionMultiplexer>(
     ConnectionMultiplexer.Connect("localhost:6379,abortConnect=false"));
 
-builder.Services.AddScoped<RedisService>();
+//builder.Services.AddScoped<RedisService>();
 
 // Validation Response
 
@@ -151,6 +162,7 @@ using (var scope = app.Services.CreateScope())
 {
     await AdminSeeder.Seed(scope.ServiceProvider);
 }
+app.UseCors("AllowFrontend");
 
 // Middleware
 

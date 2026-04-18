@@ -1,4 +1,5 @@
-﻿using CodeInterviewPro.Infrastructure.Cache;
+﻿using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Infrastructure.Cache;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeInterviewPro.API.Controllers
@@ -7,9 +8,9 @@ namespace CodeInterviewPro.API.Controllers
     [ApiController]
     public class RedisTestController : ControllerBase
     {
-        private readonly RedisService _redis;
+        private readonly ICacheService _redis;
 
-        public RedisTestController(RedisService redis)
+        public RedisTestController(ICacheService redis)
         {
             _redis = redis;
         }

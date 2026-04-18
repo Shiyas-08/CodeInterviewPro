@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Infrastructure.Cache;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CodeInterviewPro.API.Hubs
 {
     public class InterviewHub : Hub
     {
-        private readonly RedisService _redis;
+        private readonly ICacheService _redis;
 
-        public InterviewHub(RedisService redis)
+        public InterviewHub(ICacheService redis)
         {
             _redis = redis;
         }

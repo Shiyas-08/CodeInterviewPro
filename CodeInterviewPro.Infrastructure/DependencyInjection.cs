@@ -6,6 +6,7 @@ using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Application.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
 using CodeInterviewPro.Infrastructure.AI;
+using CodeInterviewPro.Infrastructure.Cache;
 using CodeInterviewPro.Infrastructure.CodeExecution;
 using CodeInterviewPro.Infrastructure.CodeExecution.Executors;
 using CodeInterviewPro.Infrastructure.CodeExecution.Templates;
@@ -98,6 +99,8 @@ namespace CodeInterviewPro.Infrastructure
                 });
 
             services.AddScoped<IExecutionPipelineService, ExecutionPipelineService>();
+            services.AddScoped<IDashboardRepository, DashboardRepository>();
+            services.AddScoped<ICacheService, RedisService>();
             return services;
 
 
