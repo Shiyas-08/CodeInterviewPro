@@ -1,0 +1,38 @@
+<div class="p-6">
+
+  <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+
+  <!-- ADMIN -->
+  <div *ngIf="role === 1" class="grid grid-cols-3 gap-4">
+    <div class="bg-blue-500 text-white p-4 rounded">
+      Total Users: {{ summary?.totalCandidates }}
+    </div>
+    <div class="bg-green-500 text-white p-4 rounded">
+      Total Interviews: {{ summary?.totalInterviews }}
+    </div>
+    <div class="bg-purple-500 text-white p-4 rounded">
+      Completed Interviews: {{ summary?.completedInterviews }}
+    </div>
+  </div>
+
+  <!-- HR -->
+  <div *ngIf="role === 2" class="grid grid-cols-3 gap-4">
+    <div class="bg-blue-500 text-white p-4 rounded">
+      Candidates: {{ summary?.totalCandidates }}
+    </div>
+    <div class="bg-green-500 text-white p-4 rounded">
+      Interviews: {{ summary?.totalInterviews }}
+    </div>
+  </div>
+
+  <!-- CANDIDATE -->
+  <div *ngIf="role === 3" class="grid grid-cols-2 gap-4">
+    <div class="bg-blue-500 text-white p-4 rounded">
+      My Interviews: {{ summary?.totalInterviews }}
+    </div>
+    <div class="bg-green-500 text-white p-4 rounded">
+      Completed: {{ summary?.completedInterviews }}
+    </div>
+  </div>
+
+</div>
