@@ -36,6 +36,14 @@ namespace CodeInterviewPro.API.Controllers
 
             return Ok(result);
         }
+        [AllowAnonymous]
+        [HttpPost("run")]
+        public async Task<IActionResult> RunCode(
+     [FromBody] SubmitCodeRequest request)
+        {
+            var result = await _service.RunCodeAsync(request);
+            return Ok(result);
+        }
     }
 }
 //using CodeInterviewPro.Application.DTOs.Interview;

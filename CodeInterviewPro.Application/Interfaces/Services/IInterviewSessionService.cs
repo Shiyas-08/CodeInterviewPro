@@ -11,8 +11,7 @@ namespace CodeInterviewPro.Application.Interfaces.Services
     {
         Task<InterviewSession> StartSessionAsync(string token);
 
-        Task<InterviewSession> GetSessionAsync(string token);
-
+        Task<object> GetSessionAsync(string token);
         Task StopSessionAsync(string token);
     }
 }

@@ -101,6 +101,8 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IExecutionPipelineService, ExecutionPipelineService>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
             services.AddScoped<ICacheService, RedisService>();
+
+            services.AddScoped<ICandidateRepository, CandidateRepository>();
             return services;
 
 
