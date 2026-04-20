@@ -1,0 +1,38 @@
+<div class="glass-card p-6 rounded-3xl">
+
+<h2 class="text-2xl font-bold mb-4">
+Invite Candidate
+</h2>
+
+<input
+[(ngModel)]="form.name"
+placeholder="Candidate Name"
+class="input w-full mb-3">
+
+<input
+[(ngModel)]="form.email"
+placeholder="Candidate Email"
+class="input w-full mb-3">
+
+<input
+type="datetime-local"
+[(ngModel)]="form.expiryTime"
+class="input w-full mb-4">
+
+<button
+(click)="submit()"
+class="btn-primary w-full">
+
+Send Invite
+
+</button>
+
+<div *ngIf="inviteLink" class="mt-5">
+
+<p class="font-semibold">Invite Link:</p>
+
+<p>{{ inviteLink }}</p>
+
+</div>
+
+</div>

@@ -16,4 +16,7 @@ export class DashboardService {
       withCredentials: true
     });
   }
+  getCandidateInterviews() {
+  return this.http.get(`${environment.apiUrl}/candidate/interviews`);
+}
 }

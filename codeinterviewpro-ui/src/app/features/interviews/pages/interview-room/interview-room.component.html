@@ -1,0 +1,69 @@
+<div class="glass-card p-6 rounded-3xl">
+
+<div *ngIf="loading">
+Loading...
+</div>
+
+<div *ngIf="!loading">
+
+<h1 class="text-3xl font-bold mb-4">
+Interview Room
+</h1>
+
+<p class="text-red-400 mb-4">
+⏰ {{ timer }} sec
+</p>
+
+<div class="grid grid-cols-4 gap-4">
+
+<div class="col-span-1">
+<div
+*ngFor="let q of session.questions"
+(click)="selectQuestion(q)"
+class="p-3 rounded-xl bg-white/10 mb-3 cursor-pointer">
+{{ q.title }}
+</div>
+</div>
+
+<div class="col-span-3">
+
+<h2 class="text-xl font-bold mb-2">
+{{ selectedQuestion?.title }}
+</h2>
+
+<p class="mb-3">
+{{ selectedQuestion?.description }}
+</p>
+
+<ngx-monaco-editor
+[(ngModel)]="code"
+[options]="editorOptions"
+style="height:500px;display:block;">
+</ngx-monaco-editor>
+
+<div class="flex gap-3 mt-4">
+
+<button
+(click)="runCode()"
+class="px-5 py-2 bg-green-500 rounded-xl">
+Run Code
+</button>
+
+<button
+(click)="submit()"
+class="px-5 py-2 bg-blue-500 rounded-xl">
+Submit
+</button>
+
+</div>
+
+<div class="mt-4 p-4 rounded-xl bg-black text-green-400 min-h-[140px]">
+<pre>{{ output }}</pre>
+</div>
+
+</div>
+
+</div>
+
+</div>
+</div>

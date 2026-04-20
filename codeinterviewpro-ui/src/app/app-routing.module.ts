@@ -2,6 +2,11 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './features/dashboard/pages/dashboard/dashboard.component';
 import { AuthGuard } from './core/guards/auth.guard';
+import { CreateInterviewComponent } from './features/interviews/pages/create-interview/create-interview.component';
+import { AssignQuestionsComponent } from './features/interviews/pages/assign-questions/assign-questions.component';
+import { ScheduleInterviewComponent } from './features/interviews/pages/schedule-interview/schedule-interview.component';
+import { InviteCandidateComponent } from './features/interviews/pages/invite-candidate/invite-candidate.component';
+import { InterviewRoomComponent } from './features/interviews/pages/interview-room/interview-room.component';
 
 const routes: Routes = [
   // ── Auth module (lazy loaded) ────────────────────────────
@@ -33,7 +38,31 @@ const routes: Routes = [
     component: DashboardComponent,
     canActivate: [AuthGuard]
   },
-
+  {
+  path: 'dashboard/interviews/create',
+  component: CreateInterviewComponent,
+  canActivate: [AuthGuard]
+},
+{
+ path: 'dashboard/interviews/:id/questions',
+ component: AssignQuestionsComponent,
+ canActivate: [AuthGuard]
+},
+{
+ path: 'dashboard/interviews/:id/schedule',
+ component: ScheduleInterviewComponent,
+ canActivate: [AuthGuard]
+},
+{
+ path: 'dashboard/interviews/:id/invite',
+ component: InviteCandidateComponent,
+ canActivate: [AuthGuard]
+},
+{
+  path: 'interview-room/:id',
+  component: InterviewRoomComponent,
+  canActivate: [AuthGuard]
+},
   // ── Default & wildcard ───────────────────────────────────
   {
     path: '',

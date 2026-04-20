@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit {
         } else if (role === 2) {
           this.router.navigate(['/dashboard']);
         } else if (role === 3) {
-          this.router.navigate(['/interview']);
+          this.router.navigate(['/dashboard']);
         }
       }
     });

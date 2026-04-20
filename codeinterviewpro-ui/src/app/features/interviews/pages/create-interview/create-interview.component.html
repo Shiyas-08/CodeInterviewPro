@@ -1,0 +1,28 @@
+<div class="glass-card p-6 rounded-3xl max-w-xl mx-auto mt-10">
+
+  <h1 class="text-2xl font-bold mb-5">Create Interview</h1>
+
+  <input
+    [(ngModel)]="form.title"
+    placeholder="Interview Title"
+    class="input w-full mb-3">
+
+  <textarea
+    [(ngModel)]="form.description"
+    placeholder="Description"
+    class="input w-full mb-3"></textarea>
+
+  <input
+    type="number"
+    [(ngModel)]="form.durationMinutes"
+    class="input w-full mb-4">
+
+  <button
+    (click)="submit()"
+    class="btn-primary w-full">
+
+    {{ loading ? 'Creating...' : 'Create Interview' }}
+
+  </button>
+
+</div>

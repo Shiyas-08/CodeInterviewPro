@@ -1,0 +1,46 @@
+<div class="glass-card p-6 rounded-3xl">
+
+<h2 class="text-2xl font-bold mb-5">
+Assign Questions
+</h2>
+
+<div
+*ngFor="let q of questions"
+class="mb-4 border-b pb-3">
+
+<label class="flex gap-3 items-start">
+
+<input
+type="checkbox"
+(change)="toggleQuestion(q,$event)"
+class="mt-1">
+
+<div>
+
+<div class="font-semibold text-lg">
+{{ q.title }}
+</div>
+
+<div class="text-sm text-gray-500">
+{{ q.description }}
+</div>
+
+<div class="text-xs text-blue-500 mt-1">
+{{ languageMap[q.language] }}
+</div>
+
+</div>
+
+</label>
+
+</div>
+
+<button
+(click)="submit()"
+class="btn-primary mt-4 w-full">
+
+Save Questions
+
+</button>
+
+</div>
