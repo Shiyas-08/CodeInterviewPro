@@ -1,0 +1,98 @@
+<div class="min-h-screen bg-slate-50 pt-24 pb-12 px-8 selection:bg-indigo-100 selection:text-indigo-900">
+  <div class="max-w-4xl mx-auto">
+    
+    <header class="mb-12">
+      <h1 class="text-4xl font-black text-slate-900 tracking-tight">Your Profile</h1>
+      <p class="text-slate-500 mt-2 font-medium">Manage your personal information and account settings.</p>
+    </header>
+
+    <div *ngIf="loading" class="bg-white rounded-[32px] border border-slate-200 p-12 h-96 animate-pulse">
+       <div class="w-24 h-24 bg-slate-100 rounded-2xl mb-8 mx-auto"></div>
+       <div class="space-y-4 max-w-md mx-auto">
+          <div class="h-10 bg-slate-50 rounded-xl"></div>
+          <div class="h-10 bg-slate-50 rounded-xl"></div>
+          <div class="h-10 bg-slate-50 rounded-xl"></div>
+       </div>
+    </div>
+
+    <div *ngIf="!loading && user" class="grid grid-cols-1 md:grid-cols-3 gap-8 animate-fade-in-up">
+      
+      <!-- Sidebar Info -->
+      <div class="md:col-span-1 space-y-6">
+        <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm text-center">
+           <div class="w-24 h-24 bg-indigo-50 border border-indigo-100 rounded-[32px] flex items-center justify-center text-indigo-600 text-4xl font-black mx-auto mb-6">
+             {{ user.fullName?.charAt(0) }}
+           </div>
+           <h2 class="text-xl font-bold text-slate-900">{{ user.fullName }}</h2>
+           <p class="text-indigo-600 text-xs font-black uppercase tracking-widest mt-1">
+             {{ user.role === 1 ? 'Super Admin' : user.role === 2 ? 'HR Manager' : 'Candidate' }}
+           </p>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+           <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Account Security</h3>
+           <button class="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-700 font-bold text-sm flex items-center justify-between group transition-all">
+             Change Password
+             <svg class="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+           </button>
+        </div>
+      </div>
+
+      <!-- Main Form -->
+      <div class="md:col-span-2">
+        <div class="bg-white rounded-[32px] border border-slate-200 p-10 shadow-sm shadow-slate-200/50">
+          <div class="grid grid-cols-1 gap-8">
+            
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Full Name</label>
+              <input 
+                type="text" 
+                [(ngModel)]="user.fullName"
+                class="saas-input font-bold"
+                placeholder="Your name"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Email Address</label>
+              <input 
+                type="email" 
+                [(ngModel)]="user.email"
+                class="saas-input font-bold bg-slate-50 cursor-not-allowed"
+                disabled
+                placeholder="your@email.com"
+              />
+              <p class="text-[10px] text-slate-400 mt-2 ml-1">* Email changes require support assistance.</p>
+            </div>
+
+            <div *ngIf="user.organizationName">
+              <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 ml-1">Organization</label>
+              <input 
+                type="text" 
+                [value]="user.organizationName"
+                class="saas-input font-bold bg-slate-50 cursor-not-allowed"
+                disabled
+              />
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 flex justify-end">
+              <button 
+                (click)="saveProfile()"
+                [disabled]="saving"
+                class="saas-btn-primary px-12">
+                <span *ngIf="!saving">Update Profile</span>
+                <div *ngIf="saving" class="flex items-center gap-2">
+                  <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Saving...</span>
+                </div>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

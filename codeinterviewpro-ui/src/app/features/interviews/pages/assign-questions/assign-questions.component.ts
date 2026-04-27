@@ -1,3 +1,4 @@
+import { toast } from 'src/app/core/services/toast';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InterviewService } from 'src/app/core/services/interview.service';
@@ -19,6 +20,8 @@ export class AssignQuestionsComponent implements OnInit {
     3: 'Java',
     4: 'Go'
   };
+
+  loading = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,7 +57,7 @@ export class AssignQuestionsComponent implements OnInit {
   submit() {
 
     if (this.selectedQuestions.length === 0) {
-      alert('Please select at least one question');
+      toast.warning('Please select at least one question');
       return;
     }
 
@@ -62,18 +65,25 @@ export class AssignQuestionsComponent implements OnInit {
       questions: this.selectedQuestions
     };
 
+    this.loading = true;
     this.service.assignQuestions(
       this.interviewId,
       payload
-    ).subscribe((res:any) => {
+    ).subscribe({
+      next: (res: any) => {
+        this.loading = false;
+        toast.success(res?.message || 'Questions Assigned');
 
-      alert(res?.message || 'Questions Assigned');
-
-      this.router.navigate([
-        '/dashboard/interviews',
-        this.interviewId,
-        'schedule'
-      ]);
+        this.router.navigate([
+          '/dashboard/interviews',
+          this.interviewId,
+          'schedule'
+        ]);
+      },
+      error: (err) => {
+        this.loading = false;
+        toast.error('Failed to assign questions');
+      }
     });
   }
 }

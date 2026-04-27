@@ -1,28 +1,62 @@
-<div class="glass-card p-6 rounded-3xl max-w-xl mx-auto mt-10">
+<div class="min-h-screen bg-slate-50 pt-24 pb-12 px-6">
+  
+  <div class="max-w-2xl mx-auto">
+    
+    <div class="flex items-center gap-4 mb-8">
+      <button routerLink="/dashboard" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      </button>
+      <h1 class="page-title">Create New Interview</h1>
+    </div>
 
-  <h1 class="text-2xl font-bold mb-5">Create Interview</h1>
+    <div class="saas-card p-10">
+      <div class="space-y-6">
+        
+        <div>
+          <label class="saas-label">Interview Title</label>
+          <input
+            [(ngModel)]="form.title"
+            placeholder="e.g. Senior Fullstack Engineer Assessment"
+            class="saas-input">
+        </div>
 
-  <input
-    [(ngModel)]="form.title"
-    placeholder="Interview Title"
-    class="input w-full mb-3">
+        <div>
+          <label class="saas-label">Description & Instructions</label>
+          <textarea
+            [(ngModel)]="form.description"
+            placeholder="Briefly describe the role or the goal of this technical assessment..."
+            class="saas-input min-h-[120px]"></textarea>
+        </div>
 
-  <textarea
-    [(ngModel)]="form.description"
-    placeholder="Description"
-    class="input w-full mb-3"></textarea>
+        <div>
+          <label class="saas-label">Duration (Minutes)</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-4 flex items-center text-slate-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </span>
+            <input
+              type="number"
+              [(ngModel)]="form.durationMinutes"
+              placeholder="60"
+              class="saas-input pl-12">
+          </div>
+        </div>
 
-  <input
-    type="number"
-    [(ngModel)]="form.durationMinutes"
-    class="input w-full mb-4">
+        <div class="pt-4">
+          <button
+            (click)="submit()"
+            [disabled]="loading"
+            class="saas-btn-primary w-full py-4 text-base flex items-center justify-center gap-2">
+            <span *ngIf="!loading">Next: Set Up Questions</span>
+            <div *ngIf="loading" class="flex items-center gap-2">
+              <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Initializing Workspace...</span>
+            </div>
+          </button>
+        </div>
 
-  <button
-    (click)="submit()"
-    class="btn-primary w-full">
+      </div>
+    </div>
 
-    {{ loading ? 'Creating...' : 'Create Interview' }}
-
-  </button>
-
+  </div>
 </div>

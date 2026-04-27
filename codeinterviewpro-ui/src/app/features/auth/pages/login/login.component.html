@@ -1,116 +1,71 @@
-<!-- Login — Light Liquid Glass visionOS -->
-<div class="auth-page">
+<div class="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+  
+  <!-- Decorative background elements -->
+  <div class="absolute -top-24 -left-24 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+  <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 
-  <!-- Warm spatial depth blobs -->
-  <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;">
-    <div style="position:absolute;width:720px;height:720px;border-radius:50%;
-                background:radial-gradient(circle,rgba(250,200,120,0.60) 0%,transparent 68%);
-                bottom:-240px;left:-200px;filter:blur(100px);"></div>
-    <div style="position:absolute;width:600px;height:600px;border-radius:50%;
-                background:radial-gradient(circle,rgba(160,110,240,0.45) 0%,transparent 68%);
-                top:-180px;right:-160px;filter:blur(110px);"></div>
-    <div style="position:absolute;width:440px;height:440px;border-radius:50%;
-                background:radial-gradient(circle,rgba(80,200,160,0.30) 0%,transparent 68%);
-                top:40%;right:5%;transform:translateY(-50%);filter:blur(90px);"></div>
+  <!-- Logo -->
+  <div class="mb-10 text-center z-10">
+    <div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2rem] flex items-center justify-center text-white text-4xl font-black shadow-2xl shadow-blue-600/30 mx-auto mb-6 transform hover:rotate-6 transition-transform">
+      C
+    </div>
+    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Access Workspace</h1>
+    <p class="text-slate-500 mt-2">Log in to continue to your coding interview</p>
   </div>
 
-  <!-- Glass Panel -->
-  <div class="glass-panel anim-slide-up"
-       style="width:100%;max-width:400px;padding:50px 42px;z-index:10;">
-
-    <!-- Logo -->
-    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:38px;">
-      <!-- App icon tile -->
-      <div style="width:68px;height:68px;border-radius:22px;
-                  background:rgba(255,255,255,0.58);
-                  border-top:1.5px solid rgba(255,255,255,0.95);
-                  border-left:1px solid rgba(255,255,255,0.65);
-                  border-right:1px solid rgba(255,255,255,0.65);
-                  border-bottom:1px solid rgba(255,255,255,0.30);
-                  backdrop-filter:blur(24px);
-                  box-shadow:0 2px 0 rgba(255,255,255,0.85) inset,
-                             0 12px 32px rgba(80,100,140,0.18),
-                             0  4px 12px rgba(80,100,140,0.10);
-                  display:flex;align-items:center;justify-content:center;
-                  margin-bottom:22px;">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
-             stroke="url(#loginGrad)" stroke-width="2.2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <defs>
-            <linearGradient id="loginGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%"   stop-color="#2563eb"/>
-              <stop offset="100%" stop-color="#7c3aed"/>
-            </linearGradient>
-          </defs>
-          <path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-        </svg>
-      </div>
-
-      <h1 style="font-size:22px;font-weight:700;color:#1c1c1e;
-                 letter-spacing:-0.025em;margin-bottom:7px;">
-        CodeInterviewPro
-      </h1>
-      <p style="font-size:14px;color:#8e8e93;font-weight:400;">
-        Sign in to your workspace
-      </p>
-    </div>
-
-    <!-- Divider -->
-    <div class="glass-divider" style="margin-bottom:30px;"></div>
-
-    <!-- Form -->
-    <div style="display:flex;flex-direction:column;gap:18px;">
-
-      <!-- Email -->
+  <!-- Login Card -->
+  <div class="saas-card w-full max-w-[480px] p-10 md:p-12 z-10">
+    <div class="space-y-8">
+      
+      <!-- Email Field -->
       <div>
-        <label for="login-email" class="input-label">Email Address</label>
-        <div style="position:relative;">
-          <span style="position:absolute;inset-block:0;left:14px;display:flex;
-                       align-items:center;color:#aeaeb2;pointer-events:none;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-            </svg>
+        <label class="saas-label">Email Address</label>
+        <div class="relative group">
+          <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-blue-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
           </span>
-          <input id="login-email" [(ngModel)]="email" type="email"
-                 placeholder="you@company.com" autocomplete="email"
-                 class="input-field" style="padding-left:40px;"/>
+          <input [(ngModel)]="email" type="email" placeholder="name@company.com" class="saas-input pl-12 h-14 text-base">
         </div>
       </div>
 
-      <!-- Password -->
+      <!-- Password Field -->
       <div>
-        <label for="login-password" class="input-label">Password</label>
-        <div style="position:relative;">
-          <span style="position:absolute;inset-block:0;left:14px;display:flex;
-                       align-items:center;color:#aeaeb2;pointer-events:none;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0110 0v4"/>
-            </svg>
+        <div class="flex items-center justify-between mb-2">
+          <label class="saas-label mb-0">Security Password</label>
+          <a href="#" class="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider">Forgot?</a>
+        </div>
+        <div class="relative group">
+          <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-blue-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
           </span>
-          <input id="login-password" [(ngModel)]="password" type="password"
-                 placeholder="••••••••" autocomplete="current-password"
-                 class="input-field" style="padding-left:40px;"/>
+          <input [(ngModel)]="password" type="password" placeholder="••••••••" class="saas-input pl-12 h-14 text-base">
         </div>
       </div>
 
-      <!-- Submit -->
-      <button id="login-submit" (click)="login()" class="btn-primary"
-              style="margin-top:4px;">
-        Sign In
+      <button (click)="login()" [disabled]="loading" class="saas-btn-primary w-full py-4 text-lg flex items-center justify-center gap-3">
+        <span *ngIf="!loading">Unlock Workspace</span>
+        <div *ngIf="loading" class="flex items-center gap-2">
+          <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <span>Signing In...</span>
+        </div>
       </button>
-    </div>
 
-    <!-- Footer -->
-    <p style="text-align:center;font-size:13px;color:#aeaeb2;margin-top:30px;">
-      No account?&nbsp;
-      <span style="color:#2563eb;font-weight:600;cursor:pointer;">
-        Contact your HR team
-      </span>
-    </p>
+      <div class="text-center pt-2">
+        <p class="text-sm text-slate-500 font-medium">
+          Need an account? <span routerLink="/auth/register" [queryParams]="{token: token}" class="text-blue-600 font-bold cursor-pointer hover:underline">Sign Up</span>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Trust Badges -->
+  <div class="mt-12 flex flex-col items-center gap-4 text-slate-400">
+    <p class="text-[10px] font-bold uppercase tracking-[0.2em]">Secure Cloud Infrastructure</p>
+    <div class="flex gap-6 grayscale opacity-50">
+      <div class="w-8 h-8 rounded-lg bg-slate-200"></div>
+      <div class="w-8 h-8 rounded-lg bg-slate-200"></div>
+      <div class="w-8 h-8 rounded-lg bg-slate-200"></div>
+    </div>
   </div>
 </div>

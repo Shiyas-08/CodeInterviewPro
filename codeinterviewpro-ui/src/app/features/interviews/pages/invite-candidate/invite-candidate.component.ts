@@ -1,5 +1,6 @@
+import { toast } from 'src/app/core/services/toast';
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InterviewService } from 'src/app/core/services/interview.service';
 
 @Component({
@@ -17,8 +18,11 @@ export class InviteCandidateComponent {
     expiryTime: ''
   };
 
+  loading = false;
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private service: InterviewService
   ) {
     this.interviewId =
@@ -26,14 +30,21 @@ export class InviteCandidateComponent {
   }
 
   submit() {
+    this.loading = true;
     this.service.inviteCandidate(
       this.interviewId,
       this.form
-    ).subscribe((res:any) => {
-
-      this.inviteLink = res.data;
-
-      alert('Invite Sent Successfully');
+    ).subscribe({
+      next: (res: any) => {
+        this.loading = false;
+        this.inviteLink = res.data;
+        toast.success('Invite Sent Successfully');
+        this.router.navigate(['/admin/hr-interviews']);
+      },
+      error: (err) => {
+        this.loading = false;
+        toast.error('Failed to send invite');
+      }
     });
   }
 }

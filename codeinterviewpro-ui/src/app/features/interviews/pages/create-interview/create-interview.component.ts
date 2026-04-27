@@ -1,3 +1,5 @@
+import { toast } from 'src/app/core/services/toast';
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,7 +8,7 @@ import { InterviewService } from 'src/app/core/services/interview.service';
 @Component({
   selector: 'app-create-interview',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './create-interview.component.html'
 })
 export class CreateInterviewComponent {
@@ -46,7 +48,7 @@ export class CreateInterviewComponent {
 
         error: () => {
           this.loading = false;
-          alert('Failed');
+          toast.error('Failed');
         }
 
       });

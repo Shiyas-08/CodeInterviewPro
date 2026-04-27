@@ -1,6 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { toast } from 'src/app/core/services/toast';
+// interview-room.component.ts
+
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InterviewService } from 'src/app/core/services/interview.service';
+import { SignalrService } from 'src/app/core/services/signalr.service';
+import { WebrtcService } from 'src/app/core/services/webrtc.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-interview-room',
@@ -10,8 +16,19 @@ export class InterviewRoomComponent implements OnInit, OnDestroy {
 
   token = '';
   loading = true;
+  isFullscreen = false;
+  isTimeUp = false;
+  isSubmitting = false;
+  isStopped = false;
+
+  @ViewChild('localVideo') localVideo!: ElementRef<HTMLVideoElement>;
+  @ViewChild('remoteVideo') remoteVideo!: ElementRef<HTMLVideoElement>;
+
+  realSessionId = '';
+  subs: Subscription[] = [];
 
   session: any = {
+    title: 'Coding Interview',
     questions: []
   };
 
@@ -25,77 +42,172 @@ export class InterviewRoomComponent implements OnInit, OnDestroy {
   autoSaveInterval: any;
 
   isRunning = false;
+  isVideoFullscreen = false;
 
   editorOptions: any = {
     theme: 'vs-dark',
     language: 'csharp',
     automaticLayout: true,
-    fontSize: 14,
-    minimap: { enabled: false }
+    fontSize: 16,
+    lineNumbers: 'on',
+    roundedSelection: true,
+    scrollBeyondLastLine: false,
+    readOnly: false,
+    minimap: { enabled: false },
+    padding: { top: 16, bottom: 16 }
   };
 
   constructor(
     private route: ActivatedRoute,
-    private service: InterviewService
+    private router: Router,
+    private service: InterviewService,
+    private signalrService: SignalrService,
+    public webrtcService: WebrtcService
   ) { }
 
   ngOnInit(): void {
 
-    this.token =
-      this.route.snapshot.paramMap.get('id') || '';
+    this.token = this.route.snapshot.paramMap.get('id') || '';
+
+    if (!this.token) {
+      toast.error('Invalid interview token');
+      this.loading = false;
+      return;
+    }
 
     this.startInterview();
   }
 
-  ngOnDestroy(): void {
-
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-
-    if (this.autoSaveInterval) {
-      clearInterval(this.autoSaveInterval);
+  ngAfterViewInit(): void {
+    if (this.token) {
+      this.setupWebRTC();
     }
   }
 
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any): void {
+    const sid = this.realSessionId || this.token;
+    if (sid) {
+      this.signalrService.sendCandidateStatusChanged(sid, false);
+    }
+  }
+
+  ngOnDestroy(): void {
+    const sid = this.realSessionId || this.token;
+    if (sid) {
+      this.signalrService.sendCandidateStatusChanged(sid, false);
+    }
+    if (this.interval) clearInterval(this.interval);
+    if (this.autoSaveInterval) clearInterval(this.autoSaveInterval);
+    this.webrtcService.endCall();
+    this.subs.forEach(s => s.unsubscribe());
+  }
+
+  // ===================================================
+  // WEBRTC VIDEO CALL
+  // ===================================================
+  async setupWebRTC() {
+    try {
+      const stream = await this.webrtcService.initLocalStream();
+      if (this.localVideo && this.localVideo.nativeElement) {
+        this.localVideo.nativeElement.srcObject = stream;
+      }
+    } catch (e) {
+      console.error('Candidate failed to load camera', e);
+    }
+
+    this.webrtcService.createPeerConnection((candidate) => {
+      // Candidate sends ICE to HR
+      const sid = this.realSessionId || this.token;
+      this.signalrService.sendIceCandidate(sid, JSON.stringify(candidate), false);
+    });
+
+    this.subs.push(
+      this.webrtcService.remoteStream$.subscribe(stream => {
+        if (this.remoteVideo && this.remoteVideo.nativeElement) {
+          this.remoteVideo.nativeElement.srcObject = stream;
+        }
+      }),
+      
+      // Candidate receives Offer from HR
+      this.signalrService.webRTCOffer$.subscribe(async (offerStr) => {
+        const sid = this.realSessionId || this.token;
+        const offer = JSON.parse(offerStr);
+        const answer = await this.webrtcService.handleOffer(offer);
+        // Candidate sends Answer back to HR
+        this.signalrService.sendWebRTCAnswer(sid, JSON.stringify(answer), false);
+      }),
+
+      // Candidate receives ICE from HR
+      this.signalrService.iceCandidate$.subscribe(async (candidateStr) => {
+        const candidate = JSON.parse(candidateStr);
+        await this.webrtcService.handleIceCandidate(candidate);
+      })
+    );
+  }
+
+  // ===================================================
+  // START FIRST TIME / RESUME IF ALREADY STARTED
+  // ===================================================
   startInterview() {
 
     this.service.startInterview(this.token).subscribe({
       next: (res: any) => {
         this.bindData(res);
       },
+
       error: (err) => {
 
-        if (err.error?.message === 'Interview already started') {
-          this.loadExistingSession();
-        } else {
-          alert('Unable to start interview');
-          this.loading = false;
+        const msg = err?.error?.message || '';
+
+        if (msg.includes('already started')) {
+          this.resumeInterview();
+          return;
         }
-      }
-    });
-  }
 
-  loadExistingSession() {
-
-    this.service.getSession(this.token).subscribe({
-      next: (res: any) => {
-        this.bindData(res);
-      },
-      error: () => {
-        alert('Unable to load session');
+        toast.error('Unable to start interview');
         this.loading = false;
       }
     });
   }
 
+  // ===================================================
+  // NEW RESUME API
+  // ===================================================
+  resumeInterview() {
+
+    this.service.resumeInterview(this.token).subscribe({
+      next: (res: any) => {
+        this.bindData(res);
+      },
+
+      error: () => {
+        toast.error('Unable to resume interview');
+        this.loading = false;
+      }
+    });
+  }
+
+  // ===================================================
+  // COMMON DATA BINDING
+  // ===================================================
   bindData(res: any) {
 
-    this.session = res.data || res;
+    this.session = res.data || res || {};
+
+    if (!this.session.title) {
+      this.session.title = 'Coding Interview';
+    }
 
     if (!this.session.questions) {
       this.session.questions = [];
     }
+
+    // normalize id
+    this.session.questions = this.session.questions.map((q: any) => ({
+      ...q,
+      id: q.id || q.questionId
+    }));
 
     if (this.session.questions.length > 0) {
       this.selectQuestion(this.session.questions[0]);
@@ -108,33 +220,47 @@ export class InterviewRoomComponent implements OnInit, OnDestroy {
 
     this.loading = false;
 
-    this.startTimer();
+    // Start SignalR
+    // Check all possible casing for SessionId from the backend DTO
+    this.realSessionId = this.session.id || this.session.Id || this.session.sessionId || this.session.SessionId || this.token;
+    
+    this.signalrService.startConnection().then(() => {
+      this.signalrService.joinCandidateRoom(this.realSessionId);
+      this.signalrService.sendCandidateStatusChanged(this.realSessionId, true);
+    });
 
+    this.subs.push(
+      this.signalrService.interviewStopped$.subscribe(() => {
+        this.handleInterviewStopped();
+      }),
+      this.signalrService.pingCandidate$.subscribe(() => {
+        this.signalrService.sendCandidateStatusChanged(this.realSessionId, true);
+      })
+    );
+
+    this.startTimer();
     this.startAutoSave();
 
-    console.log('SESSION DATA:', this.session);
+    // If session is already completed, lock it down
+    if (this.session.status === 2 || this.session.status === 'Completed') {
+      this.handleInterviewStopped();
+    }
   }
 
+  // ===================================================
+  // QUESTION SELECT
+  // ===================================================
   selectQuestion(q: any) {
-
-    console.log('FULL QUESTION OBJECT:', q);
-
-    q.id =
-      q.id ||
-      q.questionId ||
-      q.interviewQuestionId;
 
     this.selectedQuestion = q;
 
-    const savedCode =
-      localStorage.getItem(
-        'interview_' + this.token + '_' + q.id
-      );
+    const savedCode = localStorage.getItem(
+      'interview_' + this.token + '_' + q.id
+    );
 
-    this.code =
-      savedCode ||
-      q.starterCode ||
-      '';
+    const rawCode = savedCode || q.starterCode || '';
+
+    this.code = rawCode.replace(/\\n/g, '\n');
 
     this.editorOptions = {
       ...this.editorOptions,
@@ -144,25 +270,30 @@ export class InterviewRoomComponent implements OnInit, OnDestroy {
 
   mapLanguage(language: any): string {
 
-    const lang =
-      String(language).toLowerCase();
+    if (language === null || language === undefined)
+      return 'csharp';
+
+    const lang = String(language).toLowerCase();
 
     switch (lang) {
+      case '0':
+      case 'csharp':
+        return 'csharp';
 
-      case 'python':
       case '1':
+      case 'python':
         return 'python';
 
-      case 'javascript':
       case '2':
+      case 'javascript':
         return 'javascript';
 
-      case 'java':
       case '3':
+      case 'java':
         return 'java';
 
-      case 'go':
       case '4':
+      case 'go':
         return 'go';
 
       default:
@@ -170,53 +301,103 @@ export class InterviewRoomComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ===================================================
+  // TIMER
+  // ===================================================
   startTimer() {
+
+    if (this.interval) clearInterval(this.interval);
 
     this.interval = setInterval(() => {
 
       if (this.timer > 0) {
         this.timer--;
+        if (this.timer % 5 === 0) { // Sync timer every 5s
+            this.signalrService.sendTimerUpdated(this.realSessionId, this.timer);
+        }
       } else {
         clearInterval(this.interval);
+        this.handleTimeUp();
       }
 
     }, 1000);
   }
 
+  handleTimeUp() {
+
+    this.isTimeUp = true;
+
+    this.editorOptions = {
+      ...this.editorOptions,
+      readOnly: true
+    };
+
+    toast.warning('Time is up! Auto submitting...');
+
+    this.submit();
+  }
+
+  handleInterviewStopped() {
+    this.isStopped = true;
+    this.isTimeUp = true;
+    if (this.interval) clearInterval(this.interval);
+    this.editorOptions = { ...this.editorOptions, readOnly: true };
+    toast.info('This interview has been stopped by the HR. Redirecting to your results...');
+    
+    // Automatically navigate to result page
+    if (this.session && this.session.interviewId) {
+      this.router.navigate(['/candidate/results', this.session.interviewId]);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
+
+  formatTime(seconds: number): string {
+
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
+  }
+
+  // ===================================================
+  // AUTO SAVE
+  // ===================================================
   startAutoSave() {
 
     this.autoSaveInterval = setInterval(() => {
-
-      if (this.selectedQuestion?.id) {
+      console.log(`[AutoSave] Heartbeat for ${this.realSessionId}`);
+      if (this.selectedQuestion?.id && !this.isTimeUp) {
 
         localStorage.setItem(
-          'interview_' +
-          this.token +
-          '_' +
-          this.selectedQuestion.id,
+          'interview_' + this.realSessionId + '_' + this.selectedQuestion.id,
           this.code
         );
+        // Broadcast code to HR
+        this.signalrService.sendCodeChanged(this.realSessionId, this.code);
       }
 
     }, 5000);
   }
 
+  // ===================================================
+  // RUN CODE
+  // ===================================================
   runCode() {
 
-    if (!this.selectedQuestion) {
-      alert('Select question first');
+    if (!this.selectedQuestion || this.isTimeUp)
       return;
-    }
 
     const payload = {
       token: this.token,
       questionId: this.selectedQuestion.id,
       code: this.code,
-      language:
-        this.selectedQuestion.language || 0
+      language: this.selectedQuestion.language || 0
     };
-
-    console.log('RUN PAYLOAD:', payload);
 
     this.isRunning = true;
 
@@ -224,183 +405,55 @@ export class InterviewRoomComponent implements OnInit, OnDestroy {
       next: (res: any) => {
 
         this.output =
-          'Passed: ' + (res.passed ?? 0) +
-          '\nFailed: ' + (res.failed ?? 0) +
-          '\nScore: ' + (res.finalScore ?? 0) +
-          '\n\n' +
-          (res.aiFeedback || '');
+`Passed: ${res.passed ?? 0}
+Failed: ${res.failed ?? 0}
+Score: ${res.finalScore ?? 0}
+
+AI FEEDBACK:
+${res.aiFeedback || 'No feedback available.'}`;
 
         this.isRunning = false;
       },
-      error: (err) => {
 
-        console.log(err);
-
-        this.output = 'Execution Failed';
-
+      error: () => {
+        this.output = 'Execution Failed.';
         this.isRunning = false;
       }
     });
   }
 
+  // ===================================================
+  // SUBMIT
+  // ===================================================
   submit() {
 
-    if (!this.selectedQuestion) {
-      alert('Select question first');
+    if (!this.selectedQuestion)
       return;
-    }
+
+    this.isSubmitting = true;
 
     const payload = {
       token: this.token,
       questionId: this.selectedQuestion.id,
       code: this.code,
-      language:
-        this.selectedQuestion.language || 0
+      language: this.selectedQuestion.language || 0
     };
 
-    console.log('SUBMIT PAYLOAD:', payload);
-
     this.service.submitInterview(payload).subscribe({
-      next: (res: any) => {
+      next: () => {
+        this.isSubmitting = false;
+        // Tell HR we submitted
+        this.signalrService.sendInterviewSubmitted(this.realSessionId);
 
-        console.log(res);
-
-        alert('Submitted Successfully');
+        if (!this.isTimeUp) {
+          toast.success('Submission successful!');
+        }
       },
-      error: (err) => {
 
-        console.log(err);
-
-        alert('Submit failed');
+      error: () => {
+        this.isSubmitting = false;
+        toast.error('Submission failed');
       }
     });
   }
 }
-// import { Component, OnInit } from '@angular/core';
-// import { ActivatedRoute } from '@angular/router';
-// import { InterviewService } from 'src/app/core/services/interview.service';
-
-// @Component({
-//   selector: 'app-interview-room',
-//   templateUrl: './interview-room.component.html'
-// })
-// export class InterviewRoomComponent implements OnInit {
-
-//   token = '';
-//   loading = true;
-//   editorOptions = {
-//   theme: 'vs-dark',
-//   language: 'csharp',
-//   automaticLayout: true,
-//   fontSize: 14,
-//   minimap: { enabled: false }
-// };
-//   session: any = {
-//     questions: []
-    
-//   };
-
-//   code = '';
-//   timer = 0;
-//   interval: any;
-
-//   constructor(
-//     private route: ActivatedRoute,
-//     private service: InterviewService
-//   ) {}
-
-//   ngOnInit(): void {
-//     this.token =
-//       this.route.snapshot.paramMap.get('id') || '';
-
-//     this.startInterview();
-//   }
-
-//   startInterview() {
-//     this.service.startInterview(this.token).subscribe({
-//       next: (res: any) => {
-//         this.bindData(res);
-//       },
-//       error: (err) => {
-
-//         if (err.error?.message === 'Interview already started') {
-//           this.loadExistingSession();
-//         } else {
-//           alert('Unable to start interview');
-//           this.loading = false;
-//         }
-
-//       }
-//     });
-//   }
-
-//   loadExistingSession() {
-//     this.service.getSession(this.token).subscribe({
-//       next: (res: any) => {
-//         this.bindData(res);
-//       },
-//       error: () => {
-//         alert('Unable to load session');
-//         this.loading = false;
-//       }
-//     });
-//   }
-
-//   bindData(res: any) {
-
-//     this.session = res.data || res;
-
-//     if (!this.session.questions) {
-//       this.session.questions = [];
-//     }
-
-//     this.code = this.session.starterCode || '';
-
-//     this.timer =
-//       this.session.remainingSeconds ||
-//       (this.session.durationMinutes * 60) ||
-//       0;
-
-//     this.loading = false;
-
-//     this.startTimer();
-
-//     console.log(this.session);
-//   }
-
-//   startTimer() {
-
-//     if (this.interval) {
-//       clearInterval(this.interval);
-//     }
-
-//     this.interval = setInterval(() => {
-
-//       if (this.timer > 0) {
-//         this.timer--;
-//       } else {
-//         clearInterval(this.interval);
-//       }
-
-//     }, 1000);
-//   }
-
-//   submit() {
-
-//     const payload = {
-//       interviewId: this.session.interviewId,
-//       code: this.code
-//     };
-
-//     this.service.submitInterview(payload)
-//       .subscribe({
-//         next: () => {
-//           alert('Submitted Successfully');
-//         },
-//         error: () => {
-//           alert('Submit failed');
-//         }
-//       });
-//   }
-
-// }

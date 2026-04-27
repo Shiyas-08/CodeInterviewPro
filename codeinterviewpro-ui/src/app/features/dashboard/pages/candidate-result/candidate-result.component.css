@@ -1,0 +1,37 @@
+.markdown-content ::ng-deep h1, 
+.markdown-content ::ng-deep h2, 
+.markdown-content ::ng-deep h3 {
+    @apply text-slate-900 font-bold mt-4 mb-2;
+}
+
+.markdown-content ::ng-deep h3 {
+    @apply text-base;
+}
+
+.markdown-content ::ng-deep p {
+    @apply mb-3;
+}
+
+.markdown-content ::ng-deep strong {
+    @apply text-slate-900 font-extrabold;
+}
+
+.markdown-content ::ng-deep ul {
+    @apply list-disc list-inside mb-4 space-y-1;
+}
+
+.markdown-content ::ng-deep li {
+    @apply text-slate-600;
+}
+
+.markdown-content ::ng-deep code {
+    @apply bg-slate-100 text-indigo-600 px-1.5 py-0.5 rounded font-mono text-xs border border-slate-200;
+}
+
+/* Print Specific Fixes */
+@media print {
+    .saas-card {
+        break-inside: avoid;
+        display: block;
+    }
+}

@@ -16,6 +16,10 @@ export class InterviewService {
     return this.http.post(this.baseUrl, data);
   }
 
+  getAllInterviews(): Observable<any> {
+    return this.http.get(this.baseUrl);
+  }
+
   assignQuestions(id: string, data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/${id}/questions`, data);
   }
@@ -30,35 +34,50 @@ export class InterviewService {
   getQuestions(): Observable<any> {
   return this.http.get(`${environment.apiUrl}/questions`);
 }
-startInterview(token: string) {
+startInterview(token: string): Observable<any> {
   return this.http.post(
     `${environment.apiUrl}/interview-execution/start`,
-    { token: token }
+    { token }
   );
 }
 
-submitInterview(data: any) {
-  return this.http.post(
-    `${environment.apiUrl}/interview-execution/submit`,
-    data
-  );
-}
+
 getSession(token: string) {
   return this.http.get(
    `${environment.apiUrl}/interview-session/get?token=${token}`
   );
 }
 
-stopSession(id: string) {
+stopSession(token: string) {
   return this.http.post(
-    `${environment.apiUrl}/interview-session/stop`,
-    { interviewId: id }
+    `${environment.apiUrl}/interview-session/stop?token=${token}`,
+    {}
   );
 }
+
+deleteInterview(id: string): Observable<any> {
+  return this.http.delete(`${this.baseUrl}/${id}`);
+}
 runCode(data:any){
- return this.http.post(
-   `${environment.apiUrl}/interview-execution/run`,
-   data
- );
+  return this.http.post(
+    `${environment.apiUrl}/interview-execution/run`,
+    data
+  );
+}
+
+submitInterview(data:any){
+  return this.http.post(
+    `${environment.apiUrl}/interview-execution/submit`,
+    data
+  );
+}
+resumeInterview(token: string) {
+  return this.http.get(
+    `${environment.apiUrl}/interview-session/resume?token=${token}`
+  );
+}
+
+getCandidateResult(candidateId: string): Observable<any> {
+  return this.http.get(`${environment.apiUrl}/results/candidate/${candidateId}`);
 }
 }

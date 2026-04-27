@@ -7,71 +7,131 @@ import { AssignQuestionsComponent } from './features/interviews/pages/assign-que
 import { ScheduleInterviewComponent } from './features/interviews/pages/schedule-interview/schedule-interview.component';
 import { InviteCandidateComponent } from './features/interviews/pages/invite-candidate/invite-candidate.component';
 import { InterviewRoomComponent } from './features/interviews/pages/interview-room/interview-room.component';
+import { HomeComponent } from './features/home/pages/home/home.component';
+import { InterviewMonitorComponent } from './features/dashboard/pages/interview-monitor/interview-monitor.component';
+import { HrInterviewsComponent } from './features/dashboard/pages/hr-interviews/hr-interviews.component';
+import { CandidateResultComponent } from './features/dashboard/pages/candidate-result/candidate-result.component';
+import { QuestionBankComponent } from './features/dashboard/pages/question-bank/question-bank.component';
+import { TenantManagementComponent } from './features/dashboard/pages/tenant-management/tenant-management.component';
+import { CreateHrPageComponent } from './features/dashboard/pages/create-hr/create-hr.component';
+import { ProfileComponent } from './features/dashboard/pages/profile/profile.component';
+import { TenantDetailComponent } from './features/dashboard/pages/tenant-detail/tenant-detail.component';
 
 const routes: Routes = [
-  // ── Auth module (lazy loaded) ────────────────────────────
+  {
+    path: '',
+    component: HomeComponent,
+    pathMatch: 'full'
+  },
   {
     path: 'auth',
     loadChildren: () =>
       import('./features/auth/auth.module').then(m => m.AuthModule)
   },
-
-  // ── HR Dashboard  (role 2 → /dashboard) ─────────────────
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2, 3] }
   },
-
-  // ── Admin Dashboard  (role 1 → /admin/dashboard) ─────────
   {
     path: 'admin/dashboard',
     component: DashboardComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
   },
-
-  // ── Candidate Interview Room  (role 3 → /interview) ───────
-  // Points to DashboardComponent for now; replace with
-  // InterviewComponent once that module is built.
   {
     path: 'interview',
     component: DashboardComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'dashboard/interviews/create',
+    component: CreateInterviewComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'dashboard/interviews/:id/questions',
+    component: AssignQuestionsComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'dashboard/interviews/:id/schedule',
+    component: ScheduleInterviewComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'dashboard/interviews/:id/invite',
+    component: InviteCandidateComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'admin/interview-monitor/:id',
+    component: InterviewMonitorComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'admin/hr-interviews',
+    component: HrInterviewsComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'admin/questions',
+    component: QuestionBankComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'admin/candidate-result/:candidateId/:interviewId',
+    component: CandidateResultComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1, 2] }
+  },
+  {
+    path: 'candidate/results/:interviewId',
+    component: CandidateResultComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [3] }
+  },
+  {
+    path: 'admin/tenants',
+    component: TenantManagementComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1] }
+  },
+  {
+    path: 'admin/tenants/:id',
+    component: TenantDetailComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1] }
+  },
+  {
+    path: 'admin/create-hr',
+    component: CreateHrPageComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [1] }
+  },
+  {
+    path: 'interview-room/:id',
+    component: InterviewRoomComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [3] }
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
     canActivate: [AuthGuard]
   },
   {
-  path: 'dashboard/interviews/create',
-  component: CreateInterviewComponent,
-  canActivate: [AuthGuard]
-},
-{
- path: 'dashboard/interviews/:id/questions',
- component: AssignQuestionsComponent,
- canActivate: [AuthGuard]
-},
-{
- path: 'dashboard/interviews/:id/schedule',
- component: ScheduleInterviewComponent,
- canActivate: [AuthGuard]
-},
-{
- path: 'dashboard/interviews/:id/invite',
- component: InviteCandidateComponent,
- canActivate: [AuthGuard]
-},
-{
-  path: 'interview-room/:id',
-  component: InterviewRoomComponent,
-  canActivate: [AuthGuard]
-},
-  // ── Default & wildcard ───────────────────────────────────
-  {
-    path: '',
-    redirectTo: 'auth/login',
-    pathMatch: 'full'
-  },
-  {
     path: '**',
-    redirectTo: 'auth/login'
+    redirectTo: ''
   }
 ];
 

@@ -1,3 +1,4 @@
+import { toast } from 'src/app/core/services/toast';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InterviewService } from 'src/app/core/services/interview.service';
@@ -15,6 +16,8 @@ export class ScheduleInterviewComponent {
     endTime: ''
   };
 
+  loading = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -31,7 +34,7 @@ export class ScheduleInterviewComponent {
 
   // Frontend validation
   if (start >= end) {
-    alert('End time must be after start time');
+    toast.warning('End time must be after start time');
     return;
   }
 
@@ -40,14 +43,16 @@ export class ScheduleInterviewComponent {
     endTime: end.toISOString()
   };
 
+  this.loading = true;
+
   this.service.scheduleInterview(
     this.interviewId,
     payload
   ).subscribe({
 
     next: (res) => {
-
-      alert(res?.message || 'Interview Scheduled');
+      this.loading = false;
+      toast.success(res?.message || 'Interview Scheduled');
 
       this.router.navigate([
         '/dashboard/interviews',
@@ -57,7 +62,8 @@ export class ScheduleInterviewComponent {
     },
 
     error: (err) => {
-      alert(err?.error?.message || 'Schedule failed');
+      this.loading = false;
+      toast.error(err?.error?.message || 'Schedule failed');
     }
 
   });
