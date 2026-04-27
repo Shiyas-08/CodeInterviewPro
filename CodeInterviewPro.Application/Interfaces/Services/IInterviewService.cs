@@ -1,4 +1,5 @@
-﻿using CodeInterviewPro.Application.DTOs.Interview;
+using CodeInterviewPro.Application.DTOs.Interview;
+using CodeInterviewPro.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace CodeInterviewPro.Application.Interfaces.Services
     public interface IInterviewService
     {
         Task<Guid> CreateAsync(CreateInterviewDto dto);
+        Task<IEnumerable<InterviewListDto>> GetAllAsync();
 
         Task AssignCandidateAsync(Guid interviewId, AssignCandidateDto dto);
 
@@ -18,5 +20,6 @@ namespace CodeInterviewPro.Application.Interfaces.Services
         //Task<GenerateLinkResponse> GenerateLinkAsync(Guid interviewId, GenerateLinkDto dto);
         Task AssignQuestionsAsync(Guid interviewId,AssignQuestionsDto dto);
         Task<string> InviteCandidateAsync(Guid interviewId, InviteCandidateDto dto);
+        Task DeleteAsync(Guid id);
     }
 }

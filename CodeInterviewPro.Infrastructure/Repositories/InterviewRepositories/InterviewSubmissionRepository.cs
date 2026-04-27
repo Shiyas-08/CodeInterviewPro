@@ -1,5 +1,5 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
-using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
+// Removed redundant using
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 
@@ -24,6 +24,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
             InterviewId,
             QuestionId,
             CandidateId,
+            TenantId,
             Language,
             Code,
             SubmittedAt
@@ -34,6 +35,7 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
             @InterviewId,
             @QuestionId,
             @CandidateId,
+            @TenantId,
             @Language,
             @Code,
             @SubmittedAt
@@ -105,6 +107,28 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
             return await connection.QueryAsync<InterviewSubmission>(
                 sql,
                 new { CandidateId = candidateId });
+        }
+
+        public async Task<IEnumerable<InterviewSubmission>> GetByInterviewAndCandidateAsync(Guid interviewId, Guid candidateId)
+        {
+            var sql = @"
+    SELECT *
+    FROM (
+        SELECT *,
+               ROW_NUMBER() OVER (
+                   PARTITION BY QuestionId
+                   ORDER BY SubmittedAt DESC
+               ) AS rn
+        FROM InterviewSubmissions
+        WHERE InterviewId = @InterviewId AND CandidateId = @CandidateId
+    ) t
+    WHERE t.rn = 1";
+
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryAsync<InterviewSubmission>(
+                sql,
+                new { InterviewId = interviewId, CandidateId = candidateId });
         }
     }
 }

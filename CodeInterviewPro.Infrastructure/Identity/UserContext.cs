@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Domain.Common.Interfaces;
+using CodeInterviewPro.Domain.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -17,11 +17,28 @@ public class UserContext : IUserContext
         _httpContextAccessor.HttpContext?.User
         ?? throw new Exception("User not authenticated");
 
-    public Guid TenantId =>
-        Guid.Parse(User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")!.Value);
+    public Guid TenantId
+    {
+        get
+        {
+            var claim = User.FindFirst("tid") 
+                        ?? User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid");
+            return claim != null ? Guid.Parse(claim.Value) : Guid.Empty;
+        }
+    }
 
-    public Guid UserId =>
-       Guid.Parse(User.FindFirst("uid")!.Value);
+    public Guid UserId
+    {
+        get
+        {
+            var claim = User.FindFirst("uid") 
+                        ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            return claim != null ? Guid.Parse(claim.Value) : Guid.Empty;
+        }
+    }
+
     public string Role =>
-        User.FindFirst(ClaimTypes.Role)!.Value;
+        User.FindFirst("rid")?.Value 
+        ?? User.FindFirst(ClaimTypes.Role)?.Value 
+        ?? string.Empty;
 }

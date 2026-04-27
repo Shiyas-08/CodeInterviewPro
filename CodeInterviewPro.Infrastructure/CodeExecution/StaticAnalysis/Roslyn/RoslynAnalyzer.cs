@@ -1,49 +1,36 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Reflection;
 
 namespace CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis.Roslyn
 {
     public class RoslynAnalyzer
     {
         public List<string> Analyze(string code)
-        {                                                                                                                                       
-            var syntaxTree =
-                CSharpSyntaxTree.ParseText(code);
+        {
+            // Wrap the candidate's method snippet in a class so Roslyn
+            // can parse it without false "object reference required" errors.
+            bool needsWrapper = !code.TrimStart().StartsWith("using") &&
+                                !code.Contains("class ") &&
+                                !code.Contains("namespace ");
 
-            var references =
-                AppDomain.CurrentDomain
-                .GetAssemblies()
-                .Where(a => !a.IsDynamic &&
-                            !string.IsNullOrEmpty(a.Location))
-                .Select(a =>
-                    MetadataReference.CreateFromFile(a.Location))
-                .Cast<MetadataReference>()
-                .ToList();
+            string wrappedCode = needsWrapper
+                ? $"using System;\nusing System.Collections.Generic;\npublic class __Wrapper__ {{\n{code}\n}}"
+                : code;
 
-            var compilation =
-                CSharpCompilation.Create(
-                    "Analysis",
-                    new[] { syntaxTree },
-                    references,
-                    new CSharpCompilationOptions(
-                        OutputKind.ConsoleApplication));
+            var syntaxTree = CSharpSyntaxTree.ParseText(wrappedCode);
 
-            var diagnostics =
-                compilation.GetDiagnostics();
+            // Only check for SYNTAX parse errors (no full compilation needed)
+            // This avoids false "object reference" / semantic errors on method snippets
+            var syntaxDiagnostics = syntaxTree.GetDiagnostics();
 
-            var result =
-                new List<string>();
+            var result = new List<string>();
 
-            foreach (var diagnostic in diagnostics)
+            foreach (var diagnostic in syntaxDiagnostics)
             {
-                if (diagnostic.Severity ==
-                    DiagnosticSeverity.Error ||
-                    diagnostic.Severity ==
-                    DiagnosticSeverity.Warning)
+                // Only report errors, never warnings
+                if (diagnostic.Severity == DiagnosticSeverity.Error)
                 {
-                    result.Add(
-                        diagnostic.GetMessage());
+                    result.Add(diagnostic.GetMessage());
                 }
             }
 

@@ -19,5 +19,6 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewReposito
         Task UpdateAsync(Question question);
 
         Task DeleteAsync(Guid id, Guid tenantId);
+        Task<IEnumerable<Question>> GetByInterviewIdAsync(Guid interviewId);
     }
 }

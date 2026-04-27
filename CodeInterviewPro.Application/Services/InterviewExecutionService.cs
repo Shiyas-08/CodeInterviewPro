@@ -1,11 +1,10 @@
-﻿using CodeInterviewPro.Application.DTOs.Interview;
+using CodeInterviewPro.Application.DTOs.Interview;
 using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
-using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
 using CodeInterviewPro.Domain.Entities;
-using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
+// Removed invalid Infrastructure reference
 
 namespace CodeInterviewPro.Application.Services
 {
@@ -19,7 +18,8 @@ namespace CodeInterviewPro.Application.Services
         private readonly IExecutionPipelineService _pipeline;
         private readonly IUserContext _userContext;
         private readonly IExecutionHistoryRepository _historyRepository;
-
+        private readonly IRunExecutionPipelineService _runPipeline;
+        private readonly IMethodNameDetectorService _methodDetector;
         public InterviewExecutionService(
             IInterviewRepository interviewRepository,
             IInterviewInvitationRepository invitationRepository,
@@ -27,7 +27,7 @@ namespace CodeInterviewPro.Application.Services
             IInterviewSubmissionRepository submissionRepository,
             IInterviewSessionRepository sessionRepository,
             IExecutionPipelineService pipeline,
-            IUserContext userContext,IExecutionHistoryRepository historyRepository) 
+            IUserContext userContext,IExecutionHistoryRepository historyRepository, IRunExecutionPipelineService runPipeline, IMethodNameDetectorService methodDetector) 
         {
             _interviewRepository = interviewRepository;
             _invitationRepository = invitationRepository;
@@ -37,6 +37,8 @@ namespace CodeInterviewPro.Application.Services
             _pipeline = pipeline;
             _userContext = userContext;
             _historyRepository = historyRepository;
+            _runPipeline = runPipeline;
+            _methodDetector = methodDetector;
         }
 
         public async Task<StartInterviewResponse> StartInterviewAsync(string token)
@@ -64,6 +66,9 @@ namespace CodeInterviewPro.Application.Services
 
             if (interview == null)
                 throw new Exception("Interview not found");
+
+            if (interview.Status == 4 || interview.Status == 5)
+                throw new Exception("This interview has already been closed by the recruiter.");
 
             // Time validation
             if (DateTime.UtcNow < interview.StartTime)
@@ -129,14 +134,18 @@ namespace CodeInterviewPro.Application.Services
 
             var testCases =
                 System.Text.Json.JsonSerializer
-                .Deserialize<List<TestCase>>(question.TestCases);
+                .Deserialize<List<TestCase>>(
+                    question.TestCases,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            var methodName = _methodDetector.Detect(request.Code, question.StarterCode, question.Language);
 
             var result =
                 await _pipeline.ExecuteAsync(
                     request.Code,
                     question.Language,
                     testCases,
-                    question.MethodName);
+                    methodName);
             var history = new ExecutionHistory
             {
                 Id = Guid.NewGuid(),
@@ -170,16 +179,54 @@ namespace CodeInterviewPro.Application.Services
             {
                 InterviewId = invitation.InterviewId,
                 CandidateId = invitation.CandidateId.Value,
+                TenantId = invitation.TenantId,          // required by DB
                 QuestionId = request.QuestionId,
                 Language = question.Language.ToString(),
                 Code = request.Code,
-                SubmittedAt = DateTime.UtcNow,
-                Score = result.FinalScore
+                SubmittedAt = DateTime.UtcNow
+                // Score is stored in ExecutionHistory, not here
             };
 
             await _submissionRepository.CreateAsync(submission);
 
             return result;
+        }
+        // ============================================
+        // InterviewExecutionService.cs
+        // ADD RUN METHOD ONLY
+        // ============================================
+
+        public async Task<ExecutionResult> RunCodeAsync(
+            SubmitCodeRequest request)
+        {
+            var invitation =
+                await _invitationRepository
+                    .GetByTokenAsync(request.Token);
+
+            if (invitation == null)
+                throw new Exception("Invalid token");
+
+            var question =
+                await _questionRepository.GetByIdAsync(
+                    request.QuestionId,
+                    invitation.TenantId);
+
+            if (question == null)
+                throw new Exception("Question not found");
+
+            var testCases =
+                System.Text.Json.JsonSerializer
+                .Deserialize<List<TestCase>>(
+                    question.TestCases,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            var methodName = _methodDetector.Detect(request.Code, question.StarterCode, question.Language);
+
+            return await _runPipeline.ExecuteAsync(
+                request.Code,
+                question.Language,
+                testCases,
+                methodName);
         }
     }
 }

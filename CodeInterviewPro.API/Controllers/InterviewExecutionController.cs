@@ -27,6 +27,18 @@ namespace CodeInterviewPro.API.Controllers
             return Ok(result);
         }
 
+
+        [HttpPost("run")]
+        public async Task<IActionResult> Run(
+    [FromBody] SubmitCodeRequest request)
+        {
+            var result =
+                await _service.RunCodeAsync(request);
+
+            return Ok(result);
+        }
+
+
         [AllowAnonymous]
         [HttpPost("submit")]
         public async Task<IActionResult> Submit(

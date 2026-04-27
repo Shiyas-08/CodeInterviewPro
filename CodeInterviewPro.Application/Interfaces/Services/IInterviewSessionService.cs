@@ -1,4 +1,5 @@
-﻿using CodeInterviewPro.Domain.Entities;
+using CodeInterviewPro.Application.DTOs;
+using CodeInterviewPro.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,10 @@ namespace CodeInterviewPro.Application.Interfaces.Services
     {
         Task<InterviewSession> StartSessionAsync(string token);
 
-        Task<InterviewSession> GetSessionAsync(string token);
+        Task<object> GetSessionAsync(string token);
 
         Task StopSessionAsync(string token);
-    }
+        Task<ResumeInterviewResponse> ResumeSessionAsync(string token);
+    
+}
 }

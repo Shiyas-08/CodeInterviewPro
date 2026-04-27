@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Domain.Entities;
+using CodeInterviewPro.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories
         Task<IEnumerable<ExecutionHistory>> GetByCandidateAsync(Guid candidateId);
 
         Task<IEnumerable<ExecutionHistory>> GetByInterviewAsync(Guid interviewId);
+        Task<IEnumerable<ExecutionHistory>> GetByInterviewAndCandidateAsync(Guid interviewId, Guid candidateId);
         Task<IEnumerable<ExecutionHistory>> GetAllAsync();
-
     }
 }

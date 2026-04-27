@@ -1,5 +1,4 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories;
-using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System.Data;
@@ -8,9 +7,9 @@ namespace CodeInterviewPro.Infrastructure.Repositories
 {
     public class InterviewSessionRepository : IInterviewSessionRepository
     {
-        private readonly IDbConnection _db;
+        private readonly DapperContext _db;
 
-        public InterviewSessionRepository(IDbConnection db)
+        public InterviewSessionRepository(DapperContext db)
         {
             _db = db;
         }
@@ -48,20 +47,33 @@ namespace CodeInterviewPro.Infrastructure.Repositories
         );
     ";
 
-            await _db.ExecuteAsync(sql, session);
+            using var connection = _db.CreateConnection();
+            await connection.ExecuteAsync(sql, session);
         }
         public async Task<InterviewSession?> GetByTokenAsync(string token)
         {
             var sql = @"
                 SELECT * 
                 FROM InterviewSessions
-                WHERE Token = @Token
+                WHERE (Token = @Token OR Id = CAST(@Token AS UNIQUEIDENTIFIER))
                 AND IsActive = 1
             ";
 
-            return await _db.QueryFirstOrDefaultAsync<InterviewSession>(
-                sql,
-                new { Token = token });
+            using var connection = _db.CreateConnection();
+            try
+            {
+                return await connection.QueryFirstOrDefaultAsync<InterviewSession>(
+                    sql,
+                    new { Token = token });
+            }
+            catch
+            {
+                // If CAST fails (not a GUID), just check Token
+                var fallbackSql = "SELECT * FROM InterviewSessions WHERE Token = @Token AND IsActive = 1";
+                return await connection.QueryFirstOrDefaultAsync<InterviewSession>(
+                    fallbackSql,
+                    new { Token = token });
+            }
         }
 
         public async Task UpdateAsync(InterviewSession session)
@@ -77,7 +89,8 @@ namespace CodeInterviewPro.Infrastructure.Repositories
         WHERE Id = @Id
     ";
 
-            await _db.ExecuteAsync(sql, session);
+            using var connection = _db.CreateConnection();
+            await connection.ExecuteAsync(sql, session);
         }
     }
-}
+}

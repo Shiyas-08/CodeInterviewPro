@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories;
+using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System.Data;
@@ -82,6 +82,19 @@ namespace CodeInterviewPro.Infrastructure.Repositories
             return await _connection.QueryAsync<ExecutionHistory>(
                 sql,
                 new { InterviewId = interviewId });
+        }
+
+        public async Task<IEnumerable<ExecutionHistory>> GetByInterviewAndCandidateAsync(Guid interviewId, Guid candidateId)
+        {
+            var sql = @"
+                SELECT *
+                FROM ExecutionHistory
+                WHERE InterviewId = @InterviewId AND CandidateId = @CandidateId
+                ORDER BY CreatedAt DESC";
+
+            return await _connection.QueryAsync<ExecutionHistory>(
+                sql,
+                new { InterviewId = interviewId, CandidateId = candidateId });
         }
         public async Task<IEnumerable<ExecutionHistory>> GetAllAsync()
         {

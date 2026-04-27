@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.AI;
+using CodeInterviewPro.Application.AI;
 using CodeInterviewPro.Application.Common.Execution;
 using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Application.Interfaces.Services;
@@ -117,22 +117,21 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
 
             Console.WriteLine("CACHE MISS");
 
-            if (language == ProgrammingLanguage.CSharp)
-            {
-                var roslyn = new RoslynAnalyzer();
-                var errors = roslyn.Analyze(code);
+            var analyzer = StaticAnalyzerFactory.GetAnalyzer(language);
+            var compilerErrors = await analyzer.AnalyzeAsync(code);
 
-                if (errors.Any())
+            if (!string.IsNullOrWhiteSpace(compilerErrors))
+            {
+                return new ExecutionResult
                 {
-                    return new ExecutionResult
-                    {
-                        AIFeedback = string.Join("\n", errors)
-                    };
-                }
+                    AIFeedback = compilerErrors
+                };
             }
           
-            var results =
-                await _resource.ExecuteWithLimits(
+            List<TestCaseResult> results;
+            try
+            {
+                results = await _resource.ExecuteWithLimits(
                     () => _timeout.ExecuteWithTimeout<List<TestCaseResult>>(
                         token => _testCaseService.ExecuteAsync(
                             code,
@@ -143,6 +142,19 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                         30),
                     256,
                     1);
+            }
+            catch (Exception ex)
+            {
+                return new ExecutionResult
+                {
+                    Total = testCases.Count,
+                    Passed = 0,
+                    Failed = testCases.Count,
+                    Score = 0,
+                    FinalScore = 0,
+                    AIFeedback = ex.Message
+                };
+            }
 
             var metrics = _metricsService.Calculate(results);
 
@@ -220,24 +232,16 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                     aiResult.FinalScore,
                     deepResult.Score,
                     codeBertResult.Score);
-
             metrics.AIScore = confidenceScore;
 
-            string chatFeedback = "AI feedback processing...";
-
-            _backgroundQueue.QueueBackgroundWorkItem(
-                async token =>
-                {
-                    await _aiFeedback.GenerateAsync(
-                        "Coding Question",
-                        "Candidate Solution",
-                        code,
-                        language.ToString(),
-                        codeBertResult.Complexity,
-                        confidenceScore);
-
-                    Console.WriteLine("Background Gemini Completed");
-                });
+            string chatFeedback =
+                await _aiFeedback.GenerateAsync(
+                    "Coding Question",
+                    "Candidate Solution",
+                    code,
+                    language.ToString(),
+                    codeBertResult.Complexity,
+                    confidenceScore);
 
             metrics.Similarity =
                 similarity.SimilarityPercentage;
@@ -260,6 +264,45 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                     metrics.Similarity,
                     metrics.FinalScore,
                     codeBertResult.Complexity);
+            //metrics.AIScore = confidenceScore;
+
+            //string chatFeedback = "AI feedback processing...";
+
+            //_backgroundQueue.QueueBackgroundWorkItem(
+            //    async token =>
+            //    {
+            //        await _aiFeedback.GenerateAsync(
+            //            "Coding Question",
+            //            "Candidate Solution",
+            //            code,
+            //            language.ToString(),
+            //            codeBertResult.Complexity,
+            //            confidenceScore);
+
+            //        Console.WriteLine("Background Gemini Completed");
+            //    });
+
+            //metrics.Similarity =
+            //    similarity.SimilarityPercentage;
+
+            //metrics.SimilarityMessage =
+            //    similarity.Message;
+
+            //metrics.FinalScore =
+            //    _scoring.Calculate(
+            //        metrics.Score,
+            //        metrics.AIScore,
+            //        metrics.Similarity);
+
+            //metrics.AIFeedback =
+            //    _finalFeedback.Generate(
+            //        aiResult.Feedback,
+            //        deepResult.Feedback,
+            //        codeBertResult.Feedback,
+            //        chatFeedback,
+            //        metrics.Similarity,
+            //        metrics.FinalScore,
+            //        codeBertResult.Complexity);
 
             metrics.AIComplexity =
                 codeBertResult.Complexity;

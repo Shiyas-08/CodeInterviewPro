@@ -146,6 +146,9 @@ builder.Services.AddScoped<IDbConnection>(sp =>
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
+// Register StubHub to fulfill IHubContext requirements in Application layer
+builder.Services.AddScoped<CodeInterviewPro.Application.Services.StubHub>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();

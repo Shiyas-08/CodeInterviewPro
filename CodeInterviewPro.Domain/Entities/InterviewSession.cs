@@ -23,7 +23,7 @@ namespace CodeInterviewPro.Domain.Entities
 
         public int DurationMinutes { get; set; }
 
-        public int? RemainingSeconds { get; set; }
+        public int  RemainingSeconds { get; set; }
 
         public int Status { get; set; }
 
