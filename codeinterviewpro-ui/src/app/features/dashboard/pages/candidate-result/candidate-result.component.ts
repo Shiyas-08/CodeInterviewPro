@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ResultService } from 'src/app/core/services/result.service';
 import { toast } from 'src/app/core/services/toast';
 import * as html2pdf from 'html2pdf.js';
@@ -7,6 +8,8 @@ import { marked } from 'marked';
 
 @Component({
   selector: 'app-candidate-result',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './candidate-result.component.html',
   styleUrls: ['./candidate-result.component.css']
 })

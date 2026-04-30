@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.DTOs.Interview;
+using CodeInterviewPro.Application.DTOs.Interview;
 using CodeInterviewPro.Domain.Entities;
 
 namespace CodeInterviewPro.Application.Interfaces.Services
@@ -9,7 +9,5 @@ namespace CodeInterviewPro.Application.Interfaces.Services
         Task<ExecutionResult> RunCodeAsync(SubmitCodeRequest request);
         Task<ExecutionResult> SubmitCodeAsync(
      SubmitCodeRequest request);
-        Task<ExecutionResult> RunCodeAsync(
-    SubmitCodeRequest request);
     }
 }

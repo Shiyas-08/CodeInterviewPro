@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AdminService } from 'src/app/core/services/admin.service';
 import { TenantService } from 'src/app/core/services/tenant.service';
 import { toast } from 'src/app/core/services/toast';
 
 @Component({
   selector: 'app-create-hr-page',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './create-hr.component.html',
   styleUrls: ['./create-hr.component.css']
 })

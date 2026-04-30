@@ -1,8 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { CreateHrComponent } from '../create-hr/create-hr.component';
+import { CreateTenantComponent } from '../create-tenant/create-tenant.component';
 import { TenantService } from 'src/app/core/services/tenant.service';
 
 @Component({
   selector: 'app-tenant-list',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, CreateHrComponent, CreateTenantComponent],
   templateUrl: './tenant-list.component.html'
 })
 export class TenantListComponent implements OnInit {

@@ -40,7 +40,8 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IInterviewInvitationRepository, InterviewInvitationRepository>();
             services.AddScoped<IInterviewSessionRepository, InterviewSessionRepository>();
             services.AddScoped<IInterviewQuestionRepository, InterviewQuestionRepository>();
-            services.AddScoped< IInterviewSubmissionRepository,InterviewSubmissionRepository>();
+            services.AddScoped<IInterviewSubmissionRepository, InterviewSubmissionRepository>();
+            services.AddScoped<ICandidateRepository, CandidateRepository>();
             services.AddHttpContextAccessor();
             services.AddScoped<IUserContext, UserContext>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();

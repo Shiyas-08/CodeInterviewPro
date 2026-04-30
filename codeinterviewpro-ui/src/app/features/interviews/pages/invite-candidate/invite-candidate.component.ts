@@ -1,10 +1,14 @@
 import { toast } from 'src/app/core/services/toast';
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { InterviewService } from 'src/app/core/services/interview.service';
 
 @Component({
   selector: 'app-invite-candidate',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './invite-candidate.component.html'
 })
 export class InviteCandidateComponent {

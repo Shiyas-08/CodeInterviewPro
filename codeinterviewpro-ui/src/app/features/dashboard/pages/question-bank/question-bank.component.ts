@@ -1,9 +1,13 @@
 import { toast } from 'src/app/core/services/toast';
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { QuestionService } from 'src/app/core/services/question.service';
 
 @Component({
   selector: 'app-question-bank',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './question-bank.component.html'
 })
 export class QuestionBankComponent implements OnInit {

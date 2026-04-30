@@ -1,13 +1,14 @@
 import { toast } from 'src/app/core/services/toast';
-// candidate-interviews.component.ts
-
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule, Router } from '@angular/router';
 import { DashboardService } from 'src/app/core/services/dashboard.service';
 import { InterviewService } from 'src/app/core/services/interview.service';
 
 @Component({
   selector: 'app-candidate-interviews',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './candidate-interviews.component.html'
 })
 export class CandidateInterviewsComponent implements OnInit {
