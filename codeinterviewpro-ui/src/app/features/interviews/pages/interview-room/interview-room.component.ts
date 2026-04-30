@@ -342,14 +342,9 @@ export class InterviewRoomComponent implements OnInit, OnDestroy {
     this.isTimeUp = true;
     if (this.interval) clearInterval(this.interval);
     this.editorOptions = { ...this.editorOptions, readOnly: true };
-    toast.info('This interview has been stopped by the HR. Redirecting to your results...');
     
-    // Automatically navigate to result page
-    if (this.session && this.session.interviewId) {
-      this.router.navigate(['/candidate/results', this.session.interviewId]);
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
+    // Show a high-priority toast
+    toast.warning('This interview has been stopped by the HR. Your session is now locked.', { duration: 10000 });
   }
 
   formatTime(seconds: number): string {
@@ -389,7 +384,7 @@ export class InterviewRoomComponent implements OnInit, OnDestroy {
   // ===================================================
   runCode() {
 
-    if (!this.selectedQuestion || this.isTimeUp)
+    if (!this.selectedQuestion || this.isTimeUp || this.isStopped)
       return;
 
     const payload = {
@@ -427,7 +422,7 @@ ${res.aiFeedback || 'No feedback available.'}`;
   // ===================================================
   submit() {
 
-    if (!this.selectedQuestion)
+    if (!this.selectedQuestion || this.isStopped)
       return;
 
     this.isSubmitting = true;
