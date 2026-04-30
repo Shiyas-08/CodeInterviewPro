@@ -93,4 +93,4 @@ namespace CodeInterviewPro.Infrastructure.Repositories
             await connection.ExecuteAsync(sql, session);
         }
     }
-}
+}

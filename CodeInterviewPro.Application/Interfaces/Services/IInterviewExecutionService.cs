@@ -9,5 +9,7 @@ namespace CodeInterviewPro.Application.Interfaces.Services
         Task<ExecutionResult> RunCodeAsync(SubmitCodeRequest request);
         Task<ExecutionResult> SubmitCodeAsync(
      SubmitCodeRequest request);
+        Task<ExecutionResult> RunCodeAsync(
+    SubmitCodeRequest request);
     }
 }
