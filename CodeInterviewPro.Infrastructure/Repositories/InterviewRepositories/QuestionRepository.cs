@@ -85,5 +85,23 @@ namespace CodeInterviewPro.Infrastructure.Repositories.QuestionRepositories
             await connection.ExecuteAsync(sql,
                 new { Id = id, TenantId = tenantId });
         }
+        public async Task<IEnumerable<Question>> GetByInterviewIdAsync(Guid interviewId)
+        {
+            var sql = @"
+        SELECT q.*
+        FROM Questions q
+        INNER JOIN InterviewQuestions iq
+            ON q.Id = iq.QuestionId
+        WHERE iq.InterviewId = @InterviewId
+        AND q.IsActive = 1
+        ORDER BY q.CreatedAt ASC
+    ";
+
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryAsync<Question>(
+                sql,
+                new { InterviewId = interviewId });
+        }
     }
 }

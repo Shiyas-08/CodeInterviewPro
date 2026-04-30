@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.DTOs.Interview;
+using CodeInterviewPro.Application.DTOs.Interview;
 using CodeInterviewPro.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories
+namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories
 {
     public interface IInterviewQuestionRepository
     {

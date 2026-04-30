@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.DTOs.Dashboard;
+using CodeInterviewPro.Application.DTOs.Dashboard;
 using CodeInterviewPro.Application.Interfaces.Repositories;
 using Dapper;
 using System.Data;
@@ -36,15 +36,15 @@ public class DashboardRepository : IDashboardRepository
     {
         var sql = @"
     SELECT 
-        COUNT(DISTINCT I.Id) AS TotalInterviews,
-        COUNT(DISTINCT U.Id) AS TotalCandidates,
-        COUNT(DISTINCT ISess.Id) AS CompletedInterviews,
-        ISNULL(AVG(EH.AIScore),0) AS AverageScore
-    FROM Interviews I
-    LEFT JOIN Users U ON U.TenantId = I.TenantId AND U.Role = 3
-    LEFT JOIN InterviewSessions ISess ON ISess.InterviewId = I.Id AND ISess.Status = 2
-    LEFT JOIN ExecutionHistory EH ON EH.InterviewId = I.Id
-    WHERE I.TenantId = @TenantId
+        (SELECT COUNT(*) FROM Interviews WHERE TenantId = @TenantId) AS TotalInterviews,
+        (SELECT COUNT(*) FROM Users WHERE TenantId = @TenantId AND Role = 3) AS TotalCandidates,
+        (SELECT COUNT(*) FROM InterviewSessions S 
+         INNER JOIN Interviews I ON S.InterviewId = I.Id 
+         WHERE I.TenantId = @TenantId AND S.Status = 2) AS CompletedInterviews,
+        (SELECT ISNULL(AVG(EH.AIScore),0) 
+         FROM ExecutionHistory EH 
+         INNER JOIN Interviews I ON EH.InterviewId = I.Id 
+         WHERE I.TenantId = @TenantId) AS AverageScore
     ";
         Console.WriteLine($"TENANT FROM API: {tenantId}");
         var result = await _db.QueryFirstAsync<DashboardSummaryDto>(sql, new { TenantId = tenantId });
@@ -60,7 +60,7 @@ public class DashboardRepository : IDashboardRepository
     {
         var sql = @"
         SELECT 
-            (SELECT COUNT(DISTINCT InterviewId) FROM ExecutionHistory WHERE CandidateId = @UserId) AS TotalInterviews,
+            (SELECT COUNT(*) FROM InterviewInvitations WHERE CandidateId = @UserId) AS TotalInterviews,
             0 AS TotalCandidates,
             (SELECT COUNT(*) FROM InterviewSessions WHERE CandidateId = @UserId AND Status = 2) AS CompletedInterviews,
             (SELECT ISNULL(AVG(AIScore),0) FROM ExecutionHistory WHERE CandidateId = @UserId) AS AverageScore

@@ -10,5 +10,6 @@ namespace CodeInterviewPro.Application.Interfaces.Services
             ProgrammingLanguage language,
             List<TestCase> testCases,
             string methodName);
+
     }
 }

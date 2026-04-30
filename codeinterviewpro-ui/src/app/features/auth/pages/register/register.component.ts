@@ -1,3 +1,4 @@
+import { toast } from 'src/app/core/services/toast';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,6 +13,7 @@ export class RegisterComponent implements OnInit {
   email = '';
   password = '';
   token: string | null = null;
+  loading = false;
 
   constructor(
     private auth: AuthService,
@@ -20,45 +22,40 @@ export class RegisterComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    //  Read token from URL
     this.token = this.route.snapshot.queryParamMap.get('token');
-
-    if (!this.token) {
-      alert('Invalid invite link');
-      this.router.navigate(['/auth/login']);
-    }
   }
 
- register() {
-  if (!this.token) return;
+  register() {
+    if (this.loading) return;
 
-  this.auth.register(this.fullName, this.email, this.password, this.token)
-    .subscribe({
-      next: (res: any) => {
-        console.log('REGISTER SUCCESS RESPONSE:', res); // 🔥 ALWAYS LOG
+    this.loading = true;
+    this.auth.register(this.fullName, this.email, this.password, this.token || '')
+      .subscribe({
+        next: (res: any) => {
+          this.loading = false;
+          // Handle both raw string responses and JSON objects
+          const isSuccess = typeof res === 'string' || res?.success || res?.Success;
+          const message = typeof res === 'string' ? res : (res?.message || 'Success');
 
-        if (res?.success === true) {
-          alert(res.message || 'Registration successful');
-
-          this.router.navigate(['/auth/login'], {
-            queryParams: { token: this.token }
-          });
-        } else {
-          // backend returned 200 but success = false
-          alert(res?.message || 'Registration failed');
+          if (isSuccess) {
+            toast.success(message);
+            this.router.navigate(['/auth/login'], { queryParams: { token: this.token } });
+          } else {
+            toast.error(message || 'Registration failed');
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          // Handle cases where the backend returns a string but Angular fails to parse it as JSON
+          const message = err?.error?.text || err?.error?.message || err?.error || 'Registration failed';
+          
+          if (typeof err?.error === 'string' && err.error.includes('successfully')) {
+             toast.success(err.error);
+             this.router.navigate(['/auth/login'], { queryParams: { token: this.token } });
+          } else {
+             toast.error(typeof message === 'string' ? message : 'Registration failed');
+          }
         }
-      },
-
-      error: (err) => {
-        console.log('REGISTER ERROR RESPONSE:', err); // 🔥 ALWAYS LOG
-
-        const message =
-          err?.error?.message ||   // ApiResponse
-          err?.error ||            // string
-          'Registration failed';
-
-        alert(message);
-      }
-    });
-}
+      });
+  }
 }

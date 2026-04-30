@@ -16,6 +16,7 @@ namespace CodeInterviewPro.Domain.Entities
 
         public Guid? CandidateId { get; set; }
 
+        public string? CandidateEmail { get; set; }
         public string Token { get; set; } = string.Empty;
 
         public DateTime ExpiryTime { get; set; }

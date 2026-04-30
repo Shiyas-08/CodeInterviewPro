@@ -16,4 +16,16 @@ export class DashboardService {
       withCredentials: true
     });
   }
+
+  getInsights() {
+    return this.http.get(`${this.baseUrl}/insights`, {
+      withCredentials: true
+    });
+  }
+
+  getCandidateInterviews() {
+    return this.http.get(`${environment.apiUrl}/candidate/interviews`, {
+      withCredentials: true
+    });
+  }
 }

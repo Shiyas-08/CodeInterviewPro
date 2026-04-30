@@ -1,4 +1,5 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Application.DTOs;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System.Data;
@@ -18,11 +19,26 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
         public async Task CreateAsync(InterviewInvitation invitation)
         {
             var sql = @"
-                INSERT INTO InterviewInvitations
-                (TenantId, InterviewId, CandidateId, Token, ExpiryTime, IsUsed)
-                VALUES
-                (@TenantId, @InterviewId, @CandidateId, @Token, @ExpiryTime, 0)
-            ";
+INSERT INTO InterviewInvitations
+(
+    TenantId,
+    InterviewId,
+    CandidateId,
+    CandidateEmail,
+    Token,
+    ExpiryTime,
+    IsUsed
+)
+VALUES
+(
+    @TenantId,
+    @InterviewId,
+    @CandidateId,
+    @CandidateEmail,
+    @Token,
+    @ExpiryTime,
+    0
+)";
             using var connection = _db.CreateConnection();
 
             await connection.ExecuteAsync(sql, invitation);
@@ -88,6 +104,89 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
 
             if (rows == 0)
                 throw new Exception("❌ Candidate update failed");
+        }
+
+        public async Task<IEnumerable<CandidateInterviewDto>> GetByCandidateIdAsync(Guid candidateId)
+        {
+            var sql = @"
+        SELECT
+            inv.Id AS InvitationId,
+            inv.Token,
+            inv.IsUsed,
+            inv.ExpiryTime,
+            inv.StartedAt,
+            inv.TenantId,
+
+            i.Id AS InterviewId,
+            i.Title,
+            i.Description,
+            i.DurationMinutes,
+            i.StartTime,
+            i.EndTime,
+
+            CASE
+                -- If Parent Interview is explicitly marked Completed or Cancelled
+                WHEN i.Status = 4 THEN 'Completed'
+                WHEN i.Status = 5 THEN 'Cancelled'
+
+                -- If interview started AND still within duration → InProgress
+                WHEN inv.IsUsed = 1 
+                     AND inv.StartedAt IS NOT NULL
+                     AND DATEADD(MINUTE, i.DurationMinutes, inv.StartedAt) > GETUTCDATE()
+                    THEN 'InProgress'
+
+                -- If not started and still valid → Pending
+                WHEN inv.IsUsed = 0
+                     AND inv.ExpiryTime > GETUTCDATE()
+                    THEN 'Pending'
+
+                -- If started but duration exceeded → Completed
+                WHEN inv.IsUsed = 1 
+                     AND inv.StartedAt IS NOT NULL
+                     AND DATEADD(MINUTE, i.DurationMinutes, inv.StartedAt) <= GETUTCDATE()
+                    THEN 'Completed'
+
+                -- If never started and expired → Expired
+                WHEN inv.ExpiryTime <= GETUTCDATE()
+                    THEN 'Expired'
+
+                ELSE 'Unknown'
+            END AS Status
+
+        FROM InterviewInvitations inv
+        INNER JOIN Interviews i
+            ON inv.InterviewId = i.Id
+
+        WHERE inv.CandidateId = @CandidateId
+
+        ORDER BY inv.Id DESC
+    ";
+
+            using var connection = _db.CreateConnection();
+
+            return await connection.QueryAsync<CandidateInterviewDto>(
+                sql,
+                new { CandidateId = candidateId });
+        }
+        public async Task BindInvitesByEmail(string email, Guid userId)
+        {
+            var sql = @"
+        UPDATE InterviewInvitations
+        SET CandidateId = @UserId
+        WHERE LOWER(LTRIM(RTRIM(CandidateEmail))) =
+              LOWER(LTRIM(RTRIM(@Email)))
+        AND CandidateId IS NULL
+    ";
+
+            using var connection = _db.CreateConnection();
+
+            var rows = await connection.ExecuteAsync(sql, new
+            {
+                Email = email,
+                UserId = userId
+            });
+
+            Console.WriteLine($"Bound invites rows: {rows}");
         }
     }
 }

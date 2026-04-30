@@ -1,10 +1,10 @@
-﻿using CodeInterviewPro.Application.DTOs.Interview;
+using CodeInterviewPro.Application.DTOs.Interview;
 using CodeInterviewPro.Application.Interfaces.Repositories;
-using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
-using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
+// Removed invalid Infrastructure reference
 using Microsoft.AspNetCore.Http;
 
 namespace CodeInterviewPro.Infrastructure.Services
@@ -73,6 +73,25 @@ namespace CodeInterviewPro.Infrastructure.Services
             };
 
             return await _interviewRepo.CreateAsync(interview);
+        }
+
+        public async Task<IEnumerable<InterviewListDto>> GetAllAsync()
+        {
+            var tenantId = GetTenantId();
+            var results = await _interviewRepo.GetAllWithInvitationAsync(tenantId);
+
+            return results.Select(x => new InterviewListDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Description = x.Description,
+                DurationMinutes = x.DurationMinutes,
+                Status = x.Status,
+                CreatedAt = x.CreatedAt,
+                Token = x.Token,
+                CandidateId = x.CandidateId,
+                CandidateEmail = x.CandidateEmail
+            });
         }
 
         // ASSIGN CANDIDATE
@@ -265,6 +284,7 @@ namespace CodeInterviewPro.Infrastructure.Services
                 TenantId = tenantId,
                 InterviewId = interviewId,
                 CandidateId = candidateId, // can be null
+                CandidateEmail = dto.Email,
                 Token = token,
                 ExpiryTime = dto.ExpiryTime,
                 IsUsed = false,
@@ -273,9 +293,15 @@ namespace CodeInterviewPro.Infrastructure.Services
 
             await _invitationRepo.CreateAsync(invitation);
 
-            var link = $"https://localhost:5001/interview/{token}";
+            var link = $"http://localhost:4200/auth/register?token={token}";
 
             return link;
+        }
+
+        public async Task DeleteAsync(Guid id)
+        {
+            var tenantId = GetTenantId();
+            await _interviewRepo.DeleteAsync(id, tenantId);
         }
     }
 }

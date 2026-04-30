@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.Interfaces;
+using CodeInterviewPro.Application.Interfaces;
 using CodeInterviewPro.Application.Interfaces.Services;
 using System.Diagnostics;
 
@@ -38,10 +38,12 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution.Executors
 
             await process.WaitForExitAsync();
 
-            if (!string.IsNullOrEmpty(error))
-                return error;
+            if (process.ExitCode != 0)
+            {
+                return !string.IsNullOrEmpty(error) ? error : "Process exited with code " + process.ExitCode;
+            }
 
-            return output;
+            return output + error;
         }
     }
 }

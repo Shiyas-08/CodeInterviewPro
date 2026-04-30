@@ -1,0 +1,173 @@
+<div class="min-h-screen bg-slate-50 p-8 md:p-12 animate-fade-in pt-24">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+      <div>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Interview Management</h1>
+        <p class="text-slate-500 font-medium mt-1">Track and manage candidate sessions with high-precision tools.</p>
+      </div>
+      <div class="flex gap-4">
+        <button routerLink="/dashboard" class="saas-btn-secondary px-6">
+           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+           Dashboard
+        </button>
+        <button routerLink="/dashboard/interviews/create" class="saas-btn-primary px-8">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          Create Session
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs & Search -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 border-b border-slate-200 gap-6">
+      <div class="flex gap-8">
+        <button class="text-indigo-600 font-bold border-b-2 border-indigo-600 pb-4 text-sm uppercase tracking-wider">All Sessions</button>
+        <button class="text-slate-400 font-bold hover:text-slate-600 transition-colors pb-4 text-sm uppercase tracking-wider">Scheduled</button>
+        <button class="text-slate-400 font-bold hover:text-slate-600 transition-colors pb-4 text-sm uppercase tracking-wider">Completed</button>
+      </div>
+      
+      <div class="relative w-full md:w-80 mb-4 md:mb-0">
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="filterInterviews()"
+          placeholder="Search by title or candidate..." 
+          class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white text-sm font-medium"
+        />
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="space-y-4">
+      <div *ngFor="let i of [1,2,3,4]" class="bg-white rounded-3xl border border-slate-200 p-8 h-24 animate-pulse"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && filteredInterviews.length === 0" class="text-center py-32 bg-white rounded-[32px] border border-slate-200 shadow-sm animate-fade-in-up">
+      <div class="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-slate-300 border border-slate-100">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2 2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+      </div>
+      <h3 class="text-2xl font-bold text-slate-900 mb-2">No interviews found</h3>
+      <p class="text-slate-500 max-w-sm mx-auto">We couldn't find any sessions matching your criteria.</p>
+    </div>
+
+    <!-- Interviews Grid -->
+    <div *ngIf="!loading && pagedInterviews.length > 0" class="grid grid-cols-1 gap-4 animate-fade-in-up">
+      <div *ngFor="let item of pagedInterviews" class="saas-card flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-8 group">
+        
+        <!-- Basic Info -->
+        <div class="flex-1">
+          <div class="flex flex-wrap items-center gap-3 mb-2">
+            <h3 class="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{{ item.title }}</h3>
+            <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border"
+              [ngClass]="{
+                'bg-slate-50 text-slate-500 border-slate-200': item.status == 1 || item.status == 2,
+                'bg-indigo-50 text-indigo-600 border-indigo-100 animate-pulse': item.status == 3,
+                'bg-emerald-50 text-emerald-600 border-emerald-100': item.status == 4,
+                'bg-rose-50 text-rose-600 border-rose-100': item.status == 5
+              }">
+              {{ item.status == 1 ? 'Draft' : item.status == 2 ? 'Scheduled' : item.status == 3 ? 'Live' : item.status == 4 ? 'Completed' : 'Cancelled' }}
+            </span>
+          </div>
+          <p class="text-slate-500 text-sm font-medium line-clamp-1 max-w-lg">{{ item.description || 'No description provided' }}</p>
+        </div>
+
+        <!-- Metrics -->
+        <div class="flex items-center gap-10 border-x border-slate-100 px-10 hidden lg:flex">
+          <div class="text-center">
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Duration</p>
+            <p class="text-sm font-bold text-slate-700">{{ item.durationMinutes }}m</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Created</p>
+            <p class="text-sm font-bold text-slate-700">{{ item.createdAt | date:'MMM d' }}</p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+          <ng-container *ngIf="item.status == 2 || item.status == 3">
+             <button 
+               *ngIf="item.token"
+               (click)="monitorInterview(item.token)"
+               class="saas-btn-primary !bg-indigo-600 !px-6 !text-xs !py-2.5">
+               Monitor Session
+             </button>
+             <button 
+               *ngIf="item.token"
+               (click)="stopInterview(item.token)"
+               class="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-all border border-rose-100" title="Stop Session">
+               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+             </button>
+          </ng-container>
+
+          <ng-container *ngIf="item.status == 4">
+             <button 
+               *ngIf="item.candidateId"
+               (click)="viewResult(item.candidateId, item.id)"
+               class="saas-btn-secondary !px-6 !text-xs !py-2.5 border-emerald-100 text-emerald-600 hover:bg-emerald-50">
+               View Report
+             </button>
+          </ng-container>
+
+          <div class="w-px h-6 bg-slate-100 mx-2 hidden md:block"></div>
+
+          <div class="flex items-center gap-2">
+            <button 
+              *ngIf="item.token"
+              (click)="copyLink(item.token)"
+              class="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-slate-400 hover:text-indigo-600 hover:border-indigo-100 border border-slate-200 transition-all shadow-sm" title="Copy Invite Link">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+            </button>
+            <button 
+              (click)="removeInterview(item.id)"
+              class="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-slate-400 hover:text-rose-600 hover:border-rose-100 border border-slate-200 transition-all shadow-sm" title="Delete Session">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && filteredInterviews.length > pageSize" class="mt-12 flex items-center justify-between bg-white px-8 py-5 rounded-[24px] border border-slate-200 shadow-sm animate-fade-in-up">
+      <div class="text-sm font-medium text-slate-500">
+        Showing <span class="text-slate-900 font-bold">{{ (currentPage - 1) * pageSize + 1 }}</span> to 
+        <span class="text-slate-900 font-bold">{{ currentPage * pageSize > filteredInterviews.length ? filteredInterviews.length : currentPage * pageSize }}</span> of 
+        <span class="text-slate-900 font-bold">{{ filteredInterviews.length }}</span> results
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button 
+          (click)="setPage(currentPage - 1)" 
+          [disabled]="currentPage === 1"
+          class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        
+        <div class="flex items-center gap-1">
+          <button 
+            *ngFor="let p of [].constructor(totalPages); let i = index"
+            (click)="setPage(i + 1)"
+            [class.bg-indigo-600]="currentPage === i + 1"
+            [class.text-white]="currentPage === i + 1"
+            [class.border-indigo-600]="currentPage === i + 1"
+            class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-sm font-bold hover:bg-slate-50 transition-all">
+            {{ i + 1 }}
+          </button>
+        </div>
+
+        <button 
+          (click)="setPage(currentPage + 1)" 
+          [disabled]="currentPage === totalPages"
+          class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

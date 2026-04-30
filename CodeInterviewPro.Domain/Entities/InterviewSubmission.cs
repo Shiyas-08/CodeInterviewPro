@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,11 +16,14 @@ namespace CodeInterviewPro.Domain.Entities
 
         public Guid CandidateId { get; set; }
 
+        public Guid TenantId { get; set; }
+
         public string Language { get; set; } = string.Empty;
 
         public string Code { get; set; } = string.Empty;
 
         public DateTime SubmittedAt { get; set; }
-        public double Score { get; set; }
+
+        // Score is NOT stored here — see ExecutionHistory table for scores
     }
 }

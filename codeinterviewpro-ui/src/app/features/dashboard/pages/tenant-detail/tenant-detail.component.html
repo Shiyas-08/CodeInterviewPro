@@ -1,0 +1,116 @@
+<div class="min-h-screen bg-slate-50 pt-24 pb-12 px-8 selection:bg-indigo-100 selection:text-indigo-900">
+  <div class="max-w-6xl mx-auto">
+    
+    <div *ngIf="loading" class="space-y-8 animate-pulse">
+       <div class="h-40 bg-white rounded-[32px] border border-slate-200"></div>
+       <div class="h-96 bg-white rounded-[32px] border border-slate-200"></div>
+    </div>
+
+    <div *ngIf="!loading && tenant" class="space-y-8 animate-fade-in-up">
+      
+      <!-- Tenant Header Card -->
+      <div class="bg-white rounded-[40px] border border-slate-200 p-10 shadow-sm shadow-slate-200/50 flex flex-col md:flex-row md:items-center justify-between gap-8">
+        <div class="flex items-center gap-8">
+          <div class="w-24 h-24 rounded-[32px] bg-indigo-600 text-white flex items-center justify-center text-4xl font-black shadow-xl shadow-indigo-200">
+            {{ tenant.name?.charAt(0) }}
+          </div>
+          <div>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">{{ tenant.name }}</h1>
+            <div class="flex items-center gap-4 mt-2">
+              <span class="text-indigo-600 text-sm font-bold">{{ tenant.domain }}</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+              <span [class]="tenant.isActive ? 'text-emerald-600' : 'text-rose-600'" class="text-[10px] font-black uppercase tracking-widest">
+                {{ tenant.isActive ? 'Active Organization' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button (click)="showAddHr = !showAddHr" class="saas-btn-primary !bg-slate-900 hover:!bg-indigo-600 px-8">
+            {{ showAddHr ? 'Cancel' : 'Add HR User' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total HR Staff</p>
+          <p class="text-3xl font-black text-slate-900">{{ hrUsers.length }}</p>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Created At</p>
+          <p class="text-3xl font-black text-slate-900 text-sm">{{ tenant.createdAt | date:'longDate' }}</p>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tenant ID</p>
+          <p class="text-slate-900 font-mono text-xs truncate">{{ tenantId }}</p>
+        </div>
+      </div>
+
+      <!-- HR Users List -->
+      <div class="bg-white rounded-[40px] border border-slate-200 overflow-hidden shadow-sm shadow-slate-200/50">
+        <div class="px-10 py-8 border-b border-slate-100 flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Organization Staff</h2>
+          <div *ngIf="showAddHr" class="animate-in slide-in-from-right-4 duration-300">
+             <!-- Placeholder for Create HR component if needed inline -->
+          </div>
+        </div>
+
+        <div *ngIf="showAddHr" class="p-10 bg-slate-50/50 border-b border-slate-100 animate-fade-in">
+           <app-create-hr [tenantId]="tenantId" (onCreated)="onHrCreated()"></app-create-hr>
+        </div>
+
+        <div class="p-4">
+          <table class="w-full">
+            <thead>
+              <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-left">
+                <th class="px-6 py-4">User Details</th>
+                <th class="px-6 py-4">Role</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+              <tr *ngFor="let hr of hrUsers" class="group hover:bg-slate-50/50 transition-colors">
+                <td class="px-6 py-6">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-sm uppercase">
+                      {{ hr.fullName?.charAt(0) }}
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-900">{{ hr.fullName }}</p>
+                      <p class="text-xs text-slate-500">{{ hr.email }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-6">
+                  <span class="text-xs font-medium text-slate-600">HR Manager</span>
+                </td>
+                <td class="px-6 py-6">
+                  <span class="flex items-center gap-1.5 text-emerald-600 text-[10px] font-bold uppercase tracking-widest">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Active
+                  </span>
+                </td>
+                <td class="px-6 py-6 text-right">
+                  <button class="p-2 text-slate-300 hover:text-rose-500 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="hrUsers.length === 0">
+                <td colspan="4" class="px-6 py-12 text-center text-slate-400 font-medium italic">
+                  No staff members registered for this organization.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

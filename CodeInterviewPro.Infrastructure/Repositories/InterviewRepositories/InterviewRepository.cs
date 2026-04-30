@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System;
@@ -73,6 +73,22 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
                 new { TenantId = tenantId });
         }
 
+        public async Task<IEnumerable<dynamic>> GetAllWithInvitationAsync(Guid tenantId)
+        {
+            var sql = @"
+                SELECT i.*, inv.Token, inv.CandidateId, inv.CandidateEmail
+                FROM Interviews i
+                LEFT JOIN InterviewInvitations inv ON i.Id = inv.InterviewId
+                WHERE i.TenantId = @TenantId 
+                AND i.IsActive = 1
+                ORDER BY i.CreatedAt DESC
+            ";
+
+            using var connection = _db.CreateConnection();
+
+            return await connection.QueryAsync(sql, new { TenantId = tenantId });
+        }
+
         public async Task UpdateAsync(Interview interview)
         {
             var sql = @"
@@ -107,6 +123,13 @@ namespace CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories
                 sql,
                 new { Token = token }
             );
+        }
+
+        public async Task DeleteAsync(Guid id, Guid tenantId)
+        {
+            var sql = "UPDATE Interviews SET IsActive = 0 WHERE Id = @Id AND TenantId = @TenantId";
+            using var connection = _db.CreateConnection();
+            await connection.ExecuteAsync(sql, new { Id = id, TenantId = tenantId });
         }
     }
 }

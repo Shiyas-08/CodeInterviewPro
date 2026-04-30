@@ -8,19 +8,19 @@ namespace CodeInterviewPro.Application.DTOs
 {
     public class CandidateInterviewDto
     {
-        public Guid Id { get; set; }
+        public Guid InvitationId { get; set; }
+        public string Token { get; set; }
+        public bool IsUsed { get; set; }
+        public DateTime ExpiryTime { get; set; }
+        public DateTime? StartedAt { get; set; }
 
+        public Guid TenantId { get; set; }   // ADD THIS
+
+        public Guid InterviewId { get; set; }
         public string Title { get; set; }
-
         public string Description { get; set; }
-
-        public DateTime? StartTime { get; set; }
-
-        public DateTime? EndTime { get; set; }
-
         public int DurationMinutes { get; set; }
 
-        public int Status { get; set; }
-        public string Token { get; set; }
+        public string Status { get; set; }
     }
 }

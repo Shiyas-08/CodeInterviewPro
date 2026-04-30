@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Domain.Common.Interfaces;
+using CodeInterviewPro.Domain.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -17,49 +17,28 @@ public class UserContext : IUserContext
         _httpContextAccessor.HttpContext?.User
         ?? throw new Exception("User not authenticated");
 
-    public Guid TenantId =>
-        Guid.Parse(
-            User.FindFirst("tid")?.Value
-            ?? User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")?.Value
-            ?? throw new Exception("TenantId claim missing")
-        );
+    public Guid TenantId
+    {
+        get
+        {
+            var claim = User.FindFirst("tid") 
+                        ?? User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid");
+            return claim != null ? Guid.Parse(claim.Value) : Guid.Empty;
+        }
+    }
 
-    public Guid UserId =>
-        Guid.Parse(
-            User.FindFirst("uid")?.Value
-            ?? throw new Exception("UserId claim missing")
-        );
+    public Guid UserId
+    {
+        get
+        {
+            var claim = User.FindFirst("uid") 
+                        ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            return claim != null ? Guid.Parse(claim.Value) : Guid.Empty;
+        }
+    }
 
     public string Role =>
-        User.FindFirst(ClaimTypes.Role)?.Value
-        ?? throw new Exception("Role claim missing");
+        User.FindFirst("rid")?.Value 
+        ?? User.FindFirst(ClaimTypes.Role)?.Value 
+        ?? string.Empty;
 }
-
-
-
-//using Microsoft.AspNetCore.Http;
-//using System.Security.Claims;
-
-//namespace CodeInterviewPro.Infrastructure.Identity;
-
-//public class UserContext : IUserContext
-//{
-//    private readonly IHttpContextAccessor _httpContextAccessor;
-
-//    public UserContext(IHttpContextAccessor httpContextAccessor)
-//    {
-//        _httpContextAccessor = httpContextAccessor;
-//    }
-
-//    private ClaimsPrincipal User =>
-//        _httpContextAccessor.HttpContext?.User
-//        ?? throw new Exception("User not authenticated");
-
-//    public Guid TenantId =>
-//        Guid.Parse(User.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid")!.Value);
-
-//    public Guid UserId =>
-//       Guid.Parse(User.FindFirst("uid")!.Value);
-//    public string Role =>
-//        User.FindFirst(ClaimTypes.Role)!.Value;
-//}

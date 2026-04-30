@@ -1,7 +1,6 @@
-﻿using CodeInterviewPro.Application.AI;
+using CodeInterviewPro.Application.AI;
 using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
-using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Application.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
@@ -101,8 +100,8 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<IExecutionPipelineService, ExecutionPipelineService>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
             services.AddScoped<ICacheService, RedisService>();
-
-            services.AddScoped<ICandidateRepository, CandidateRepository>();
+            services.AddScoped<IRunExecutionPipelineService, RunExecutionPipelineService>();
+            services.AddScoped<IMethodNameDetectorService, MethodNameDetectorService>();
             return services;
 
 

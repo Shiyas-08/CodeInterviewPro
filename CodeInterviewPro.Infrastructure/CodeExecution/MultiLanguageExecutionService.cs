@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.Interfaces;
+using CodeInterviewPro.Application.Interfaces;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Enums;
 using CodeInterviewPro.Infrastructure.CodeExecution.Templates;
@@ -34,6 +34,10 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
 
             var executor =
                 _factory.GetExecutor(language);
+
+            Console.WriteLine("=== DEBUG: WRAPPED CODE START ===");
+            Console.WriteLine(wrappedCode);
+            Console.WriteLine("=== DEBUG: WRAPPED CODE END ===");
 
             return await executor.ExecuteAsync(
                 wrappedCode,

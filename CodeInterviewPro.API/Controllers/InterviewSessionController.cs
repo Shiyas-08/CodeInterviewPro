@@ -1,4 +1,4 @@
-﻿        using CodeInterviewPro.Application.Common.Responses;
+        using CodeInterviewPro.Application.Common.Responses;
         using CodeInterviewPro.Application.Interfaces.Services;
         using Microsoft.AspNetCore.Authorization;
         using Microsoft.AspNetCore.Mvc;
@@ -16,8 +16,8 @@
             _service = service;
         }
 
-        // 🔍 Candidate check session
-        [Authorize(Roles = "Candidate")]
+        // Candidate check session
+        [Authorize(Roles = "Candidate,HR,SuperAdmin")]
         [HttpGet("get")]
         public async Task<IActionResult> Get(string token)
         {
@@ -28,7 +28,7 @@
                 "Session fetched"));
         }
 
-        // 🛑 HR stop interview
+        //  HR stop interview
         [Authorize(Roles = "HR")]
         [HttpPost("stop")]
         public async Task<IActionResult> Stop(string token)
@@ -39,6 +39,18 @@
                 null,
                 "Interview stopped"));
         }
+        // Candidate resume interview room
+        [Authorize(Roles = "Candidate")]
+        [HttpGet("resume")]
+        public async Task<IActionResult> Resume(string token)
+        {
+            var result = await _service.ResumeSessionAsync(token);
+
+            return Ok(ApiResponse<object>.SuccessResponse(
+                result,
+                "Interview resumed"));
+        }
+
     }
 }
         

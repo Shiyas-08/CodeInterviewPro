@@ -1,27 +1,31 @@
-﻿using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeInterviewPro.API.Controllers
 {
+    [Authorize(Roles = "Candidate")]
     [ApiController]
     [Route("api/candidate")]
-    [Authorize(Roles = "Candidate")]
     public class CandidateController : ControllerBase
     {
-        private readonly ICandidateService _service;
+        private readonly IInterviewInvitationRepository _invitationRepo;
 
-        public CandidateController(ICandidateService service)
+        public CandidateController(IInterviewInvitationRepository invitationRepo)
         {
-            _service = service;
+            _invitationRepo = invitationRepo;
         }
 
         [HttpGet("interviews")]
         public async Task<IActionResult> GetMyInterviews()
         {
-            var result = await _service.GetMyInterviewsAsync();
+            var userIdStr = User.FindFirst("uid")?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
 
-            return Ok(result);
+            var userId = Guid.Parse(userIdStr);
+            var invitations = await _invitationRepo.GetByCandidateIdAsync(userId);
+
+            return Ok(invitations);
         }
     }
 }

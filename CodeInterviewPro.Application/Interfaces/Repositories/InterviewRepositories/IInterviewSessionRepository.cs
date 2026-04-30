@@ -1,11 +1,11 @@
-﻿using CodeInterviewPro.Domain.Entities;
+using CodeInterviewPro.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories
+namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories
 {
     public interface IInterviewSessionRepository
     {

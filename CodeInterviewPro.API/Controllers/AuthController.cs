@@ -1,8 +1,8 @@
-﻿using CodeInterviewPro.Application.Common.Responses;
+using CodeInterviewPro.Application.Common.Responses;
 using CodeInterviewPro.Application.DTOs;
 using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
-using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+// Removed invalid InterviewsRepositories reference
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Application.Security;
 using CodeInterviewPro.Domain.Entities;
@@ -38,46 +38,41 @@ public class AuthController : ControllerBase
     {
         var email = request.Email.Trim().ToLower();
 
-        var invitation = await _invitationRepo.GetByTokenAsync(request.Token);
-
-        if (invitation == null)
-            return BadRequest("Invalid invite");
-
-        // ❌ Prevent re-linking different users
-        if (invitation.CandidateId != null)
+        Guid? tenantId = null;
+        if (!string.IsNullOrEmpty(request.Token))
         {
-            return BadRequest("Invitation already used");
+            var invitation = await _invitationRepo.GetByTokenAsync(request.Token);
+            if (invitation != null)
+            {
+                if (invitation.CandidateId != null) return BadRequest("Invitation already used");
+                tenantId = invitation.TenantId;
+            }
+            else
+            {
+                return BadRequest("Invalid invite token");
+            }
         }
 
         var existingUser = await _repo.GetByEmail(email);
+        if (existingUser != null) return BadRequest("User already exists");
 
-        User user;
-
-        if (existingUser != null)
+        var user = new User
         {
-            user = existingUser;
-        }
-        else
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            Email = email,
+            PasswordHash = _hasher.Hash(request.Password),
+            FullName = request.FullName,
+            Role = UserRole.Candidate,
+            IsActive = true
+        };
+
+        await _repo.Create(user);
+
+        if (!string.IsNullOrEmpty(request.Token))
         {
-            user = new User
-            {
-                Id = Guid.NewGuid(),
-                TenantId = invitation.TenantId,
-                Email = email,
-                PasswordHash = _hasher.Hash(request.Password),
-                FullName = request.FullName,
-                Role = UserRole.Candidate
-            };
-
-            await _repo.Create(user);
+            await _invitationRepo.UpdateCandidateAsync(request.Token, user.Id);
         }
-
-  
-
-        // SAFE UPDATE
-        await _invitationRepo.UpdateCandidateAsync(request.Token, user.Id);     
-        Console.WriteLine($"InvitationId: {invitation.Id}");
-        Console.WriteLine($"UserId: {user.Id}");
 
         return Ok("User created successfully");
     }
@@ -94,9 +89,13 @@ public class AuthController : ControllerBase
                        _hasher.Verify(request.Password, user.PasswordHash);
 
         await Task.Delay(300);
-
         if (!isValid)
             return Unauthorized(ApiResponse<string>.Failure("Invalid email or password"));
+
+        if (user.Role == UserRole.Candidate)
+        {
+            await _invitationRepo.BindInvitesByEmail(user.Email, user.Id);
+        }
 
         // Candidate flow validation
         if (!string.IsNullOrEmpty(request.Token) && user.Role == UserRole.Candidate)
@@ -159,19 +158,23 @@ public class AuthController : ControllerBase
     }
     [Authorize]
     [HttpGet("me")]
-    public IActionResult Me()
+    public async Task<IActionResult> Me()
     {
-        var userId = User.FindFirst("uid")?.Value;
-        var tenantId = User.FindFirst("tid")?.Value;
-        var role = User.FindFirst("rid")?.Value;
-        var name = User.FindFirst("name")?.Value; // optional
+        var userIdStr = User.FindFirst("uid")?.Value;
+        if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+
+        var userId = Guid.Parse(userIdStr);
+        var user = await _repo.GetById(userId);
+
+        if (user == null) return NotFound();
 
         return Ok(new
         {
-            userId,
-            tenantId,
-            role,
-            name
+            userId = user.Id,
+            tenantId = user.TenantId,
+            role = (int)user.Role,
+            fullName = user.FullName,
+            email = user.Email
         });
     }
 

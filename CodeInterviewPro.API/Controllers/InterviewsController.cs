@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.Common.Responses;
+using CodeInterviewPro.Application.Common.Responses;
 using CodeInterviewPro.Application.DTOs.Interview;
 using CodeInterviewPro.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +16,13 @@ namespace CodeInterviewPro.API.Controllers
         public InterviewsController(IInterviewService service)
         {
             _service = service;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var interviews = await _service.GetAllAsync();
+            return Ok(ApiResponse<object>.SuccessResponse(interviews, "Interviews fetched successfully"));
         }
 
         // Create Interview
@@ -80,18 +87,13 @@ namespace CodeInterviewPro.API.Controllers
                 link,
                 "Candidate invited successfully"));
 
-            // Generate Link
-            //[HttpPost("{id}/generate-link")]
-            //public async Task<IActionResult> GenerateLink(
-            //    Guid id,
-            //    GenerateLinkDto dto)
-            //{
-            //    var result = await _service.GenerateLinkAsync(id, dto);
-
-            //    return Ok(ApiResponse<GenerateLinkResponse>.SuccessResponse(
-            //        result,
-            //        "Link generated successfully"));
-            //}
         }
-}
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _service.DeleteAsync(id);
+            return Ok(ApiResponse<string>.SuccessResponse(null, "Interview removed successfully"));
+        }
     }
+}

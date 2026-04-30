@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories;
+using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
@@ -38,7 +38,7 @@ public class ResultPdfService : IResultPdfService
             return new
             {
                 sub.QuestionId,
-                FinalScore = sub.Score,
+                FinalScore = history?.FinalScore ?? 0,  // Score lives in ExecutionHistory, not InterviewSubmission
 
                 Passed = history?.Passed ?? 0,
                 Failed = history?.Failed ?? 0,

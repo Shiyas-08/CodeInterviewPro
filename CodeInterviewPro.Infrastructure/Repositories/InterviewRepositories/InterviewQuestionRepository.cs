@@ -1,5 +1,5 @@
-﻿using CodeInterviewPro.Application.DTOs.Interview;
-using CodeInterviewPro.Application.Interfaces.Repositories.InterviewsRepositories;
+using CodeInterviewPro.Application.DTOs.Interview;
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System;

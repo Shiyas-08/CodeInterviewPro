@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
 
@@ -40,7 +40,7 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution.Templates
                 foreach (var test in testCases)
                 {
                     sb.AppendLine(
-                        $"Console.WriteLine(\"RESULT_{index}:\" + {methodName}({FormatInput(test.Input)}));");
+                        $"Console.WriteLine(\"RESULT_{index}:\" + {methodName}({test.Input}));");
 
                     index++;
                 }
@@ -60,20 +60,6 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution.Templates
             Console.WriteLine("====================================");
 
             return result;
-        }
-
-        private string FormatInput(string input)
-        {
-            if (int.TryParse(input, out _))
-                return input;
-
-            if (double.TryParse(input, out _))
-                return input;
-
-            if (bool.TryParse(input, out _))
-                return input.ToLower();
-
-            return $"\"{input}\"";
         }
     }
 }

@@ -1,0 +1,33 @@
+<form (ngSubmit)="onSubmit()" class="flex flex-wrap gap-4 items-end">
+  <div class="flex-1 min-w-[200px]">
+    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Organization Name</label>
+    <input 
+      type="text" 
+      [(ngModel)]="tenant.name" 
+      name="name" 
+      required
+      placeholder="e.g. Acme Corp" 
+      class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+  </div>
+  
+  <div class="flex-1 min-w-[200px]">
+    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Domain</label>
+    <input 
+      type="text" 
+      [(ngModel)]="tenant.domain" 
+      name="domain" 
+      required
+      placeholder="e.g. acme.com" 
+      class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+    />
+  </div>
+
+  <button 
+    type="submit" 
+    [disabled]="loading || !tenant.name || !tenant.domain"
+    class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+  >
+    {{ loading ? 'Saving...' : (isEditing ? 'Update Organization' : 'Create Organization') }}
+  </button>
+</form>
