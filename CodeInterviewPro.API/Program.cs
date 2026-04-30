@@ -1,4 +1,5 @@
 using CodeInterviewPro.API.Hubs;
+using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.API.Middleware;
 using CodeInterviewPro.Application;
 using CodeInterviewPro.Application.Common.Responses;
@@ -146,9 +147,7 @@ builder.Services.AddScoped<IDbConnection>(sp =>
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-// Register StubHub to fulfill IHubContext requirements in Application layer
-builder.Services.AddScoped<CodeInterviewPro.Application.Services.StubHub>();
-
+builder.Services.AddScoped<CodeInterviewPro.Application.Interfaces.Services.IInterviewNotificationService, CodeInterviewPro.API.Services.InterviewNotificationService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();

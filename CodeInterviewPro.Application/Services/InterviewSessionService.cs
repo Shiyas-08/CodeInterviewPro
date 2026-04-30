@@ -1,23 +1,17 @@
-using Microsoft.AspNetCore.SignalR;
-// Circular dependency handled by using interface-only Hub context
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Application.DTOs;
 using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
-using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Domain.Enums;
 
 namespace CodeInterviewPro.Application.Services
 {
-    public class StubHub : Hub<IInterviewHub> { }
-
     public class InterviewSessionService : IInterviewSessionService
     {
         private readonly IInterviewSessionRepository _sessionRepository;
         private readonly IInterviewRepository _interviewRepository;
         private readonly IQuestionRepository _questionRepository;
-        private readonly IHubContext<StubHub, IInterviewHub> _hubContext;
-
+        private readonly IInterviewNotificationService _notificationService;
         private readonly IInterviewInvitationRepository _invitationRepo;
 
         public InterviewSessionService(
@@ -25,13 +19,13 @@ namespace CodeInterviewPro.Application.Services
             IInterviewRepository interviewRepository,
             IQuestionRepository questionRepository,
             IInterviewInvitationRepository invitationRepo,
-            IHubContext<StubHub, IInterviewHub> hubContext)
+            IInterviewNotificationService notificationService)
         {
             _sessionRepository = sessionRepository;
             _interviewRepository = interviewRepository;
             _questionRepository = questionRepository;
             _invitationRepo = invitationRepo;
-            _hubContext = hubContext;
+            _notificationService = notificationService;
         }
 
         public async Task<InterviewSession> StartSessionAsync(string token)
@@ -104,7 +98,7 @@ namespace CodeInterviewPro.Application.Services
             }
 
             // Notify candidate in real-time
-            await _hubContext.Clients.Group($"Candidate_{token}").InterviewStopped();
+            await _notificationService.NotifyInterviewStoppedAsync(session.Id.ToString(), token);
         }
 
         public async Task<ResumeInterviewResponse> ResumeSessionAsync(string token)
