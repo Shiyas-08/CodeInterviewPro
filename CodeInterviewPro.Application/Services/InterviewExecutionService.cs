@@ -6,6 +6,7 @@ using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Common.Interfaces;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Infrastructure.Repositories.InterviewRepositories;
+using System.Text.Json;
 
 namespace CodeInterviewPro.Application.Services
 {
@@ -178,6 +179,37 @@ namespace CodeInterviewPro.Application.Services
             };
 
             await _submissionRepository.CreateAsync(submission);
+
+            return result;
+        }
+        public async Task<ExecutionResult> RunCodeAsync(
+    SubmitCodeRequest request)
+        {
+            var invitation =
+                await _invitationRepository
+                .GetByTokenAsync(request.Token);
+
+            if (invitation == null)
+                throw new Exception("Invalid token");
+
+            var question =
+                await _questionRepository.GetByIdAsync(
+                    request.QuestionId,
+                    invitation.TenantId);
+
+            if (question == null)
+                throw new Exception("Question not found");
+
+            var testCases =
+                JsonSerializer.Deserialize<List<TestCase>>(
+                    question.TestCases);
+
+            var result =
+                await _pipeline.ExecuteAsync(
+                    request.Code,
+                    question.Language,
+                    testCases,
+                    question.MethodName);
 
             return result;
         }
