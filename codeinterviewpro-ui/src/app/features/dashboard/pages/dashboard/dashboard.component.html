@@ -1,38 +1,250 @@
-<div class="p-6">
+<!-- Dashboard — Light Liquid Glass with visionOS Sidebar -->
+<div style="min-height:100vh;display:flex;position:relative;overflow:hidden;">
 
-  <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+  <!-- Light glass sidebar pill -->
+  <div style="position:fixed;left:18px;top:50%;transform:translateY(-50%);z-index:100;">
+    <div class="glass-sidebar"
+         style="padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;">
 
-  <!-- ADMIN -->
-  <div *ngIf="role === 1" class="grid grid-cols-3 gap-4">
-    <div class="bg-blue-500 text-white p-4 rounded">
-      Total Users: {{ summary?.totalCandidates }}
-    </div>
-    <div class="bg-green-500 text-white p-4 rounded">
-      Total Interviews: {{ summary?.totalInterviews }}
-    </div>
-    <div class="bg-purple-500 text-white p-4 rounded">
-      Completed Interviews: {{ summary?.completedInterviews }}
+      <button class="icon-btn active" title="Dashboard">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </button>
+
+      <button class="icon-btn" title="Search">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
+
+      <button class="icon-btn" title="Candidates">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+        </svg>
+      </button>
+
+      <button class="icon-btn" title="Interviews">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </button>
+
+      <button class="icon-btn" title="Code Room">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+        </svg>
+      </button>
+
+      <div style="width:26px;height:1px;background:rgba(0,0,0,0.08);margin:4px 0;border-radius:1px;"></div>
+
+      <button class="icon-btn" title="Settings">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </button>
     </div>
   </div>
 
-  <!-- HR -->
-  <div *ngIf="role === 2" class="grid grid-cols-3 gap-4">
-    <div class="bg-blue-500 text-white p-4 rounded">
-      Candidates: {{ summary?.totalCandidates }}
-    </div>
-    <div class="bg-green-500 text-white p-4 rounded">
-      Interviews: {{ summary?.totalInterviews }}
-    </div>
-  </div>
+  <!-- Main content -->
+  <div style="flex:1;margin-left:76px;padding:40px 40px 40px 20px;position:relative;z-index:10;">
 
-  <!-- CANDIDATE -->
-  <div *ngIf="role === 3" class="grid grid-cols-2 gap-4">
-    <div class="bg-blue-500 text-white p-4 rounded">
-      My Interviews: {{ summary?.totalInterviews }}
+    <!-- Page header -->
+    <div class="anim-fade-in" style="margin-bottom:36px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Here's your platform overview</p>
+        </div>
+        <div>
+          <span *ngIf="role === 1" class="role-badge"
+                style="color:#5b21b6;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#7c3aed;display:inline-block;"></span>
+            Admin
+          </span>
+          <span *ngIf="role === 2" class="role-badge"
+                style="color:#1d4ed8;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#2563eb;display:inline-block;"></span>
+            HR Manager
+          </span>
+          <span *ngIf="role === 3" class="role-badge"
+                style="color:#065f46;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#059669;display:inline-block;"></span>
+            Candidate
+          </span>
+        </div>
+      </div>
+      <div class="glass-divider" style="margin-top:24px;"></div>
     </div>
-    <div class="bg-green-500 text-white p-4 rounded">
-      Completed: {{ summary?.completedInterviews }}
-    </div>
-  </div>
 
+    <!-- ── ADMIN ── -->
+    <div *ngIf="role === 1"
+         style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;">
+
+      <div class="glass-card anim-scale-in" style="padding:26px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:14px;
+                      background:rgba(255,255,255,0.65);
+                      border-top:1.5px solid rgba(255,255,255,0.95);
+                      border-left:1px solid rgba(255,255,255,0.60);
+                      border-right:1px solid rgba(255,255,255,0.60);
+                      border-bottom:1px solid rgba(255,255,255,0.28);
+                      backdrop-filter:blur(12px);
+                      box-shadow:0 1px 0 rgba(255,255,255,0.85) inset,0 4px 12px rgba(37,99,235,0.10);
+                      display:flex;align-items:center;justify-content:center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;
+                       color:#2563eb;background:rgba(37,99,235,0.10);
+                       border:1px solid rgba(37,99,235,0.22);
+                       padding:3px 10px;border-radius:999px;">LIVE</span>
+        </div>
+        <p style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;
+                  letter-spacing:0.08em;margin-bottom:10px;">Total Candidates</p>
+        <p class="stat-value">{{ summary?.totalCandidates ?? '—' }}</p>
+        <p style="font-size:12px;color:#aeaeb2;margin-top:6px;">Registered across all roles</p>
+      </div>
+
+      <div class="glass-card anim-scale-in delay-1" style="padding:26px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:14px;
+                      background:rgba(255,255,255,0.65);
+                      border-top:1.5px solid rgba(255,255,255,0.95);
+                      border-left:1px solid rgba(255,255,255,0.60);
+                      border-right:1px solid rgba(255,255,255,0.60);
+                      border-bottom:1px solid rgba(255,255,255,0.28);
+                      backdrop-filter:blur(12px);
+                      box-shadow:0 1px 0 rgba(255,255,255,0.85) inset,0 4px 12px rgba(5,150,105,0.10);
+                      display:flex;align-items:center;justify-content:center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;
+                       color:#059669;background:rgba(5,150,105,0.10);
+                       border:1px solid rgba(5,150,105,0.22);
+                       padding:3px 10px;border-radius:999px;">ALL TIME</span>
+        </div>
+        <p style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Total Interviews</p>
+        <p class="stat-value">{{ summary?.totalInterviews ?? '—' }}</p>
+        <p style="font-size:12px;color:#aeaeb2;margin-top:6px;">Scheduled &amp; completed</p>
+      </div>
+
+      <div class="glass-card anim-scale-in delay-2" style="padding:26px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:14px;
+                      background:rgba(255,255,255,0.65);
+                      border-top:1.5px solid rgba(255,255,255,0.95);
+                      border-left:1px solid rgba(255,255,255,0.60);
+                      border-right:1px solid rgba(255,255,255,0.60);
+                      border-bottom:1px solid rgba(255,255,255,0.28);
+                      backdrop-filter:blur(12px);
+                      box-shadow:0 1px 0 rgba(255,255,255,0.85) inset,0 4px 12px rgba(124,58,237,0.10);
+                      display:flex;align-items:center;justify-content:center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;
+                       color:#7c3aed;background:rgba(124,58,237,0.10);
+                       border:1px solid rgba(124,58,237,0.22);
+                       padding:3px 10px;border-radius:999px;">CLOSED</span>
+        </div>
+        <p style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Completed Interviews</p>
+        <p class="stat-value">{{ summary?.completedInterviews ?? '—' }}</p>
+        <p style="font-size:12px;color:#aeaeb2;margin-top:6px;">Successfully evaluated</p>
+      </div>
+    </div>
+
+    <!-- ── HR ── -->
+    <div *ngIf="role === 2"
+         style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;">
+      <div class="glass-card anim-scale-in" style="padding:26px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.65);
+                      border-top:1.5px solid rgba(255,255,255,0.95);border-left:1px solid rgba(255,255,255,0.60);
+                      border-right:1px solid rgba(255,255,255,0.60);border-bottom:1px solid rgba(255,255,255,0.28);
+                      backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(255,255,255,0.85) inset;
+                      display:flex;align-items:center;justify-content:center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#059669;background:rgba(5,150,105,0.10);border:1px solid rgba(5,150,105,0.22);padding:3px 10px;border-radius:999px;">ACTIVE</span>
+        </div>
+        <p style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Candidates</p>
+        <p class="stat-value">{{ summary?.totalCandidates ?? '—' }}</p>
+        <p style="font-size:12px;color:#aeaeb2;margin-top:6px;">In your pipeline</p>
+      </div>
+      <div class="glass-card anim-scale-in delay-1" style="padding:26px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.65);
+                      border-top:1.5px solid rgba(255,255,255,0.95);border-left:1px solid rgba(255,255,255,0.60);
+                      border-right:1px solid rgba(255,255,255,0.60);border-bottom:1px solid rgba(255,255,255,0.28);
+                      backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(255,255,255,0.85) inset;
+                      display:flex;align-items:center;justify-content:center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#2563eb;background:rgba(37,99,235,0.10);border:1px solid rgba(37,99,235,0.22);padding:3px 10px;border-radius:999px;">SCHEDULED</span>
+        </div>
+        <p style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Interviews</p>
+        <p class="stat-value">{{ summary?.totalInterviews ?? '—' }}</p>
+        <p style="font-size:12px;color:#aeaeb2;margin-top:6px;">Total sessions created</p>
+      </div>
+    </div>
+
+    <!-- ── CANDIDATE ── -->
+    <div *ngIf="role === 3"
+         style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;">
+      <div class="glass-card anim-scale-in" style="padding:26px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.65);
+                      border-top:1.5px solid rgba(255,255,255,0.95);border-left:1px solid rgba(255,255,255,0.60);
+                      border-right:1px solid rgba(255,255,255,0.60);border-bottom:1px solid rgba(255,255,255,0.28);
+                      backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(255,255,255,0.85) inset;
+                      display:flex;align-items:center;justify-content:center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </div>
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#2563eb;background:rgba(37,99,235,0.10);border:1px solid rgba(37,99,235,0.22);padding:3px 10px;border-radius:999px;">ASSIGNED</span>
+        </div>
+        <p style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">My Interviews</p>
+        <p class="stat-value">{{ summary?.totalInterviews ?? '—' }}</p>
+        <p style="font-size:12px;color:#aeaeb2;margin-top:6px;">Sessions assigned to you</p>
+      </div>
+      <div class="glass-card anim-scale-in delay-1" style="padding:26px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.65);
+                      border-top:1.5px solid rgba(255,255,255,0.95);border-left:1px solid rgba(255,255,255,0.60);
+                      border-right:1px solid rgba(255,255,255,0.60);border-bottom:1px solid rgba(255,255,255,0.28);
+                      backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(255,255,255,0.85) inset;
+                      display:flex;align-items:center;justify-content:center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;color:#059669;background:rgba(5,150,105,0.10);border:1px solid rgba(5,150,105,0.22);padding:3px 10px;border-radius:999px;">DONE</span>
+        </div>
+        <p style="font-size:11px;font-weight:700;color:#8e8e93;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Completed</p>
+        <p class="stat-value">{{ summary?.completedInterviews ?? '—' }}</p>
+        <p style="font-size:12px;color:#aeaeb2;margin-top:6px;">Finished sessions</p>
+      </div>
+    </div>
+
+  </div>
 </div>
