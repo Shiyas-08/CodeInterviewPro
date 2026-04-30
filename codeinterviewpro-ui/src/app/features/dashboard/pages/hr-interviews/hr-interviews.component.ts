@@ -1,10 +1,14 @@
 import { toast } from 'src/app/core/services/toast';
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
 import { InterviewService } from 'src/app/core/services/interview.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hr-interviews',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './hr-interviews.component.html',
   styleUrls: ['./hr-interviews.component.css']
 })

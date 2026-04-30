@@ -38,13 +38,21 @@ import { InterviewRoomComponent } from './features/interviews/pages/interview-ro
 import { HomeComponent } from './features/home/pages/home/home.component';
 import { QuestionBankComponent } from './features/dashboard/pages/question-bank/question-bank.component';
 import { TenantManagementComponent } from './features/dashboard/pages/tenant-management/tenant-management.component';
-import { CreateHrPageComponent } from './features/dashboard/pages/create-hr/create-hr.component';
 import { ProfileComponent } from './features/dashboard/pages/profile/profile.component';
 import { TenantDetailComponent } from './features/dashboard/pages/tenant-detail/tenant-detail.component';
+import { CreateHrPageComponent } from './features/dashboard/pages/create-hr/create-hr.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    CommonModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule,
+    MonacoEditorModule.forRoot(),
     NavbarComponent,
     ToasterComponent,
     HlmSpinnerComponent,
@@ -54,8 +62,8 @@ import { TenantDetailComponent } from './features/dashboard/pages/tenant-detail/
     HrInterviewsComponent,
     CandidateResultComponent,
     TenantListComponent,
-    CreateHrComponent,
     CreateTenantComponent,
+    CreateHrComponent,
     AssignQuestionsComponent,
     ScheduleInterviewComponent,
     InviteCandidateComponent,
@@ -63,18 +71,10 @@ import { TenantDetailComponent } from './features/dashboard/pages/tenant-detail/
     HomeComponent,
     QuestionBankComponent,
     TenantManagementComponent,
-    CreateHrPageComponent,
     ProfileComponent,
-    TenantDetailComponent
-  ],
-  imports: [
-    BrowserModule,
-    CommonModule,
-    AppRoutingModule,
-    FormsModule,
-    HttpClientModule,
-    MonacoEditorModule.forRoot(),
-    CreateInterviewComponent // Import standalone component here
+    TenantDetailComponent,
+    CreateHrPageComponent,
+    CreateInterviewComponent
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

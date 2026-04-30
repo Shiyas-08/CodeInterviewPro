@@ -14,6 +14,5 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories.InterviewReposito
         Task<InterviewSession?> GetByTokenAsync(string token);
 
         Task UpdateAsync(InterviewSession session);
-        Task<object?> GetSessionDetailsAsync(string token);
     }
 }

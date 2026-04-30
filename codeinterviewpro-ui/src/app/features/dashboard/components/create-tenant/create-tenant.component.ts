@@ -1,9 +1,13 @@
 import { toast } from 'src/app/core/services/toast';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TenantService } from 'src/app/core/services/tenant.service';
 
 @Component({
   selector: 'app-create-tenant',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './create-tenant.component.html'
 })
 export class CreateTenantComponent implements OnInit {

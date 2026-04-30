@@ -1,9 +1,13 @@
 import { toast } from 'src/app/core/services/toast';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AdminService } from 'src/app/core/services/admin.service';
 
 @Component({
   selector: 'app-create-hr',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './create-hr.component.html'
 })
 export class CreateHrComponent {

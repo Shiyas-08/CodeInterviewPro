@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 interface Toast {
   id: string;
@@ -9,6 +10,8 @@ interface Toast {
 
 @Component({
   selector: 'app-toaster',
+  standalone: true,
+  imports: [CommonModule],
   template: `
     <div class="fixed bottom-8 right-8 z-[9999] flex flex-col gap-3 pointer-events-none">
       <div *ngFor="let t of toasts" 

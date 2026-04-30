@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterModule, ActivatedRoute } from '@angular/router';
+import { CreateHrComponent } from '../../components/create-hr/create-hr.component';
 import { TenantService } from 'src/app/core/services/tenant.service';
 import { AdminService } from 'src/app/core/services/admin.service';
 import { toast } from 'src/app/core/services/toast';
 
 @Component({
   selector: 'app-tenant-detail',
+  standalone: true,
+  imports: [CommonModule, RouterModule, CreateHrComponent],
   templateUrl: './tenant-detail.component.html'
 })
 export class TenantDetailComponent implements OnInit {

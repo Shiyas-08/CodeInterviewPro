@@ -1,15 +1,18 @@
 import { toast } from 'src/app/core/services/toast';
-// interview-room.component.ts
-
 import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { InterviewService } from 'src/app/core/services/interview.service';
 import { SignalrService } from 'src/app/core/services/signalr.service';
 import { WebrtcService } from 'src/app/core/services/webrtc.service';
 import { Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 
 @Component({
   selector: 'app-interview-room',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, MonacoEditorModule],
   templateUrl: './interview-room.component.html'
 })
 export class InterviewRoomComponent implements OnInit, OnDestroy {

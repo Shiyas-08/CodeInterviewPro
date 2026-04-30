@@ -1,10 +1,17 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { DashboardService } from 'src/app/core/services/dashboard.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SignalrService } from 'src/app/core/services/signalr.service';
+import { CandidateInterviewsComponent } from '../../components/candidate-interviews/candidate-interviews.component';
+import { TenantListComponent } from '../../components/tenant-list/tenant-list.component';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, CandidateInterviewsComponent, TenantListComponent],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
