@@ -1,7 +1,9 @@
-﻿using CodeInterviewPro.Application.DTOs.CodeExecution;
+using CodeInterviewPro.Application.DTOs.CodeExecution;
 using CodeInterviewPro.Application.DTOs.CodeExecutionRequest;
+using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
 using CodeInterviewPro.Infrastructure.CodeExecution;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CodeInterviewPro.API.Controllers
@@ -10,12 +12,12 @@ namespace CodeInterviewPro.API.Controllers
     [Route("api/[controller]")]
     public class CodeExecutionController : ControllerBase
     {
-        private readonly ExecutionPipelineService _pipeline;
+        private readonly IExecutionPipelineService _pipeline;
         private readonly TestCaseExecutionService _testCaseService;
         private readonly CodeAnalysisService _analysisService;
 
         public CodeExecutionController(
-            ExecutionPipelineService pipeline,
+            IExecutionPipelineService pipeline,
             TestCaseExecutionService testCaseService,
             CodeAnalysisService analysisService)
         {
@@ -23,7 +25,7 @@ namespace CodeInterviewPro.API.Controllers
             _testCaseService = testCaseService;
             _analysisService = analysisService;
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Run(
             [FromBody] CodeExecutionRequest request)

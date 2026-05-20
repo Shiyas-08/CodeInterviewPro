@@ -4,4 +4,4 @@ WORKDIR /workspace
 
 RUN dotnet new console --force
 
-CMD ["sleep", "infinity"]
+CMD ["echo", "Container ready"]

@@ -1,5 +1,7 @@
-﻿using CodeInterviewPro.Application.Common.Responses;
+using CodeInterviewPro.Application.Common.Responses;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Net;
 
 namespace CodeInterviewPro.API.Middleware
@@ -8,12 +10,15 @@ namespace CodeInterviewPro.API.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
+        private readonly IWebHostEnvironment _env;
 
         public ExceptionMiddleware(RequestDelegate next,
-            ILogger<ExceptionMiddleware> logger)
+            ILogger<ExceptionMiddleware> logger,
+            IWebHostEnvironment env)
         {
             _next = next;
             _logger = logger;
+            _env = env;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -29,7 +34,7 @@ namespace CodeInterviewPro.API.Middleware
                 context.Response.ContentType = "application/json";
 
                 var statusCode = HttpStatusCode.InternalServerError;
-                var message = ex.Message;
+                var message = _env.IsDevelopment() ? ex.Message : "An unexpected error occurred.";
 
                 if (ex.Message.Contains("not found"))
                     statusCode = HttpStatusCode.NotFound;

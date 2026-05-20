@@ -1,134 +1,75 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace CodeInterviewPro.Infrastructure.CodeExecution
 {
     public class DockerCodeExecutionService
     {
+        private const string ImageName = "code-runner"; // Ensure this image exists (from Dockerfile.runner)
+        private const int TimeoutSeconds = 30;
+
         public async Task<string> ExecuteAsync(string code)
         {
-            var tempFile =
-                Path.Combine(
-                    Path.GetTempPath(),
-                    $"{Guid.NewGuid()}.cs");
+            var executionId = Guid.NewGuid().ToString();
+            var tempDir = Path.Combine(Path.GetTempPath(), "CodeExecution", executionId);
+            Directory.CreateDirectory(tempDir);
 
-            await File.WriteAllTextAsync(
-                tempFile,
-                code);
+            var tempFile = Path.Combine(tempDir, "Program.cs");
+            await File.WriteAllTextAsync(tempFile, code);
 
-            // Copy file
-            var copyProcess = new Process();
-
-            copyProcess.StartInfo.FileName = "docker";
-            copyProcess.StartInfo.Arguments =
-                $"cp \"{tempFile}\" runner1:/workspace/Program.cs";
-
-            copyProcess.StartInfo.UseShellExecute = false;
-            copyProcess.Start();
-
-            await copyProcess.WaitForExitAsync();
-
-            // Build once
-            var buildProcess = new Process();
-
-            buildProcess.StartInfo.FileName = "docker";
-            buildProcess.StartInfo.Arguments =
-                $"exec runner1 dotnet build /workspace";
-
-            buildProcess.StartInfo.UseShellExecute = false;
-            buildProcess.Start();
-
-            await buildProcess.WaitForExitAsync();
-
-            // Run compiled dll
-            var runProcess = new Process();
-
-            runProcess.StartInfo.FileName = "docker";
-            runProcess.StartInfo.Arguments =
-                $"exec runner1 dotnet run --no-build --project /workspace";
-
-            runProcess.StartInfo.RedirectStandardOutput = true;
-            runProcess.StartInfo.RedirectStandardError = true;
-            runProcess.StartInfo.UseShellExecute = false;
-
-            runProcess.Start();
-
-            var output =
-                await runProcess.StandardOutput.ReadToEndAsync();
-
-            var error =
-                await runProcess.StandardError.ReadToEndAsync();
+            // Create a basic project file if it doesn't exist in the container's workspace
+            // Or assume the image already has a .csproj that we can use.
+            // Since Dockerfile.runner does 'dotnet new console', it has a .csproj.
 
             try
             {
-                File.Delete(tempFile);
+                var runProcess = new Process();
+                runProcess.StartInfo.FileName = "docker";
+                
+                // --rm: Remove container after exit
+                // --memory: Limit memory to 256MB
+                // --cpus: Limit CPU to 0.5
+                // -v: Mount the temp directory to /workspacedocke
+                runProcess.StartInfo.Arguments = 
+                    $"run --rm " +
+                    $"--memory=\"256m\" " +
+                    $"--cpus=\"0.5\" " +
+                    $"-v \"{tempDir}:/workspace\" " +
+                    $"{ImageName} " +
+                    $"dotnet run --project /workspace";
+
+                runProcess.StartInfo.RedirectStandardOutput = true;
+                runProcess.StartInfo.RedirectStandardError = true;
+                runProcess.StartInfo.UseShellExecute = false;
+                runProcess.StartInfo.CreateNoWindow = true;
+
+                runProcess.Start();
+
+                var outputTask = runProcess.StandardOutput.ReadToEndAsync();
+                var errorTask = runProcess.StandardError.ReadToEndAsync();
+
+                if (await Task.WhenAny(runProcess.WaitForExitAsync(), Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds))) == Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds)))
+                {
+                    runProcess.Kill(true);
+                    return "Execution timed out.";
+                }
+
+                var output = await outputTask;
+                var error = await errorTask;
+
+                if (!string.IsNullOrEmpty(error))
+                    return error;
+
+                return output;
             }
-            catch { }
-
-            if (!string.IsNullOrEmpty(error))
-                return error;
-
-            return output;
+            finally
+            {
+                try
+                {
+                    if (Directory.Exists(tempDir))
+                        Directory.Delete(tempDir, true);
+                }
+                catch { }
+            }
         }
     }
 }
-//using System.Diagnostics;
-
-//namespace CodeInterviewPro.Infrastructure.CodeExecution
-//{
-//    public class DockerCodeExecutionService
-//    {
-//        public async Task<string> ExecuteAsync(string code)
-//        {
-//            var tempFile =
-//                Path.Combine(
-//                    Path.GetTempPath(),
-//                    $"{Guid.NewGuid()}.cs");
-
-//            await File.WriteAllTextAsync(
-//                tempFile,
-//                code);
-
-//            // Copy file into container
-//            var copyProcess = new Process();
-
-//            copyProcess.StartInfo.FileName = "docker";
-//            copyProcess.StartInfo.Arguments =
-//                $"cp \"{tempFile}\" runner1:/workspace/Program.cs";
-
-//            copyProcess.StartInfo.UseShellExecute = false;
-//            copyProcess.Start();
-
-//            await copyProcess.WaitForExitAsync();
-
-//            // Execute code
-//            var runProcess = new Process();
-
-//            runProcess.StartInfo.FileName = "docker";
-//            runProcess.StartInfo.Arguments =
-//                $"exec runner1 dotnet run --project /workspace";
-
-//            runProcess.StartInfo.RedirectStandardOutput = true;
-//            runProcess.StartInfo.RedirectStandardError = true;
-//            runProcess.StartInfo.UseShellExecute = false;
-
-//            runProcess.Start();
-
-//            var output =
-//                await runProcess.StandardOutput.ReadToEndAsync();
-
-//            var error =
-//                await runProcess.StandardError.ReadToEndAsync();
-
-//            try
-//            {
-//                File.Delete(tempFile);
-//            }
-//            catch { }
-
-//            if (!string.IsNullOrEmpty(error))
-//                return error;
-
-//            return output;
-//        }
-//    }
-//}

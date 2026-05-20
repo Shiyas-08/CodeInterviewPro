@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Domain.Common;
+using CodeInterviewPro.Domain.Common;
 using CodeInterviewPro.Domain.Enums;
 
 namespace CodeInterviewPro.Domain.Entities
@@ -18,5 +18,7 @@ namespace CodeInterviewPro.Domain.Entities
         public UserRole Role { get; set; }
 
         public bool IsActive { get; set; }
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiry { get; set; }
     }
 }

@@ -1,22 +1,38 @@
+using CodeInterviewPro.Application.Interfaces.Repositories.InterviewRepositories;
 using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Infrastructure.Cache;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
+using System;
 
 namespace CodeInterviewPro.API.Hubs
 {
+    [Authorize]
     public class InterviewHub : Hub<IInterviewHub>
     {
         private readonly ICacheService _redis;
+        private readonly IInterviewSessionRepository _sessionRepo;
 
-        public InterviewHub(ICacheService redis)
+        public InterviewHub(ICacheService redis, IInterviewSessionRepository sessionRepo)
         {
             _redis = redis;
+            _sessionRepo = sessionRepo;
         }
 
         public async Task JoinCandidateRoom(string sessionId)
         {
             sessionId = sessionId.ToLowerInvariant();
+            
+            // SECURITY: Validate candidate owns this session
+            var session = await _sessionRepo.GetByTokenAsync(sessionId);
+            var userId = Context.User?.FindFirst("uid")?.Value;
+            
+            if (session == null || session.CandidateId.ToString() != userId)
+            {
+                throw new HubException("Unauthorized to join this room.");
+            }
+
             await Groups.AddToGroupAsync(Context.ConnectionId, $"Candidate_{sessionId}");
             // Broadcast candidate is online to HR
             await Clients.Group($"HR_{sessionId}").CandidateStatusChanged(true);
@@ -25,6 +41,17 @@ namespace CodeInterviewPro.API.Hubs
         public async Task JoinHRRoom(string sessionId)
         {
             sessionId = sessionId.ToLowerInvariant();
+            
+            // SECURITY: Validate HR owns this session (belongs to their tenant)
+            var session = await _sessionRepo.GetByTokenAsync(sessionId);
+            var tenantId = Context.User?.FindFirst("tid")?.Value;
+            var roleId = Context.User?.FindFirst("rid")?.Value;
+            
+            if (session == null || (roleId == "2" && session.TenantId.ToString() != tenantId))
+            {
+                throw new HubException("Unauthorized to monitor this room.");
+            }
+
             await Groups.AddToGroupAsync(Context.ConnectionId, $"HR_{sessionId}");
             
             // Send latest code from redis if available
@@ -115,35 +142,6 @@ namespace CodeInterviewPro.API.Hubs
             await Clients.Group(targetGroup).ReceiveIceCandidate(candidate);
         }
 
-        // KEEP FOR BACKWARD COMPATIBILITY
-        public async Task JoinInterview(string interviewId)
-        {
-            Console.WriteLine($"User joined: {interviewId}");
-
-            await Groups.AddToGroupAsync(
-                Context.ConnectionId,
-                interviewId);
-
-            // Load previous code from Redis
-            var code = await _redis.GetAsync<string>($"code:{interviewId}");
-
-            if (!string.IsNullOrEmpty(code))
-            {
-                await Clients.Caller.ReceiveCode(code);
-            }
-        }
-
-        // KEEP FOR BACKWARD COMPATIBILITY
-        public async Task SendCode(string interviewId, string code)
-        {
-            Console.WriteLine($"Code received: {code}");
-
-            // Store latest code in Redis
-            await _redis.SetAsync($"code:{interviewId}", code);
-
-            await Clients
-                .Group(interviewId)
-                .ReceiveCode(code);
-        }
+        // End of WebRTC Signaling
     }
 }

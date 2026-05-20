@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Application.Interfaces.Repositories;
+using CodeInterviewPro.Application.Interfaces.Repositories;
 using CodeInterviewPro.Domain.Entities;
 using Dapper;
 using System;
@@ -50,6 +50,22 @@ namespace CodeInterviewPro.Infrastructure.Repositories
             return await connection.QueryFirstOrDefaultAsync<User>(
                 sql,
                 new { Id = id });
+        }
+
+        public async Task Update(User user)
+        {
+            var sql = @"UPDATE Users SET 
+                        Email = @Email, 
+                        PasswordHash = @PasswordHash, 
+                        FullName = @FullName, 
+                        Role = @Role, 
+                        IsActive = @IsActive,
+                        ResetToken = @ResetToken,
+                        ResetTokenExpiry = @ResetTokenExpiry
+                        WHERE Id = @Id";
+
+            using var connection = _context.CreateConnection();
+            await connection.ExecuteAsync(sql, user);
         }
     }
 }

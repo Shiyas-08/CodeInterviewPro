@@ -1,0 +1,91 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>CodeInterviewPro Documentation</title>
+<style>
+  body { font-family: 'Calibri', sans-serif; line-height: 1.6; color: #333; }
+  h1 { color: #2E74B5; font-size: 24pt; border-bottom: 2px solid #2E74B5; padding-bottom: 5px; }
+  h2 { color: #2E74B5; font-size: 18pt; margin-top: 25px; }
+  h3 { color: #1F4D78; font-size: 14pt; margin-top: 15px; }
+  p { font-size: 12pt; margin-bottom: 15px; }
+  ul, ol { margin-bottom: 15px; }
+  li { font-size: 12pt; margin-bottom: 8px; }
+  code { background-color: #f4f4f4; padding: 2px 4px; font-family: 'Consolas', monospace; font-size: 11pt; border: 1px solid #ddd; border-radius: 3px; }
+  .highlight { background-color: #e6f2ff; padding: 15px; border-left: 4px solid #2E74B5; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<h1>CodeInterviewPro - Technical Project Documentation</h1>
+
+<div class="highlight">
+  <p><strong>CodeInterviewPro</strong> is a cutting-edge, AI-driven technical interview platform designed to facilitate seamless, real-time coding assessments. It empowers interviewers and candidates to collaborate in real-time with live code synchronization, integrated video/audio communication, and an advanced, secure multi-language code execution engine.</p>
+  <p>To ensure the highest quality of evaluation, CodeInterviewPro employs a <strong>Dual-AI Evaluation System</strong> utilizing Google Gemini and CodeBert to provide instant, human-like feedback, complexity scoring, and plagiarism detection.</p>
+</div>
+
+<h2>1. Key Features</h2>
+<ul>
+    <li><strong>Real-Time Code Collaboration:</strong> Built with WebSockets (SignalR) to instantly sync code editor typing between the candidate and the interviewer.</li>
+    <li><strong>Integrated Video &amp; Audio:</strong> Peer-to-peer WebRTC integration enables live face-to-face communication without requiring third-party tools.</li>
+    <li><strong>Secure Code Execution Pipeline:</strong> Safely compiles and executes user-submitted code in multiple languages (C#, Python, Java, Go, JS) using sandboxed, ephemeral Docker containers.</li>
+    <li><strong>Dual-AI Evaluation:</strong>
+        <ul>
+            <li><strong>CodeBert:</strong> Performs deep AST (Abstract Syntax Tree) analysis, calculates cyclomatic complexity, and checks code similarity (plagiarism detection).</li>
+            <li><strong>Google Gemini:</strong> Acts as a virtual senior interviewer, taking the code, CodeBert's metrics, and test case results to generate a human-readable performance report and hiring recommendation.</li>
+        </ul>
+    </li>
+    <li><strong>Asynchronous AI Processing:</strong> Uses an in-memory Background Task Queue to process heavy AI requests without blocking the user interface, resulting in a smooth user experience.</li>
+    <li><strong>High Performance &amp; Rate Limiting:</strong> Utilizes Redis for caching code execution results and API rate limiting to ensure optimal performance under heavy load.</li>
+</ul>
+
+<h2>2. Technology Stack</h2>
+<h3>Backend</h3>
+<ul>
+    <li><strong>Framework:</strong> .NET 8 (C#) adhering to Clean Architecture principles</li>
+    <li><strong>Database:</strong> Microsoft SQL Server with Entity Framework Core</li>
+    <li><strong>Caching &amp; Rate Limiting:</strong> Redis</li>
+    <li><strong>Real-time Comms:</strong> SignalR (WebSockets)</li>
+    <li><strong>Code Execution:</strong> Docker Engine Integration via <code>/var/run/docker.sock</code></li>
+</ul>
+
+<h3>Frontend</h3>
+<ul>
+    <li><strong>Framework:</strong> Angular (Standalone Components architecture)</li>
+    <li><strong>Styling:</strong> Tailwind CSS &amp; Custom CSS</li>
+    <li><strong>Code Editor:</strong> Monaco Editor</li>
+    <li><strong>Video/Audio:</strong> WebRTC browser APIs</li>
+</ul>
+
+<h3>AI &amp; Machine Learning</h3>
+<ul>
+    <li><strong>Generative AI:</strong> Google Gemini API (<code>gemini-3-flash-preview</code>)</li>
+    <li><strong>Code Analysis Model:</strong> CodeBert (Hosted locally via a Python microservice)</li>
+</ul>
+
+<h2>3. Architecture Overview</h2>
+<p>The system is designed with <strong>Clean Architecture</strong> for maximum separation of concerns:</p>
+<ol>
+    <li><strong>Domain Layer:</strong> Contains core entities (User, InterviewSession, ExecutionResult) and enums. This is the heart of the business logic.</li>
+    <li><strong>Application Layer:</strong> Contains DTOs, interfaces, and core business rules. It has no dependencies on external frameworks.</li>
+    <li><strong>Infrastructure Layer:</strong> Handles all external concerns: Entity Framework DbContext, Redis caching, Docker code execution integration, and external AI service clients.</li>
+    <li><strong>API Layer:</strong> ASP.NET Core REST API exposing secure, JWT-authenticated endpoints.</li>
+</ol>
+
+<h3>Code Execution Security</h3>
+<p>Executing untrusted code is inherently risky. CodeInterviewPro handles this by:</p>
+<ol>
+    <li>Receiving code at the API level.</li>
+    <li>Communicating directly with the host's Docker daemon.</li>
+    <li>Spinning up a temporary <code>code-runner</code> container with complete network isolation.</li>
+    <li>Enforcing strict limits on memory (e.g., 256MB) and execution time (e.g., 30 seconds) using cancellation tokens.</li>
+    <li>Destroying the container immediately after execution to prevent accumulation of stale data.</li>
+</ol>
+
+<h2>4. Testing &amp; DevOps</h2>
+<p>The platform is containerized using Docker and Docker Compose, making deployment and orchestration highly scalable. Additionally, the execution engine's performance is verified using a comprehensive <strong>k6</strong> stress-testing suite to ensure the system can handle concurrent interview sessions without latency spikes.</p>
+
+<hr style="margin-top: 40px; border: 0; border-top: 1px solid #ccc;">
+<p style="text-align: center; color: #888; font-size: 10pt;">Generated for CodeInterviewPro Technical Audit &amp; Documentation</p>
+
+</body>
+</html>

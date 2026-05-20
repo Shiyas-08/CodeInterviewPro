@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +13,8 @@ namespace CodeInterviewPro.Application.DTOs.Interview
         public string Title { get; set; } = string.Empty;
 
         public string Description { get; set; } = string.Empty;
-
+        public string StarterCode { get; set; } = string.Empty;
+        public int Language { get; set; }
         public int Marks { get; set; }
     }
 }
