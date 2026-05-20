@@ -1,71 +1,123 @@
-<div class="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+<div class="min-h-screen bg-[#F3F4F6] flex items-center justify-center p-4 md:p-8 selection:bg-indigo-100">
   
-  <!-- Decorative background elements -->
-  <div class="absolute -top-24 -left-24 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-  <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+  <!-- Main Floating Card -->
+  <div class="w-full max-w-[900px] min-h-[500px] bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] flex overflow-hidden p-3 transition-all duration-500">
+    
+    <!-- Left Side: Visual Panel (Inset) -->
+    <div class="hidden lg:flex w-[40%] relative rounded-[2rem] overflow-hidden bg-[#0F172A] flex-col">
+      <!-- High-End Mesh Gradient & Grid -->
+      <div class="absolute inset-0 z-0">
+        <!-- Technical Grid -->
+        <div class="absolute inset-0 opacity-[0.1]" style="background-image: linear-gradient(#4f46e5 1px, transparent 1px), linear-gradient(90deg, #4f46e5 1px, transparent 1px); background-size: 30px 30px;"></div>
+        <!-- Mesh Glow -->
+        <div class="absolute -top-[10%] -left-[10%] w-[100%] h-[100%] bg-indigo-500/20 rounded-full blur-[100px]"></div>
+        <div class="absolute -bottom-[20%] -right-[10%] w-[80%] h-[80%] bg-blue-500/10 rounded-full blur-[80px]"></div>
+      </div>
 
-  <!-- Logo -->
-  <div class="mb-10 text-center z-10">
-    <div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[2rem] flex items-center justify-center text-white text-4xl font-black shadow-2xl shadow-blue-600/30 mx-auto mb-6 transform hover:rotate-6 transition-transform">
-      C
+      <!-- Branding (Top) -->
+      <div class="relative z-10 p-6 w-full">
+        <div class="logo-text !text-white !text-lg">
+          <span class="!text-indigo-400">Code</span><span>InterviewPro</span>
+        </div>
+      </div>
+
+      <!-- Marketing Text (Bottom) -->
+      <div class="relative z-10 mt-auto p-6 mb-2">
+        <h2 class="text-xl font-bold text-white leading-tight mb-2 animate-fade-in">Build something <br>amazing today.</h2>
+        <p class="text-slate-400 text-[10px] leading-relaxed max-w-[180px]">The world's most advanced technical assessment platform.</p>
+      </div>
     </div>
-    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Access Workspace</h1>
-    <p class="text-slate-500 mt-2">Log in to continue to your coding interview</p>
-  </div>
 
-  <!-- Login Card -->
-  <div class="saas-card w-full max-w-[480px] p-10 md:p-12 z-10">
-    <div class="space-y-8">
-      
-      <!-- Email Field -->
-      <div>
-        <label class="saas-label">Email Address</label>
-        <div class="relative group">
-          <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-blue-600 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
-          </span>
-          <input [(ngModel)]="email" type="email" placeholder="name@company.com" class="saas-input pl-12 h-14 text-base">
+    <!-- Right Side: Interaction Area -->
+    <div class="flex-1 flex flex-col justify-center items-center p-6 md:px-12 relative">
+      <div class="w-full max-w-[320px] animate-scale-in">
+        
+        <!-- Mobile Logo -->
+        <div class="lg:hidden flex justify-center mb-6">
+          <div class="logo-text">
+            <span>Code</span><span>InterviewPro</span>
+          </div>
         </div>
+
+        <!-- Mode Toggle Logic -->
+        <ng-container *ngIf="mode === 'login'">
+          <div class="mb-6">
+            <h1 class="text-xl font-black text-slate-900 tracking-tight">Sign in</h1>
+            <p class="text-slate-500 text-[12px] mt-1 font-medium">Please enter your details below.</p>
+          </div>
+
+          <form class="space-y-3.5" #loginForm="ngForm">
+            <div class="space-y-1">
+              <label class="saas-label !mb-1">Email address</label>
+              <input [(ngModel)]="email" name="email" type="email" placeholder="Your email address" required 
+                class="saas-input bg-slate-50 border-slate-200 hover:border-slate-300 focus:bg-white transition-all py-2.5 text-xs">
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex items-center justify-between px-1">
+                <label class="saas-label !mb-1">Password</label>
+                <button type="button" (click)="toggleMode('forgot')" class="text-[10px] font-bold text-slate-400 hover:text-indigo-600 transition-colors">Forgot?</button>
+              </div>
+              <input [(ngModel)]="password" name="password" type="password" placeholder="Password" required 
+                class="saas-input bg-slate-50 border-slate-200 hover:border-slate-300 focus:bg-white transition-all py-2.5 text-xs">
+            </div>
+
+            <button (click)="login()" [disabled]="loading || !loginForm.valid" 
+              class="w-full py-3 bg-[#0F172A] hover:bg-[#1e293b] text-white font-bold rounded-xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-70 mt-2">
+              <span *ngIf="!loading" class="text-sm">Sign in</span>
+              <div *ngIf="loading" class="flex items-center justify-center gap-2">
+                <div class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </div>
+            </button>
+
+            <div class="text-center pt-4">
+              <p class="text-[11px] text-slate-500 font-medium">
+                New here? <a routerLink="/auth/register" [queryParams]="{token: token}" class="text-indigo-600 font-bold hover:underline">Create account</a>
+              </p>
+            </div>
+          </form>
+        </ng-container>
+
+        <!-- Recovery Mode Integrated -->
+        <ng-container *ngIf="mode === 'forgot'">
+          <div class="mb-6">
+            <h1 class="text-xl font-black text-slate-900 tracking-tight">Recovery</h1>
+            <p class="text-slate-500 text-[12px] mt-1 font-medium">Enter your email to reset password.</p>
+          </div>
+
+          <div *ngIf="!emailSent" class="space-y-5">
+            <div class="space-y-1">
+              <label class="saas-label !mb-1">Email address</label>
+              <input [(ngModel)]="email" name="recoverEmail" type="email" placeholder="Your email address" required 
+                class="saas-input bg-slate-50 border-slate-200 hover:border-slate-300 focus:bg-white transition-all py-2.5 text-xs">
+            </div>
+
+            <button (click)="sendResetLink()" [disabled]="loading || !email" 
+              class="w-full py-3 bg-[#0F172A] hover:bg-[#1e293b] text-white font-bold rounded-xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-70">
+              <span *ngIf="!loading" class="text-sm">Send Reset Link</span>
+              <div *ngIf="loading" class="flex items-center justify-center gap-2">
+                <div class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </div>
+            </button>
+
+            <div class="text-center">
+              <button type="button" (click)="toggleMode('login')" class="text-[10px] font-bold text-slate-500 hover:text-indigo-600 transition-colors">Back to sign in</button>
+            </div>
+          </div>
+
+          <div *ngIf="emailSent" class="text-center space-y-4 py-2 animate-fade-in">
+            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 mx-auto">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div class="space-y-1">
+              <h2 class="text-md font-bold text-slate-900">Check your email</h2>
+              <p class="text-slate-500 text-[11px]">We've sent a recovery link.</p>
+            </div>
+            <button (click)="toggleMode('login')" class="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition-all border border-slate-100">Back to sign in</button>
+          </div>
+        </ng-container>
+
       </div>
-
-      <!-- Password Field -->
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <label class="saas-label mb-0">Security Password</label>
-          <a href="#" class="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider">Forgot?</a>
-        </div>
-        <div class="relative group">
-          <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-blue-600 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-          </span>
-          <input [(ngModel)]="password" type="password" placeholder="••••••••" class="saas-input pl-12 h-14 text-base">
-        </div>
-      </div>
-
-      <button (click)="login()" [disabled]="loading" class="saas-btn-primary w-full py-4 text-lg flex items-center justify-center gap-3">
-        <span *ngIf="!loading">Unlock Workspace</span>
-        <div *ngIf="loading" class="flex items-center gap-2">
-          <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-          <span>Signing In...</span>
-        </div>
-      </button>
-
-      <div class="text-center pt-2">
-        <p class="text-sm text-slate-500 font-medium">
-          Need an account? <span routerLink="/auth/register" [queryParams]="{token: token}" class="text-blue-600 font-bold cursor-pointer hover:underline">Sign Up</span>
-        </p>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Trust Badges -->
-  <div class="mt-12 flex flex-col items-center gap-4 text-slate-400">
-    <p class="text-[10px] font-bold uppercase tracking-[0.2em]">Secure Cloud Infrastructure</p>
-    <div class="flex gap-6 grayscale opacity-50">
-      <div class="w-8 h-8 rounded-lg bg-slate-200"></div>
-      <div class="w-8 h-8 rounded-lg bg-slate-200"></div>
-      <div class="w-8 h-8 rounded-lg bg-slate-200"></div>
     </div>
   </div>
 </div>

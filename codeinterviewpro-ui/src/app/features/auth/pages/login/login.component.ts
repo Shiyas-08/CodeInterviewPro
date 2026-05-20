@@ -13,6 +13,8 @@ export class LoginComponent implements OnInit {
   password = '';
   token: string | null = null;
   loading = false;
+  mode: 'login' | 'forgot' = 'login';
+  emailSent = false;
 
   constructor(
     private auth: AuthService,
@@ -22,6 +24,27 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     this.token = this.route.snapshot.queryParamMap.get('token');
+  }
+
+  toggleMode(newMode: 'login' | 'forgot') {
+    this.mode = newMode;
+    this.emailSent = false;
+  }
+
+  sendResetLink() {
+    if (this.loading) return;
+    this.loading = true;
+    this.auth.forgotPassword(this.email).subscribe({
+      next: () => {
+        this.loading = false;
+        this.emailSent = true;
+        toast.success('Reset link sent to your email.');
+      },
+      error: () => {
+        this.loading = false;
+        toast.error('Failed to send reset link.');
+      }
+    });
   }
 
   login() {

@@ -19,6 +19,7 @@ export class HrInterviewsComponent implements OnInit {
   loading = true;
   searchTerm = '';
 
+  activeTab = 'all';
   currentPage = 1;
   pageSize = 5;
   totalPages = 1;
@@ -48,15 +49,22 @@ export class HrInterviewsComponent implements OnInit {
   }
 
   filterInterviews() {
-    let result = [];
-    if (!this.searchTerm.trim()) {
-      result = [...this.interviews];
-    } else {
+    let result = [...this.interviews];
+
+    // 1. Filter by Search Term
+    if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
-      result = this.interviews.filter(i => 
+      result = result.filter(i => 
         i.title?.toLowerCase().includes(term) || 
         i.description?.toLowerCase().includes(term)
       );
+    }
+
+    // 2. Filter by Tab Status
+    if (this.activeTab === 'scheduled') {
+      result = result.filter(i => i.status === 2);
+    } else if (this.activeTab === 'completed') {
+      result = result.filter(i => i.status === 4);
     }
     
     this.totalPages = Math.ceil(result.length / this.pageSize);

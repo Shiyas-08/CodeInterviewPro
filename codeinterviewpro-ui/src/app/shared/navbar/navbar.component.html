@@ -1,31 +1,30 @@
-<nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl animate-fade-in" *ngIf="showNavbar">
-  <div class="glass-panel px-6 py-3 rounded-[24px] flex items-center justify-between">
+<nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-6xl animate-fade-in" *ngIf="showNavbar">
+  <div class="glass-panel px-6 py-2 rounded-2xl flex items-center justify-between border border-white/20 shadow-[0_8px_30px_rgb(99,102,241,0.05)]">
     <!-- Logo -->
-    <div class="flex items-center gap-3 cursor-pointer group" routerLink="/">
-      <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+    <div class="flex items-center gap-2 cursor-pointer group scale-[0.92] origin-left transition-transform hover:scale-[0.94]" routerLink="/">
+      <div class="logo-text">
+        <span>Code</span><span>InterviewPro</span>
       </div>
-      <span class="font-bold text-xl tracking-tight text-slate-900">CodeInterviewPro</span>
     </div>
     
 
     <!-- Desktop Navigation -->
-    <div class="hidden md:flex items-center gap-8">
-      <a class="nav-link" routerLink="/">Home</a>
-      <a class="nav-link" href="#features">Features</a>
-      <div class="w-px h-4 bg-slate-200"></div>
+    <div class="hidden md:flex items-center gap-7">
+      <a class="nav-link text-[13px] font-semibold tracking-tight" routerLink="/">Home</a>
+      <a class="nav-link text-[13px] font-semibold tracking-tight" href="#features">Features</a>
+      <div class="w-px h-4 bg-slate-200 mx-1"></div>
       
       <ng-container *ngIf="!isLoggedIn">
-        <a class="nav-link" routerLink="/auth/login">Login</a>
-        <a class="saas-btn-primary px-6 py-2.5 text-sm" routerLink="/auth/register">Sign Up</a>
+        <a class="nav-link text-[13px] font-semibold tracking-tight" routerLink="/auth/login">Login</a>
+        <a class="saas-btn-primary px-5 py-2 text-[12px] font-bold rounded-xl" routerLink="/auth/register">Sign Up</a>
       </ng-container>
 
       <ng-container *ngIf="isLoggedIn">
-        <a class="nav-link font-semibold text-indigo-600" [routerLink]="role === 1 ? '/admin/dashboard' : '/dashboard'">
+        <a class="nav-link text-xs font-semibold text-indigo-600" [routerLink]="role === 1 ? '/admin/dashboard' : '/dashboard'">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
           Dashboard
         </a>
-        <button (click)="logout()" class="nav-link text-slate-400 hover:text-rose-500 transition-colors">
+        <button (click)="logout()" class="nav-link text-xs text-slate-400 hover:text-rose-500 transition-colors">
           Logout
         </button>
       </ng-container>
@@ -34,9 +33,8 @@
     <!-- Mobile Menu Button -->
     <div class="md:hidden">
        <button class="p-2 text-slate-600">
-         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
        </button>
     </div>
   </div>
 </nav>
-

@@ -32,6 +32,7 @@ export class SignalrService {
 
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, {
+        withCredentials: true,
         transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
       })
       .withAutomaticReconnect()
