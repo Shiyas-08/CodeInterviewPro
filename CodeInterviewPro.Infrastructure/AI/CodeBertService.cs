@@ -1,5 +1,6 @@
-﻿using CodeInterviewPro.Application.Interfaces.Services;
+using CodeInterviewPro.Application.Interfaces.Services;
 using CodeInterviewPro.Domain.Entities;
+using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
 
@@ -8,10 +9,12 @@ namespace CodeInterviewPro.Infrastructure.AI
     public class CodeBertService : ICodeBertService
     {
         private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public CodeBertService(HttpClient httpClient)
+        public CodeBertService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _configuration = configuration;
         }
 
         public async Task<CodeBertResult> AnalyzeAsync(string code, string language)
@@ -29,9 +32,8 @@ namespace CodeInterviewPro.Infrastructure.AI
                 Encoding.UTF8,
                 "application/json");
 
-            var response = await _httpClient.PostAsync(
-                "http://localhost:8001/analyze",
-                content);
+            var url = _configuration["CodeBert:Url"] ?? "http://localhost:8001/analyze";
+            var response = await _httpClient.PostAsync(url, content);
 
             response.EnsureSuccessStatusCode();
 

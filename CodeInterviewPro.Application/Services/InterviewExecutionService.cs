@@ -57,9 +57,6 @@ namespace CodeInterviewPro.Application.Services
             if (invitation.ExpiryTime < DateTime.UtcNow)
                 throw new Exception("Interview link expired");
 
-            if (invitation.IsUsed)
-                throw new Exception("Interview already started");
-
             var interview = await _interviewRepository.GetByIdAsync(
                 invitation.InterviewId,
                 invitation.TenantId);
@@ -77,7 +74,24 @@ namespace CodeInterviewPro.Application.Services
             if (DateTime.UtcNow > interview.EndTime)
                 throw new Exception("Interview expired");
 
-            // mark invitation used
+            var questions = await _questionRepository
+                .GetByInterviewIdAsync(invitation.InterviewId);
+
+            // RESUME LOGIC: If already started, just return the data to load the UI
+            if (invitation.IsUsed)
+            {
+                var existingSession = await _sessionRepository.GetByTokenAsync(token);
+                return new StartInterviewResponse
+                {
+                    SessionId = existingSession?.Id ?? Guid.Empty,
+                    InterviewId = interview.Id,
+                    StartTime = invitation.StartedAt ?? interview.StartTime ?? DateTime.UtcNow,
+                    DurationMinutes = interview.DurationMinutes,
+                    Questions = questions.ToList()
+                };
+            }
+
+            // FIRST TIME START LOGIC
             invitation.IsUsed = true;
             invitation.StartedAt = DateTime.UtcNow;
 
@@ -104,11 +118,9 @@ namespace CodeInterviewPro.Application.Services
 
             await _sessionRepository.CreateAsync(session);
 
-            var questions = await _questionRepository
-                .GetByInterviewIdAsync(invitation.InterviewId);
-
             return new StartInterviewResponse
             {
+                SessionId = session.Id,
                 InterviewId = interview.Id,
                 StartTime = DateTime.UtcNow,
                 DurationMinutes = interview.DurationMinutes,

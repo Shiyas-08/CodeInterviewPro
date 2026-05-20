@@ -1,4 +1,4 @@
-﻿using CodeInterviewPro.Domain.Entities;
+using CodeInterviewPro.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,7 @@ namespace CodeInterviewPro.Application.Interfaces.Repositories
         Task<User?> GetByEmail(string email);
 
         Task Create(User user);
+        Task Update(User user);
         Task<User?> GetById(Guid id);
     }
 }

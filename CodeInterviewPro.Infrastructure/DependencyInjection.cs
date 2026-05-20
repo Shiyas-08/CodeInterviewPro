@@ -8,6 +8,8 @@ using CodeInterviewPro.Infrastructure.AI;
 using CodeInterviewPro.Infrastructure.Cache;
 using CodeInterviewPro.Infrastructure.CodeExecution;
 using CodeInterviewPro.Infrastructure.CodeExecution.Executors;
+using CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis;
+using CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis.Roslyn;
 using CodeInterviewPro.Infrastructure.CodeExecution.Templates;
 using CodeInterviewPro.Infrastructure.Identity;
 using CodeInterviewPro.Infrastructure.Repositories;
@@ -59,9 +61,8 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<ILanguageExecutionFactory, LanguageExecutionFactory>();
             services.AddScoped<TestCaseExecutionService>(); 
             services.AddScoped<CodeAnalysisService>();
-
-
-            services.AddScoped<ExecutionPipelineService>();
+            services.AddScoped<IStaticAnalyzer, RoslynAnalyzer>();
+            services.AddTransient<IEmailService, EmailService>();
             services.AddScoped<IMetricsService, MetricsService>();
             services.AddScoped<IExecutionHistoryRepository, ExecutionHistoryRepository>();
             services.AddScoped<IExecutionCacheService, ExecutionCacheService>();
@@ -103,6 +104,8 @@ namespace CodeInterviewPro.Infrastructure
             services.AddScoped<ICacheService, RedisService>();
             services.AddScoped<IRunExecutionPipelineService, RunExecutionPipelineService>();
             services.AddScoped<IMethodNameDetectorService, MethodNameDetectorService>();
+            services.AddScoped<IStaticCodeAnalyzer, CSharpStaticAnalyzer>();
+
             return services;
 
 

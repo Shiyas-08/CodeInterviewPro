@@ -16,6 +16,7 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
 {
     public class ExecutionPipelineService: IExecutionPipelineService
     {
+        private readonly IEnumerable<IStaticAnalyzer> _analyzers;
         private readonly MultiLanguageExecutionService _executionService;
         private readonly TestCaseExecutionService _testCaseService;
         private readonly IMetricsService _metricsService;
@@ -36,6 +37,7 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
         private readonly IBackgroundTaskQueue _backgroundQueue;
 
         public ExecutionPipelineService(
+            IEnumerable<IStaticAnalyzer> analyzers,
             MultiLanguageExecutionService executionService,
             TestCaseExecutionService testCaseService,
             IMetricsService metricsService,
@@ -55,24 +57,25 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             ICodeRunnerTemplate template,
             IBackgroundTaskQueue backgroundQueue)
         {
-            _executionService = executionService;
-            _testCaseService = testCaseService;
-            _metricsService = metricsService;
-            _cache = cache;
-            _repository = repository;
-            _rateLimit = rateLimit;
-            _timeout = timeout;
-            _resource = resource;
-            _similarity = similarity;
-            _scoring = scoring;
-            _aiIntelligence = aiIntelligence;
-            _deepAnalysis = deepAnalysis;
-            _codeBert = codeBert;
-            _confidence = confidence;
-            _aiFeedback = aiFeedback;
-            _finalFeedback = finalFeedback;
-            _template = template;
-            _backgroundQueue = backgroundQueue;
+            _analyzers = analyzers ?? throw new ArgumentNullException(nameof(analyzers));
+            _executionService = executionService ?? throw new ArgumentNullException(nameof(executionService));
+            _testCaseService = testCaseService ?? throw new ArgumentNullException(nameof(testCaseService));
+            _metricsService = metricsService ?? throw new ArgumentNullException(nameof(metricsService));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _rateLimit = rateLimit ?? throw new ArgumentNullException(nameof(rateLimit));
+            _timeout = timeout ?? throw new ArgumentNullException(nameof(timeout));
+            _resource = resource ?? throw new ArgumentNullException(nameof(resource));
+            _similarity = similarity ?? throw new ArgumentNullException(nameof(similarity));
+            _scoring = scoring ?? throw new ArgumentNullException(nameof(scoring));
+            _aiIntelligence = aiIntelligence ?? throw new ArgumentNullException(nameof(aiIntelligence));
+            _deepAnalysis = deepAnalysis ?? throw new ArgumentNullException(nameof(deepAnalysis));
+            _codeBert = codeBert ?? throw new ArgumentNullException(nameof(codeBert));
+            _confidence = confidence ?? throw new ArgumentNullException(nameof(confidence));
+            _aiFeedback = aiFeedback ?? throw new ArgumentNullException(nameof(aiFeedback));
+            _finalFeedback = finalFeedback ?? throw new ArgumentNullException(nameof(finalFeedback));
+            _template = template ?? throw new ArgumentNullException(nameof(template));
+            _backgroundQueue = backgroundQueue ?? throw new ArgumentNullException(nameof(backgroundQueue));
         }
 
         public async Task<ExecutionResult> ExecuteAsync(
@@ -81,6 +84,8 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             List<TestCase> testCases,
             string methodName)
         {
+            if (code == null) throw new ArgumentNullException(nameof(code));
+
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             Console.WriteLine("========== PIPELINE START ==========");
@@ -117,15 +122,16 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
 
             Console.WriteLine("CACHE MISS");
 
-            var analyzer = StaticAnalyzerFactory.GetAnalyzer(language);
-            var compilerErrors = await analyzer.AnalyzeAsync(code);
-
-            if (!string.IsNullOrWhiteSpace(compilerErrors))
+            // Run all applicable analyzers
+            foreach (var analyzer in _analyzers)
             {
-                return new ExecutionResult
+                if (!analyzer.Supports(language)) continue;
+
+                var compilerErrors = await analyzer.AnalyzeAsync(code);
+                if (!string.IsNullOrWhiteSpace(compilerErrors))
                 {
-                    AIFeedback = compilerErrors
-                };
+                    return new ExecutionResult { AIFeedback = compilerErrors };
+                }
             }
           
             List<TestCaseResult> results;
@@ -156,7 +162,8 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                 };
             }
 
-            var metrics = _metricsService.Calculate(results);
+            var metrics = _metricsService.Calculate(results ?? new List<TestCaseResult>()) 
+                          ?? new ExecutionResult();
 
             // AI Cache
 
@@ -175,12 +182,12 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             {
                 Console.WriteLine("AI CACHE HIT");
 
-                var cachedAIResult =System.Text.Json.JsonSerializer.Deserialize<AICombinedCache>(cachedAI);
+                var cachedAIResult = System.Text.Json.JsonSerializer.Deserialize<AICombinedCache>(cachedAI);
 
-                aiResult = cachedAIResult.AI;
-                deepResult = cachedAIResult.Deep;
-                codeBertResult = cachedAIResult.CodeBert;
-                similarity = cachedAIResult.Similarity;
+                aiResult = cachedAIResult?.AI ?? new AIIntelligenceResult();
+                deepResult = cachedAIResult?.Deep ?? new CodeBertResult();
+                codeBertResult = cachedAIResult?.CodeBert ?? new CodeBertResult();
+                similarity = cachedAIResult?.Similarity ?? new CodeSimilarityResult();
             }
             else
             {
@@ -208,10 +215,10 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
                     codeBertTask,
                     similarityTask);
 
-                aiResult = await aiTask;
-                deepResult = await deepTask;
-                codeBertResult = await codeBertTask;
-                similarity = await similarityTask;
+                aiResult = await aiTask ?? new AIIntelligenceResult();
+                deepResult = await deepTask ?? new CodeBertResult();
+                codeBertResult = await codeBertTask ?? new CodeBertResult();
+                similarity = await similarityTask ?? new CodeSimilarityResult();
 
                 var combined =
                     new AICombinedCache
@@ -337,277 +344,4 @@ namespace CodeInterviewPro.Infrastructure.CodeExecution
             return metrics;
         }
     }
-}
-
-//using CodeInterviewPro.Application.AI;
-//using CodeInterviewPro.Application.Common.Execution;
-//using CodeInterviewPro.Application.Interfaces.Repositories;
-//using CodeInterviewPro.Application.Interfaces.Services;
-//using CodeInterviewPro.Domain.Entities;
-//using CodeInterviewPro.Domain.Enums;
-//using CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis;
-//using CodeInterviewPro.Infrastructure.CodeExecution.StaticAnalysis.Roslyn;
-//using CodeInterviewPro.Infrastructure.StaticAnalysis.ESLint;
-//using CodeInterviewPro.Infrastructure.StaticAnalysis.Go;
-//using CodeInterviewPro.Infrastructure.StaticAnalysis.Java;
-//using CodeInterviewPro.Infrastructure.StaticAnalysis.Python;
-
-//namespace CodeInterviewPro.Infrastructure.CodeExecution
-//{
-//    public class ExecutionPipelineService
-//    {
-//        private readonly MultiLanguageExecutionService _executionService;
-//        private readonly TestCaseExecutionService _testCaseService;
-//        private readonly IMetricsService _metricsService;
-//        private readonly IExecutionCacheService _cache;
-//        private readonly IExecutionHistoryRepository _repository;
-//        private readonly IRateLimitService _rateLimit;
-//        private readonly IExecutionTimeoutService _timeout;
-//        private readonly IExecutionResourceService _resource;
-//        private readonly ICodeSimilarityService _similarity;
-//        private readonly IScoringService _scoring;
-//        private readonly AIIntelligenceService _aiIntelligence;
-//        private readonly IDeepAnalysisService _deepAnalysis;
-//        private readonly ICodeBertService _codeBert;
-//        private readonly IConfidenceService _confidence;
-//        private readonly IAIFeedbackService _aiFeedback;
-//        private readonly IFinalFeedbackService _finalFeedback;
-//        private readonly ICodeRunnerTemplate _template;
-//        public ExecutionPipelineService(
-//            MultiLanguageExecutionService executionService,
-//            TestCaseExecutionService testCaseService,
-//            IMetricsService metricsService,
-//            IExecutionCacheService cache,
-//            IExecutionHistoryRepository repository,
-//            IRateLimitService rateLimit,
-//            IExecutionTimeoutService timeout,
-//            IExecutionResourceService resource,
-//            ICodeSimilarityService similarity,
-//            IScoringService scoring,
-//            AIIntelligenceService aiIntelligence,
-//            IDeepAnalysisService deepAnalysis,
-//            ICodeBertService codeBert,
-//            IConfidenceService confidence,
-//            IAIFeedbackService aiFeedback,
-//            IFinalFeedbackService finalFeedback,
-//            ICodeRunnerTemplate template)
-//        {
-//            _executionService = executionService;
-//            _testCaseService = testCaseService;
-//            _metricsService = metricsService;
-//            _cache = cache;
-//            _repository = repository;
-//            _rateLimit = rateLimit;
-//            _timeout = timeout;
-//            _resource = resource;
-//            _similarity = similarity;
-//            _scoring = scoring;
-//            _aiIntelligence = aiIntelligence;
-//            _deepAnalysis = deepAnalysis;
-//            _codeBert = codeBert;
-//            _confidence = confidence;
-//            _aiFeedback = aiFeedback;
-//            _finalFeedback = finalFeedback;
-//            _template = template;
-//        }
-
-//        public async Task<ExecutionResult> ExecuteAsync(
-//     string code,
-//     ProgrammingLanguage language,
-//     List<TestCase> testCases,
-//     string methodName)
-//        {
-//            Console.WriteLine("========== PIPELINE START ==========");
-
-//            // Step 1 - Rate Limit
-
-//            var rateKey = $"execution_rate:{methodName}";
-
-//            var allowed = await _rateLimit.IsAllowedAsync(
-//                rateKey,
-//                5,
-//                60);
-
-//            if (!allowed)
-//            {
-//                throw new Exception(
-//                    "Too many executions. Try again later.");
-//            }
-
-//            // Step 2 - Wrap Code FIRST (IMPORTANT FIX)
-
-//            if (language == ProgrammingLanguage.CSharp)
-//            {
-//                code = _template.WrapCode(
-//                    code,
-//                    testCases,
-//                    methodName);
-//            }
-
-//            // Step 3 - Cache
-
-//            var cacheKey =
-//                ExecutionCacheKeyGenerator.Generate(
-//                    code,
-//                    language.ToString(),
-//                    System.Text.Json.JsonSerializer.Serialize(testCases));
-
-//            var cached = await _cache.GetAsync(cacheKey);
-
-//            if (!string.IsNullOrEmpty(cached))
-//            {
-//                Console.WriteLine("CACHE HIT");
-
-//                return System.Text.Json.JsonSerializer
-//                    .Deserialize<ExecutionResult>(cached);
-//            }
-
-//            Console.WriteLine("CACHE MISS");
-
-//            // Step 4 - Static Analysis
-
-//            Console.WriteLine("STATIC ANALYSIS START");
-
-//            if (language == ProgrammingLanguage.CSharp)
-//            {
-//                var roslyn = new RoslynAnalyzer();
-//                var errors = roslyn.Analyze(code);
-
-//                if (errors.Any())
-//                {
-//                    return new ExecutionResult
-//                    {
-//                        AIFeedback = string.Join("\n", errors)
-//                    };
-//                }
-//            }
-
-//            Console.WriteLine("STATIC ANALYSIS PASSED");
-
-//            // Step 5 - Execution
-
-//            var results =
-//                await _resource.ExecuteWithLimits(
-//                    () => _timeout.ExecuteWithTimeout<List<TestCaseResult>>(
-//                        token => _testCaseService.ExecuteAsync(
-//                            code,
-//                            language,
-//                            testCases,
-//                            methodName,
-//                            token),
-//                        30),
-//                    256,
-//                    1);
-
-//            // Step 6 - Metrics
-
-//            var metrics = _metricsService.Calculate(results);
-
-//            // Step 7 - AI Intelligence
-
-//            var aiResult = _aiIntelligence.Analyze(code);
-
-//            // Step 8 - Deep Analysis
-
-//            var deepResult =
-//                await _deepAnalysis.AnalyzeAsync(
-//                    code,
-//                    language.ToString());
-
-//            // Step 9 - CodeBERT
-
-//            var codeBertResult =
-//                await _codeBert.AnalyzeAsync(
-//                    code,
-//                    language.ToString());
-
-//            // Step 10 - Confidence
-
-//            var confidenceScore =
-//                _confidence.CalculateConfidence(
-//                    aiResult.FinalScore,
-//                    deepResult.Score,
-//                    codeBertResult.Score);
-
-//            metrics.AIScore = confidenceScore;
-
-//            // Step 11 - ChatGPT
-
-//            var chatFeedback =
-//                await _aiFeedback.GenerateAsync(
-//                    "Coding Question",
-//                    "Candidate Solution",
-//                    code,
-//                    language.ToString(),
-//                    codeBertResult.Complexity,
-//                    confidenceScore);
-
-//            // Step 12 - Similarity
-
-//            var similarity =
-//                await _similarity.CheckSimilarityAsync(
-//                    code,
-//                    language.ToString());
-
-//            metrics.Similarity =
-//                similarity.SimilarityPercentage;
-
-//            metrics.SimilarityMessage =
-//                similarity.Message;
-
-//            // Step 13 - Final Score
-
-//            metrics.FinalScore =
-//                _scoring.Calculate(
-//                    metrics.Score,
-//                    metrics.AIScore,
-//                    metrics.Similarity);
-
-//            // Step 14 - Final Feedback
-
-//            metrics.AIFeedback =
-//                _finalFeedback.Generate(
-//                    aiResult.Feedback,
-//                    deepResult.Feedback,
-//                    codeBertResult.Feedback,
-//                    chatFeedback,
-//                    metrics.Similarity,
-//                    metrics.FinalScore,
-//                    codeBertResult.Complexity);
-
-//            metrics.AIComplexity =
-//                codeBertResult.Complexity;
-
-//            // Step 15 - Save History
-
-//            var history =
-//                new ExecutionHistory
-//                {
-//                    Id = Guid.NewGuid(),
-//                    Code = code,
-//                    Language = language.ToString(),
-//                    Total = metrics.Total,
-//                    Passed = metrics.Passed,
-//                    Failed = metrics.Failed,
-//                    Score = (int)metrics.Score,
-//                    AIScore = metrics.AIScore,
-//                    AIFeedback = metrics.AIFeedback,
-//                    AIComplexity = metrics.AIComplexity,
-//                    FinalScore = metrics.FinalScore,
-//                    CreatedAt = DateTime.UtcNow
-//                };
-
-//            await _repository.SaveAsync(history);
-
-//            // Step 16 - Cache
-
-//            await _cache.SetAsync(
-//                cacheKey,
-//                System.Text.Json.JsonSerializer.Serialize(metrics));
-
-//            Console.WriteLine("========== PIPELINE END ==========");
-
-//            return metrics;
-//        }
-//    }
-//}
+}

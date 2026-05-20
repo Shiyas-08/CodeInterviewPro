@@ -17,6 +17,7 @@ namespace CodeInterviewPro.Infrastructure.Services
         private readonly IUserRepository _userRepo;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IInterviewQuestionRepository _questionRepo;
+        private readonly IEmailService _emailService;
 
         public InterviewService(
             IInterviewRepository interviewRepo,
@@ -24,7 +25,8 @@ namespace CodeInterviewPro.Infrastructure.Services
             IInterviewInvitationRepository invitationRepo,
             IUserRepository userRepo,
             IHttpContextAccessor httpContextAccessor,
-            IInterviewQuestionRepository questionRepo)
+            IInterviewQuestionRepository questionRepo,
+            IEmailService emailService)
         {
             _interviewRepo = interviewRepo;
             _candidateRepo = candidateRepo;
@@ -32,6 +34,7 @@ namespace CodeInterviewPro.Infrastructure.Services
             _userRepo = userRepo;
             _httpContextAccessor = httpContextAccessor;
             _questionRepo = questionRepo;
+            _emailService = emailService;
         }
         private Guid GetTenantId()
         {
@@ -294,6 +297,26 @@ namespace CodeInterviewPro.Infrastructure.Services
             await _invitationRepo.CreateAsync(invitation);
 
             var link = $"http://localhost:4200/auth/register?token={token}";
+
+            // Convert UTC to Indian Standard Time (IST) for the email
+            var istZone = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+            var startTimeIst = TimeZoneInfo.ConvertTimeFromUtc(interview.StartTime ?? DateTime.UtcNow, istZone);
+            var expiryTimeIst = TimeZoneInfo.ConvertTimeFromUtc(dto.ExpiryTime, istZone);
+
+            // Send Email Invitation
+            var subject = $"Interview Invitation: {interview.Title}";
+            var body = $@"
+                <h2>You have been invited to a CodeInterviewPro interview!</h2>
+                <p><strong>Title:</strong> {interview.Title}</p>
+                <p><strong>Duration:</strong> {interview.DurationMinutes} minutes</p>
+                <p><strong>Scheduled:</strong> {startTimeIst:f} (IST)</p>
+                <br/>
+                <p>Please click the link below to access your interview. Note: The link will expire at {expiryTimeIst:f} (IST).</p>
+                <a href='{link}' style='padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;'>Join Interview</a>
+                <br/><br/>
+                <p>Best of luck!</p>";
+
+            await _emailService.SendEmailAsync(dto.Email, subject, body);
 
             return link;
         }

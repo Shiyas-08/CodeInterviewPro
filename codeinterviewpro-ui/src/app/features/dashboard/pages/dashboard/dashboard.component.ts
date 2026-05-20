@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { DashboardService } from 'src/app/core/services/dashboard.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SignalrService } from 'src/app/core/services/signalr.service';
+import { InterviewService } from 'src/app/core/services/interview.service';
 import { CandidateInterviewsComponent } from '../../components/candidate-interviews/candidate-interviews.component';
 import { TenantListComponent } from '../../components/tenant-list/tenant-list.component';
 
@@ -23,13 +24,16 @@ export class DashboardComponent implements OnInit {
   loading = true;
   insightsLoading = false;
   error = false;
+  recentInterviews: any[] = [];
 
   monitorToken = '';
 
   constructor(
     private dashboardService: DashboardService,
     private auth: AuthService,
-    private signalrService: SignalrService
+    private signalrService: SignalrService,
+    private interviewService: InterviewService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -39,14 +43,35 @@ export class DashboardComponent implements OnInit {
     this.signalrService.startConnection().then(() => {
       this.signalrService.interviewSubmitted$.subscribe(() => {
         this.loadSummary();
+        if (this.role === 2) this.loadRecentInterviews();
       });
     });
   }
 
   loadUser() {
-    this.auth.me().subscribe((res: any) => {
-      this.userProfile = res.data || res.Data || res;
-      this.role = Number(this.userProfile.role);
+    this.auth.currentUser$.subscribe(user => {
+      if (user) {
+        this.userProfile = user;
+        const rawRole = user.role ?? user.Role ?? user.userRole ?? user.UserRole;
+        this.role = Number(rawRole);
+        if (this.role === 2) {
+          this.loadRecentInterviews();
+        }
+      }
+    });
+  }
+
+  loadRecentInterviews() {
+    this.interviewService.getAllInterviews().subscribe({
+      next: (res: any) => {
+        const all = res.data || res;
+        // Sort: Live (3) first, then by date descending
+        this.recentInterviews = all.sort((a: any, b: any) => {
+          if (a.status === 3 && b.status !== 3) return -1;
+          if (a.status !== 3 && b.status === 3) return 1;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }).slice(0, 5);
+      }
     });
   }
 
@@ -57,10 +82,8 @@ export class DashboardComponent implements OnInit {
       next: (res: any) => {
         this.summary = res.data || res.Data || res;
         this.loading = false;
-        // Only load insights for Admin (1) and HR (2)
-        if (this.role !== 3) {
-          this.loadInsights();
-        }
+        // Load insights for everyone (Personal for Candidate, Aggregate for HR/Admin)
+        this.loadInsights();
       },
       error: (err) => {
         console.error('Dashboard Error:', err);
@@ -75,11 +98,21 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getInsights().subscribe({
       next: (res: any) => {
         this.insights = res.data || res.Data || res;
+        console.log('DEBUG DASHBOARD INSIGHTS:', this.insights);
         this.insightsLoading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Insights Load Error:', err);
         this.insightsLoading = false;
       }
+    });
+  }
+
+  refreshDashboard() {
+    this.router.navigate(['/dashboard']).then(() => {
+      this.loadSummary();
+      if (this.role === 2) this.loadRecentInterviews();
+      console.log('Dashboard Refreshed');
     });
   }
 
@@ -87,6 +120,13 @@ export class DashboardComponent implements OnInit {
     if (this.monitorToken.trim()) {
       window.location.href = '/admin/interview-monitor/' + this.monitorToken.trim();
     }
+  }
+
+  logout() {
+    this.auth.logout().subscribe(() => {
+      localStorage.clear();
+      window.location.href = '/auth/login';
+    });
   }
 
   get scorePercent(): number {
@@ -101,8 +141,12 @@ export class DashboardComponent implements OnInit {
     return '#f43f5e';              // rose
   }
 
+  get scoreDashArray(): number {
+    return 2 * Math.PI * 42;
+  }
+
   get scoreDashOffset(): number {
-    const circumference = 2 * Math.PI * 40;
+    const circumference = this.scoreDashArray;
     return circumference - (this.scorePercent / 100) * circumference;
   }
-}
+}

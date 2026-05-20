@@ -1,3 +1,70 @@
 <app-navbar *ngIf="showNavbar"></app-navbar>
-<router-outlet></router-outlet>
+
+<!-- Persistent Sidebar Layout -->
+<div class="min-h-screen bg-[#F8F9FD] flex selection:bg-indigo-100 selection:text-indigo-900 relative overflow-hidden" [class.flex-col]="!showSidebar">
+
+  <!-- Background Decorative Orbs (Persistent) -->
+  <ng-container *ngIf="showSidebar">
+    <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[10%] w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-purple-500/3 rounded-full blur-[120px] pointer-events-none"></div>
+    
+    <!-- Sidebar -->
+    <aside class="peer w-20 hover:w-64 bg-white border-r border-slate-100 flex flex-col py-10 fixed h-screen z-50 transition-all duration-300 group shadow-sm overflow-hidden selection:bg-none">
+
+      <div class="space-y-8 flex-1">
+        <div class="px-4">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-4 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Main Menu</p>
+          <nav class="space-y-2">
+            <a routerLink="/dashboard" routerLinkActive="bg-indigo-50 text-indigo-600" [routerLinkActiveOptions]="{exact: true}" class="flex items-center px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-indigo-600 font-bold transition-all w-full relative group/link">
+              <svg class="w-6 h-6 flex-shrink-0 group-hover/link:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+              <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap text-sm absolute left-14">Dashboard Overview</span>
+            </a>
+            
+            <!-- HR ONLY Links (Role 2) -->
+            <ng-container *ngIf="role === 2">
+              <a routerLink="/admin/hr-interviews" routerLinkActive="bg-indigo-50 text-indigo-600" class="flex items-center px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-indigo-600 transition-all w-full relative group/link">
+                <svg class="w-6 h-6 flex-shrink-0 group-hover/link:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap text-sm font-bold absolute left-14">Interviews</span>
+              </a>
+
+              <a routerLink="/admin/questions" routerLinkActive="bg-indigo-50 text-indigo-600" class="flex items-center px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-indigo-600 transition-all w-full relative group/link">
+                <svg class="w-6 h-6 flex-shrink-0 group-hover/link:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap text-sm font-bold absolute left-14">Question Bank</span>
+              </a>
+            </ng-container>
+
+            <!-- Admin ONLY Links (Role 1) -->
+            <ng-container *ngIf="role === 1">
+              <div class="h-px bg-slate-50 mx-3 my-4"></div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-4 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">System</p>
+              
+              <a routerLink="/admin/tenants" routerLinkActive="bg-indigo-50 text-indigo-600" class="flex items-center px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-indigo-600 transition-all w-full relative group/link">
+                <svg class="w-6 h-6 flex-shrink-0 group-hover/link:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap text-sm font-bold absolute left-14">Organizations</span>
+              </a>
+
+              <a routerLink="/admin/create-hr" routerLinkActive="bg-indigo-50 text-indigo-600" class="flex items-center px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-indigo-600 transition-all w-full relative group/link">
+                <svg class="w-6 h-6 flex-shrink-0 group-hover/link:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap text-sm font-bold absolute left-14">HR Management</span>
+              </a>
+            </ng-container>
+          </nav>
+        </div>
+      </div>
+
+      <div class="mt-auto border-t border-slate-50 pt-6 px-4">
+        <button (click)="logout()" class="flex items-center px-3 py-3 rounded-xl text-rose-500 hover:bg-rose-50 transition-all w-full text-left font-bold relative group/logout">
+          <svg class="w-6 h-6 flex-shrink-0 group-hover/logout:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          <span class="opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap text-sm absolute left-14">Sign Out</span>
+        </button>
+      </div>
+    </aside>
+  </ng-container>
+
+  <!-- Main Viewport -->
+  <div class="flex-1 transition-all duration-300" [class.ml-20]="showSidebar" [class.peer-hover:ml-64]="showSidebar">
+    <router-outlet></router-outlet>
+  </div>
+</div>
 <app-toaster></app-toaster>

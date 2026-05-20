@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7000:7000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__Redis=redis:6379,abortConnect=false
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=CodeInterviewProDb;User Id=sa;Password=CodeInterviewPro_P@ssword123!;TrustServerCertificate=True
+      - CodeBert__Url=http://codebert:8001/analyze
+      - JWT_SECRET_KEY=YOUR_SUPER_SECRET_KEY_REPLACE_ME_IN_PROD_12345
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    volumes:
+      # Mount the Docker socket so the API can launch the runner containers
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - redis
+      - sqlserver
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=CodeInterviewPro_P@ssword123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlvolume:/var/opt/mssql
+
+  # The runner image must be built for the API to use it when executing code
+  runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.runner
+    image: code-runner
+    # We just let it exit immediately, the image stays built on the host
+    command: ["echo", "Runner image built"]
+
+volumes:
+  sqlvolume:

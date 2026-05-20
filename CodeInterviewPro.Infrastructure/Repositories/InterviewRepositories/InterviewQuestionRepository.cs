@@ -28,6 +28,8 @@ using System.Threading.Tasks;
             iq.QuestionId,
             q.Title,
             q.Description,
+            q.StarterCode,
+            q.Language,
             iq.Marks
         FROM InterviewQuestions iq
         INNER JOIN Questions q 
